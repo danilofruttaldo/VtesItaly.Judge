@@ -5,6 +5,7 @@ import {
   SANCTION_ORDER,
   JUDGES_GUIDE_URL,
   JUDGES_GUIDE_RULES,
+  JUDGES_GUIDE_RULE_TEXTS,
   norm,
   escapeHtml,
   extractMentionedRules,
@@ -17,6 +18,7 @@ import {
   judgesGuideUrl,
   parseReference,
   parseSanction,
+  renderRuleHtml,
   validateEntry,
   validateData,
 } from "../assets/core.mjs";
@@ -311,7 +313,9 @@ test("extractMentionedRules handles null/missing fields without throwing", () =>
 
 test("highlightProse linkifies known rule numbers in prose", () => {
   const out = highlightProse("Vedi 163. Cheating per dettagli.", "");
-  assert.match(out, /<a class="rule-mention"[^>]*>163<\/a>/);
+  // Inline citations are <button data-rule="N"> so they trigger the
+  // local modal instead of attempting an external Text Fragment scroll.
+  assert.match(out, /<button[^>]*class="rule-mention"[^>]*data-rule="163"[^>]*>163<\/button>/);
   assert.ok(out.includes("Vedi "));
   assert.ok(out.includes(". Cheating per dettagli."));
 });
@@ -324,20 +328,62 @@ test("highlightProse leaves non-rule numbers as plain text", () => {
 test("highlightProse marks query AND linkifies rule on overlap", () => {
   // Query "163" overlaps the rule citation: both decorations apply.
   const out = highlightProse("Regola 163 nel testo.", "163");
-  assert.match(out, /<a class="rule-mention"[^>]*>(<mark>163<\/mark>|163)<\/a>/);
+  assert.match(out, /<button[^>]*class="rule-mention"[^>]*data-rule="163"[^>]*>(<mark>163<\/mark>|163)<\/button>/);
   assert.ok(out.includes("<mark>"), "mark should appear somewhere");
 });
 
 test("highlightProse escapes HTML and still linkifies", () => {
   const out = highlightProse("<script> 163 </script>", "");
   assert.ok(out.startsWith("&lt;script&gt;"));
-  assert.match(out, /<a class="rule-mention"[^>]*>163<\/a>/);
+  assert.match(out, /<button[^>]*class="rule-mention"[^>]*data-rule="163"[^>]*>163<\/button>/);
 });
 
 test("highlightProse handles empty / null inputs", () => {
   assert.equal(highlightProse("", "anything"), "");
   assert.equal(highlightProse(null, "x"), "");
   assert.equal(highlightProse(undefined, "x"), "");
+});
+
+test("JUDGES_GUIDE_RULE_TEXTS covers every rule in JUDGES_GUIDE_RULES", () => {
+  // The chip/inline UI relies on the local modal for every actionable
+  // rule; if a rule is in the index map but missing a verbatim text,
+  // the chip would render as a dead button. Catch that gap at CI time.
+  for (const k of Object.keys(JUDGES_GUIDE_RULES)) {
+    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k], `missing rule text for ${k}`);
+    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].heading.startsWith(`${k}.`), `heading for ${k} must start with "${k}."`);
+    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].intro, `rule ${k} must have an intro`);
+    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].penalty, `rule ${k} must have a penalty`);
+  }
+});
+
+test("renderRuleHtml emits structured sections for a known rule", () => {
+  const out = renderRuleHtml(131);
+  assert.ok(out, "should return non-null for a known rule");
+  assert.match(out, /<section class="rule-section rule-section-intro">/);
+  assert.match(out, /<section class="rule-section rule-section-penalty"><h3>Penalty<\/h3>/);
+  assert.match(out, /<strong>Caution<\/strong>/, "**Caution** must be promoted to <strong>");
+});
+
+test("renderRuleHtml emits an examples list when provided", () => {
+  const out = renderRuleHtml(131);
+  assert.match(out, /<section class="rule-section rule-section-examples"><h3>Examples<\/h3><ul><li>/);
+});
+
+test("renderRuleHtml renders bullet lines as <ul>", () => {
+  const out = renderRuleHtml(101);
+  assert.match(out, /<ul><li>The decklist contains an illegal number of cards\.<\/li>/);
+});
+
+test("renderRuleHtml escapes HTML in source text", () => {
+  // The rule data is plain text but we still defend against future edits
+  // that might accidentally include raw HTML (or malicious paste).
+  const out = renderRuleHtml(122);
+  assert.ok(!out.includes("<script>"), "must not pass through raw <script>");
+});
+
+test("renderRuleHtml returns null for an unknown rule number", () => {
+  assert.equal(renderRuleHtml(999), null);
+  assert.equal(renderRuleHtml(0), null);
 });
 
 test("validateEntry accepts a canonical entry", () => {

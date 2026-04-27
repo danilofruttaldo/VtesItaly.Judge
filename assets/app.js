@@ -4,6 +4,7 @@
  * search box, expandable cards via native <details>.
  */
 import {
+  JUDGES_GUIDE_RULE_TEXTS,
   SANCTION_LABELS,
   SANCTION_SLUGS,
   escapeHtml,
@@ -13,8 +14,10 @@ import {
   computeFiltered,
   extractMentionedRules,
   groupByCategory,
+  judgesGuideUrl,
   parseReference,
   parseSanction,
+  renderRuleHtml,
   validateData,
 } from "./core.mjs";
 
@@ -36,35 +39,45 @@ const el = {
   offline: /** @type {HTMLElement | null} */ (document.getElementById("offline")),
   swUpdate: /** @type {HTMLElement | null} */ (document.getElementById("sw-update")),
   swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
+  ruleDialog: /** @type {HTMLDialogElement | null} */ (document.getElementById("rule-dialog")),
+  ruleDialogTitle: /** @type {HTMLElement | null} */ (document.getElementById("rule-dialog-title")),
+  ruleDialogBody: /** @type {HTMLElement | null} */ (document.getElementById("rule-dialog-body")),
+  ruleDialogClose: /** @type {HTMLButtonElement | null} */ (document.getElementById("rule-dialog-close")),
+  ruleDialogSource: /** @type {HTMLAnchorElement | null} */ (document.getElementById("rule-dialog-source")),
 };
 
-function renderRefChip(p, mentioned) {
+function renderRefChip(p) {
   const label = `Rif. ${p.number}`;
-  // Unknown rule numbers (not in JUDGES_GUIDE_RULES) render as a non-clickable
-  // chip with an explanatory tooltip — without a hint, the judge can't tell
-  // whether the link is broken or the rule is intentionally outside the
-  // Judges' Guide map (e.g. local-only conventions).
-  if (!p.url) {
+  // Rules without a known canonical entry render as a non-interactive chip
+  // — a tooltip explains the absence so the judge doesn't read it as a
+  // broken link. Rules with text in JUDGES_GUIDE_RULE_TEXTS open the local
+  // modal (no flaky external Text Fragment, fully offline).
+  if (!Object.prototype.hasOwnProperty.call(JUDGES_GUIDE_RULE_TEXTS, p.number)) {
     const reason = "Regola non mappata nella VEKN Judges' Guide";
     return `<span class="item-ref item-ref-unknown" title="${escapeHtml(reason)}" aria-label="${escapeHtml(label)} — ${escapeHtml(reason)}">${escapeHtml(label)}</span>`;
   }
-  // "Mentioned" chips are rules cited inline in the prose but not the
-  // canonical reference for this card. Visually softer so the primary
-  // reference still leads — the title tooltip carries the disambiguation.
-  const cls = mentioned ? "item-ref item-ref-mentioned" : "item-ref";
-  const ariaSuffix = mentioned
-    ? "menzionato nel testo — apre la VEKN Judges' Guide in una nuova scheda"
-    : "apre la VEKN Judges' Guide in una nuova scheda";
-  return `<a class="${cls}" href="${escapeHtml(p.url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(p.title)}" aria-label="${escapeHtml(label)} — ${escapeHtml(ariaSuffix)}">${escapeHtml(label)}</a>`;
+  // Single, uniform chip style for every actionable reference — both the
+  // canonical RIFERIMENTI cell and the in-prose mentions land on the same
+  // modal, so the previous primary/mentioned split lost meaning.
+  const titleAttr = p.title ? p.title : `Articolo ${p.number} della VEKN Judges' Guide`;
+  return `<button type="button" class="item-ref" data-rule="${p.number}" title="${escapeHtml(titleAttr)}" aria-label="${escapeHtml(label)} — apre l'articolo della VEKN Judges' Guide">${escapeHtml(label)}</button>`;
 }
 
 function renderReference(item) {
   const primary = parseReference(item.reference);
   const mentioned = extractMentionedRules(item);
   if (primary.length === 0 && mentioned.length === 0) return "";
+  // Dedupe in case the same number appears both in the canonical reference
+  // cell and as an in-prose mention (the split between primary/mentioned
+  // no longer drives styling, so a duplicate chip would just be noise).
+  const seen = new Set();
+  const all = [...primary, ...mentioned];
   const parts = [];
-  for (const p of primary) parts.push(renderRefChip(p, false));
-  for (const p of mentioned) parts.push(renderRefChip(p, true));
+  for (const p of all) {
+    if (seen.has(p.number)) continue;
+    seen.add(p.number);
+    parts.push(renderRefChip(p));
+  }
   return parts.join("");
 }
 
@@ -376,6 +389,35 @@ function bindEvents() {
   window.addEventListener("offline", updateOnlineState);
   updateOnlineState();
 
+  // Click on any [data-rule] (chip in the bottom row OR inline citation
+  // inside prose) opens the local rule modal. Event delegation lets the
+  // re-rendered list keep working without re-binding listeners on each
+  // render.
+  el.list.addEventListener("click", (e) => {
+    const t = /** @type {Element | null} */ (e.target);
+    if (!t) return;
+    const trigger = /** @type {HTMLElement | null} */ (t.closest("[data-rule]"));
+    if (!trigger) return;
+    e.preventDefault();
+    const n = parseInt(trigger.getAttribute("data-rule") || "", 10);
+    if (Number.isFinite(n)) openRuleDialog(n);
+  });
+
+  if (el.ruleDialog) {
+    if (el.ruleDialogClose) {
+      el.ruleDialogClose.addEventListener("click", () => closeRuleDialog());
+    }
+    // Click outside the inner frame (i.e. on the backdrop) closes the
+    // dialog — matches the affordance of most modals on mobile.
+    el.ruleDialog.addEventListener("click", (e) => {
+      if (e.target === el.ruleDialog) closeRuleDialog();
+    });
+    // Native <dialog> fires "close" on Esc; clean up our state then.
+    el.ruleDialog.addEventListener("close", () => {
+      if (el.ruleDialogBody) el.ruleDialogBody.innerHTML = "";
+    });
+  }
+
   // Sticky topbar condense on scroll. We toggle a class on <html> instead of
   // listening per-frame so CSS can decide what to hide/shrink.
   const onScroll = () => {
@@ -406,6 +448,44 @@ function bindEvents() {
     });
     printSnapshot = null;
   });
+}
+
+/* Local rule modal: pulls verbatim regulation text from the bundled
+ * JUDGES_GUIDE_RULE_TEXTS map and renders it inside a native <dialog>
+ * via showModal(). Replaces the old external Text Fragment links, which
+ * failed silently on Firefox and intermittently on Safari/Chrome. The
+ * "Apri su VEKN" footer link is preserved as an escape hatch to the live
+ * source. */
+function openRuleDialog(ruleNumber) {
+  if (!el.ruleDialog || !el.ruleDialogTitle || !el.ruleDialogBody) return;
+  const rule = JUDGES_GUIDE_RULE_TEXTS[ruleNumber];
+  const body = renderRuleHtml(ruleNumber);
+  if (!rule || !body) return;
+  el.ruleDialogTitle.textContent = rule.heading;
+  el.ruleDialogBody.innerHTML = body;
+  if (el.ruleDialogSource) {
+    const url = judgesGuideUrl(ruleNumber) || "https://www.vekn.net/judges-guide";
+    el.ruleDialogSource.href = url;
+  }
+  // Native showModal() handles focus trap, Esc-to-close, and inert
+  // background. Fall back to a plain show() if showModal isn't available
+  // (very old browsers); the polyfill-less fallback still renders.
+  if (typeof el.ruleDialog.showModal === "function") {
+    el.ruleDialog.showModal();
+  } else {
+    el.ruleDialog.setAttribute("open", "");
+  }
+  // Reset scroll so a deep rule body doesn't open mid-page.
+  if (el.ruleDialogBody) el.ruleDialogBody.scrollTop = 0;
+}
+
+function closeRuleDialog() {
+  if (!el.ruleDialog) return;
+  if (typeof el.ruleDialog.close === "function") {
+    el.ruleDialog.close();
+  } else {
+    el.ruleDialog.removeAttribute("open");
+  }
 }
 
 function setUpdated(headerValue) {

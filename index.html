@@ -98,6 +98,27 @@
       <div class="loading" id="loading">Caricamento...</div>
     </main>
 
+    <!-- Rule modal: populated and shown via dialog.showModal() when a judge
+         clicks any rule reference (chip or inline citation). The verbatim
+         VEKN text is bundled in assets/judges-guide-rules.mjs so the modal
+         opens instantly and works fully offline — no Text Fragment scroll
+         to a flaky external page. The "Apri su VEKN" footer link is the
+         escape hatch for those who want to verify against the live source. -->
+    <dialog id="rule-dialog" class="rule-dialog" aria-labelledby="rule-dialog-title">
+      <div class="rule-dialog-frame">
+        <header class="rule-dialog-header">
+          <h2 id="rule-dialog-title" class="rule-dialog-title"></h2>
+          <button class="rule-dialog-close" id="rule-dialog-close" type="button" aria-label="Chiudi">×</button>
+        </header>
+        <div class="rule-dialog-body" id="rule-dialog-body"></div>
+        <footer class="rule-dialog-footer">
+          <a class="rule-dialog-source" id="rule-dialog-source" href="#" rel="noopener noreferrer" target="_blank"
+            >Apri su VEKN ↗</a
+          >
+        </footer>
+      </div>
+    </dialog>
+
     <footer class="app-footer">
       <span class="updated" id="updated" hidden></span>
       <span class="offline" id="offline" role="status" aria-live="polite" hidden>

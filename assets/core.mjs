@@ -2,6 +2,10 @@
  * Mutation happens in app.js; everything here is a plain transformation.
  */
 
+import { JUDGES_GUIDE_RULE_TEXTS } from "./judges-guide-rules.mjs";
+
+export { JUDGES_GUIDE_RULE_TEXTS };
+
 export const SANCTION_ORDER = ["CAUTION", "WARNING", "GAME LOSS", "DISQUALIFICATION", "DISQUALIFICATION WITHOUT PRIZE"];
 
 const SANCTION_SET = new Set(SANCTION_ORDER);
@@ -136,7 +140,10 @@ export const JUDGES_GUIDE_RULES = {
 /**
  * Builds a deep-link to a specific rule on the Judges' Guide using the Text
  * Fragments URL extension. Returns null when the number isn't in the map so
- * callers can render plain text instead of a broken link.
+ * callers can render plain text instead of a broken link. Used as the
+ * "view source on VEKN" footer inside the rule modal — the modal itself
+ * uses the locally-stored verbatim text from JUDGES_GUIDE_RULE_TEXTS, so
+ * unreliable Text Fragment scrolling no longer affects the primary path.
  * @param {number} ruleNumber
  * @returns {string | null}
  */
@@ -144,6 +151,100 @@ export function judgesGuideUrl(ruleNumber) {
   const title = JUDGES_GUIDE_RULES[ruleNumber];
   if (!title) return null;
   return `${JUDGES_GUIDE_URL}#:~:text=${encodeURIComponent(title)}`;
+}
+
+/**
+ * Renders a single line of regulation prose: HTML-escapes everything,
+ * then promotes the verbatim **bold** markers from the source data to
+ * <strong>. No other markdown is supported — the source is plain text
+ * with explicit emphasis on penalty severity ("**Game loss**").
+ * @param {string} line
+ * @returns {string}
+ */
+function renderRuleLine(line) {
+  return escapeHtml(line).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+/**
+ * Renders a multi-paragraph block of regulation text. Bullet lines (lines
+ * starting with "- ") are grouped into <ul>; blank lines separate
+ * paragraphs. Output is HTML-safe (every line passes through escape +
+ * emphasis promotion). Used by the rule modal body.
+ * @param {string} text
+ * @returns {string}
+ */
+function renderRuleBlock(text) {
+  if (!text) return "";
+  const lines = String(text).split("\n");
+  let html = "";
+  /** @type {string[]} */
+  let paragraph = [];
+  /** @type {string[]} */
+  let bullets = [];
+
+  const flushParagraph = () => {
+    if (paragraph.length) {
+      html += `<p>${paragraph.map(renderRuleLine).join(" ")}</p>`;
+      paragraph = [];
+    }
+  };
+  const flushBullets = () => {
+    if (bullets.length) {
+      html += `<ul>${bullets.map((b) => `<li>${renderRuleLine(b)}</li>`).join("")}</ul>`;
+      bullets = [];
+    }
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line === "") {
+      flushParagraph();
+      flushBullets();
+      continue;
+    }
+    if (line.startsWith("- ")) {
+      flushParagraph();
+      bullets.push(line.slice(2));
+    } else {
+      flushBullets();
+      paragraph.push(line);
+    }
+  }
+  flushParagraph();
+  flushBullets();
+  return html;
+}
+
+/**
+ * Returns the modal body HTML for a single rule, or `null` if the number
+ * has no canonical text in JUDGES_GUIDE_RULE_TEXTS. The output renders
+ * Definition / Examples / Philosophy / Penalty as labelled sections so
+ * the structure mirrors the rest of the vademecum cards.
+ * @param {number} ruleNumber
+ * @returns {string | null}
+ */
+export function renderRuleHtml(ruleNumber) {
+  const rule = JUDGES_GUIDE_RULE_TEXTS[ruleNumber];
+  if (!rule) return null;
+  const sections = [];
+  if (rule.intro) {
+    sections.push(`<section class="rule-section rule-section-intro">${renderRuleBlock(rule.intro)}</section>`);
+  }
+  if (rule.examples && rule.examples.length > 0) {
+    const items = rule.examples.map((ex) => `<li>${renderRuleLine(ex)}</li>`).join("");
+    sections.push(`<section class="rule-section rule-section-examples"><h3>Examples</h3><ul>${items}</ul></section>`);
+  }
+  if (rule.philosophy) {
+    sections.push(
+      `<section class="rule-section rule-section-philosophy"><h3>Philosophy</h3>${renderRuleBlock(rule.philosophy)}</section>`,
+    );
+  }
+  if (rule.penalty) {
+    sections.push(
+      `<section class="rule-section rule-section-penalty"><h3>Penalty</h3>${renderRuleBlock(rule.penalty)}</section>`,
+    );
+  }
+  return sections.join("");
 }
 
 /**
@@ -379,9 +480,12 @@ export function highlightProse(text, query) {
     let chunk = escapeHtml(src.slice(segStart, segEnd));
     if (markHere) chunk = `<mark>${chunk}</mark>`;
     if (ruleHere) {
-      const url = judgesGuideUrl(ruleHere.number);
       const title = JUDGES_GUIDE_RULES[ruleHere.number];
-      chunk = `<a class="rule-mention" href="${escapeHtml(url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(title)}">${chunk}</a>`;
+      // Inline citations are <button> not <a>: the click opens the local
+      // rule modal (data-rule), it's not an external navigation. Keeping
+      // the button visually styled as a link preserves the link affordance
+      // for readers without sacrificing semantics.
+      chunk = `<button type="button" class="rule-mention" data-rule="${ruleHere.number}" title="${escapeHtml(title)}">${chunk}</button>`;
     }
     out += chunk;
   }

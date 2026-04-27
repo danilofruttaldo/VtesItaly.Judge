@@ -552,8 +552,14 @@ main {
   border-top: 1px dashed var(--border);
 }
 
+/* Uniform style for every actionable rule reference (canonical chip
+ * from the RIFERIMENTI cell or in-prose mention) — both open the same
+ * local rule modal, so a visual split between them would only be noise.
+ * `font: inherit` resets the user-agent <button> defaults so the chip
+ * matches the previous anchor look. */
 .item-ref {
   display: inline-block;
+  font: inherit;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -564,46 +570,22 @@ main {
   background: color-mix(in srgb, var(--s-caution) 8%, transparent);
   border-radius: 0.25rem;
   white-space: nowrap;
+  cursor: pointer;
 }
 
-a.item-ref::after {
-  content: " ↗";
-  opacity: 0.6;
-  font-size: 0.85em;
+button.item-ref:hover,
+button.item-ref:focus-visible {
+  background: color-mix(in srgb, var(--s-caution) 18%, transparent);
 }
 
 /* Unknown rule references render as a non-clickable chip in the muted
  * palette so judges can tell at a glance the link isn't broken — there's
- * just no canonical Judges' Guide entry for that number. The hover
- * tooltip carries the full explanation. */
-.item-ref-unknown {
+ * just no canonical Judges' Guide entry for that number. */
+span.item-ref.item-ref-unknown {
   color: var(--muted);
   border-color: var(--border);
   background: transparent;
   cursor: help;
-}
-
-/* "Mentioned" rules are those cited inline in the body text but NOT the
- * canonical reference for this card. They render with a softer outline
- * so the primary reference (filled chip) still leads the eye, while the
- * inline citations remain one tap away from the VEKN Judges' Guide. */
-a.item-ref-mentioned {
-  color: var(--muted);
-  border-color: var(--border);
-  background: transparent;
-  font-weight: 500;
-}
-
-a.item-ref-mentioned:hover,
-a.item-ref-mentioned:focus-visible {
-  color: var(--s-caution);
-  border-color: color-mix(in srgb, var(--s-caution) 40%, transparent);
-  background: color-mix(in srgb, var(--s-caution) 6%, transparent);
-}
-
-a.item-ref:hover,
-a.item-ref:focus-visible {
-  background: color-mix(in srgb, var(--s-caution) 18%, transparent);
 }
 
 .item-notes {
@@ -684,9 +666,16 @@ a.item-ref:focus-visible {
 
 /* Inline rule citations inside prose: subtle dotted underline + accent
  * color so the number is clearly clickable without breaking reading
- * rhythm. The bottom chip row remains the at-a-glance summary; this
- * provides a one-tap shortcut from the exact spot the rule is cited. */
+ * rhythm. Implemented as a <button> (opens the local rule modal, not an
+ * external link), with the user-agent button chrome reset so it visually
+ * matches a regular link. */
 .item-section-body .rule-mention {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
   color: var(--s-caution);
   text-decoration: underline;
   text-decoration-style: dotted;
@@ -701,7 +690,7 @@ a.item-ref:focus-visible {
 }
 
 /* When a search hit overlaps a rule citation, the <mark> sits inside the
- * <a>. Restore the link's underline on the marked text so it still reads
+ * <button>. Restore the underline on the marked text so it still reads
  * as clickable, and tighten the mark's padding so the underline doesn't
  * misalign across the boundary. */
 .item-section-body .rule-mention mark {
@@ -856,6 +845,147 @@ a.item-ref:focus-visible {
   }
 }
 
+/* ---------- Rule modal ---------- *
+ * Native <dialog> with showModal(): we get focus trap, Esc-to-close, and
+ * inert background for free. The frame caps width and scrolls vertically
+ * so a long rule (e.g. 121 with multi-paragraph philosophy) never spills
+ * past the viewport on a phone. */
+.rule-dialog {
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.65rem;
+  background: var(--bg-2);
+  color: var(--fg);
+  width: min(40rem, 92vw);
+  max-height: min(80vh, 40rem);
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.45);
+  /* Avoid a runaway content-driven width on browsers that ignore the
+   * width above when there's no content (initial paint). */
+  min-width: 18rem;
+}
+
+.rule-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.rule-dialog-frame {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+
+.rule-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-2);
+}
+
+.rule-dialog-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  flex: 1 1 auto;
+  line-height: 1.35;
+}
+
+.rule-dialog-close {
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.4rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rule-dialog-close:hover,
+.rule-dialog-close:focus-visible {
+  color: var(--fg);
+  background: var(--bg-3);
+  border-color: var(--border);
+}
+
+.rule-dialog-body {
+  padding: 0.75rem 1rem 1rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.rule-dialog-body .rule-section {
+  margin: 0 0 0.85rem;
+}
+
+.rule-dialog-body .rule-section:last-child {
+  margin-bottom: 0;
+}
+
+.rule-dialog-body .rule-section h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rule-dialog-body .rule-section p,
+.rule-dialog-body .rule-section ul {
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.rule-dialog-body .rule-section ul {
+  padding-left: 1.2rem;
+}
+
+.rule-dialog-body .rule-section p:last-child,
+.rule-dialog-body .rule-section ul:last-child {
+  margin-bottom: 0;
+}
+
+.rule-dialog-body .rule-section strong {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.rule-dialog-body .rule-section-penalty strong {
+  color: var(--s-caution);
+}
+
+.rule-dialog-footer {
+  padding: 0.6rem 1rem 0.85rem;
+  border-top: 1px solid var(--border);
+  text-align: right;
+  background: var(--bg-2);
+}
+
+.rule-dialog-source {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.rule-dialog-source:hover,
+.rule-dialog-source:focus-visible {
+  color: var(--s-caution);
+  text-decoration: underline;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
@@ -895,7 +1025,8 @@ a.item-ref:focus-visible {
   .controls,
   .reset,
   .offline,
-  .sw-update {
+  .sw-update,
+  .rule-dialog {
     display: none !important;
   }
   .topbar header {
