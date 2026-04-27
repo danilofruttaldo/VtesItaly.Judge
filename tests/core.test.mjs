@@ -3,15 +3,12 @@ import assert from "node:assert/strict";
 
 import {
   SANCTION_ORDER,
-  SANCTION_LABELS,
-  SANCTION_FILTER_LABELS,
   JUDGES_GUIDE_URL,
   norm,
   escapeHtml,
   highlightHtml,
   itemSlug,
   matchSearch,
-  matchSanction,
   computeFiltered,
   groupByCategory,
   judgesGuideUrl,
@@ -19,7 +16,6 @@ import {
   parseSanction,
   validateEntry,
   validateData,
-  expandSanctionRange,
 } from "../assets/core.mjs";
 
 test("norm lowercases and strips diacritics", () => {
@@ -102,74 +98,15 @@ test("matchSearch matches description, example and correzione fields", () => {
   assert.equal(matchSearch(sample[0], "sostituire"), true); // correzione
 });
 
-test("matchSanction with empty filter set matches everything", () => {
-  const enabled = new Set();
-  for (const it of sample) assert.equal(matchSanction(it, enabled), true);
-});
-
-test("matchSanction filters by enabled sanctions", () => {
-  const enabled = new Set(["CAUTION"]);
-  assert.equal(matchSanction(sample[0], enabled), true);
-  assert.equal(matchSanction(sample[1], enabled), false);
-});
-
-test("matchSanction excludes placeholder entries when any filter is active", () => {
-  // Placeholder entries (???/"//"/empty) have no chip and never match an
-  // active sanction filter — a judge filtering by CAUTION does not want
-  // unresolved TBD entries showing up in the result list.
-  const cautionOnly = new Set(["CAUTION"]);
-  assert.equal(matchSanction(sample[3], cautionOnly), false); // ??? entry
-  // With no filter active, placeholder entries ARE shown.
-  assert.equal(matchSanction(sample[3], new Set()), true);
-});
-
-test("matchSanction with multi-sanction items matches every level in the range", () => {
-  const slowPlay = {
-    category: "CONDOTTA IMPROPRIA",
-    infraction: "SLOW PLAY",
-    reference: "141 - 162",
-    sanction: "CAUTION - GAME LOSS",
-    description: "",
-    example: "",
-    philosophy: "",
-    correzione: "",
-  };
-  // Endpoints match.
-  assert.equal(matchSanction(slowPlay, new Set(["CAUTION"])), true);
-  assert.equal(matchSanction(slowPlay, new Set(["GAME LOSS"])), true);
-  // The in-between level (WARNING) is part of the range too — the data only
-  // lists the endpoints but the semantic intent is the full inclusive range.
-  assert.equal(matchSanction(slowPlay, new Set(["WARNING"])), true);
-  // Out-of-range levels do not match.
-  assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION"])), false);
-  assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION WITHOUT PRIZE"])), false);
-});
-
-test("expandSanctionRange returns inclusive range for multi, identity otherwise", () => {
-  // Multi: includes every level between the endpoints in canonical order.
-  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION - GAME LOSS")), ["CAUTION", "WARNING", "GAME LOSS"]);
-  assert.deepEqual(expandSanctionRange(parseSanction("WARNING - DISQUALIFICATION")), [
-    "WARNING",
-    "GAME LOSS",
-    "DISQUALIFICATION",
-  ]);
-  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION - DISQUALIFICATION WITHOUT PRIZE")), [
-    "CAUTION",
-    "WARNING",
-    "GAME LOSS",
-    "DISQUALIFICATION",
-    "DISQUALIFICATION WITHOUT PRIZE",
-  ]);
-  // Single sanction: returns the single-element list as-is.
-  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION")), ["CAUTION"]);
-  // Placeholder: empty list.
-  assert.deepEqual(expandSanctionRange(parseSanction("???")), []);
-});
-
-test("computeFiltered combines search + sanction filters", () => {
-  const out = computeFiltered(sample, "buste", new Set(["GAME LOSS"]));
-  assert.equal(out.length, 1);
-  assert.equal(out[0].infraction, "BUSTE SEGNATE CON SCHEMA");
+test("computeFiltered narrows by search query, full set when query empty", () => {
+  // Empty query returns all items.
+  assert.equal(computeFiltered(sample, "").length, sample.length);
+  // Substring narrows the result.
+  const out = computeFiltered(sample, "buste");
+  assert.equal(out.length, 2);
+  assert.ok(out.every((e) => /buste/i.test(e.infraction)));
+  // No match returns empty.
+  assert.equal(computeFiltered(sample, "nonesistente").length, 0);
 });
 
 test("groupByCategory preserves insertion order and groups items", () => {
@@ -178,26 +115,6 @@ test("groupByCategory preserves insertion order and groups items", () => {
   assert.deepEqual(keys, ["DECK", "CONDOTTA IMPROPRIA"]);
   assert.equal(groups.get("DECK").length, 2);
   assert.equal(groups.get("CONDOTTA IMPROPRIA").length, 2);
-});
-
-test("SANCTION_FILTER_LABELS are short enough to fit one row of chips on a phone", () => {
-  // Every canonical sanction has both a badge label (verbose) and a chip
-  // label (compact). The compact label must be at most as long as the
-  // badge label, and every label must be non-empty.
-  for (const k of SANCTION_ORDER) {
-    assert.ok(SANCTION_LABELS[k], `missing badge label for ${k}`);
-    assert.ok(SANCTION_FILTER_LABELS[k], `missing filter label for ${k}`);
-    assert.ok(
-      SANCTION_FILTER_LABELS[k].length <= SANCTION_LABELS[k].length,
-      `filter label "${SANCTION_FILTER_LABELS[k]}" is longer than badge label "${SANCTION_LABELS[k]}" for ${k}`,
-    );
-    // Hard cap at 10 characters keeps the chip set on a single 360px row in
-    // the common case (5 sanctions + TBD ≈ 6 chips).
-    assert.ok(
-      SANCTION_FILTER_LABELS[k].length <= 10,
-      `filter label "${SANCTION_FILTER_LABELS[k]}" exceeds the 10-char chip budget`,
-    );
-  }
 });
 
 test("SANCTION_ORDER has the five canonical sanctions", () => {
@@ -270,7 +187,7 @@ test("parseSanction parses multi-sanction with ' - ' separator", () => {
 });
 
 test("parseSanction maps placeholders to localised descriptions", () => {
-  assert.equal(parseSanction("///").description, "Caso particolare — vedi descrizione");
+  assert.equal(parseSanction("///").description, "Nessuna");
   assert.equal(parseSanction("???").description, "Da definire");
   assert.equal(parseSanction("").description, "Da definire");
   for (const v of ["///", "???", ""]) {

@@ -15,18 +15,6 @@ export const SANCTION_LABELS = {
   "DISQUALIFICATION WITHOUT PRIZE": "DQ senza premio",
 };
 
-/* Filter-chip labels: more compact than the badge labels because they all
- * share a single horizontal row and the user must be able to see the whole
- * filter set on a 360px-wide phone without horizontal scrolling. "DQ" is
- * the standard judge shorthand for Disqualification. */
-export const SANCTION_FILTER_LABELS = {
-  CAUTION: "Caution",
-  WARNING: "Warning",
-  "GAME LOSS": "Game loss",
-  DISQUALIFICATION: "DQ",
-  "DISQUALIFICATION WITHOUT PRIZE": "DQnoP",
-};
-
 /* CSS custom-property names for each canonical sanction. Used to drive the
  * left-edge color (and the gradient when multi). Kept here so the data layer
  * decides which color goes where, not the markup. */
@@ -51,11 +39,13 @@ export const SANCTION_SLUGS = {
 };
 
 /* Italian descriptions for entries where the sanction field is empty or
- * a placeholder. The data uses "///" for situational/no-formal-sanction
- * cases and "???" for entries the editorial board hasn't decided yet. */
+ * a placeholder. The data uses "///" for cases that have no formal VEKN
+ * sanction (legitimate deals, missed optional actions) — those render as
+ * a muted "Nessuna" badge. "???" is reserved for entries the editorial
+ * board hasn't decided yet. */
 export const SANCTION_FALLBACKS = {
   "": "Da definire",
-  "///": "Caso particolare — vedi descrizione",
+  "///": "Nessuna",
   "???": "Da definire",
 };
 
@@ -307,52 +297,12 @@ export function matchSearch(item, query) {
 }
 
 /**
- * Expands a multi-sanction range to every severity level between the
- * endpoints (inclusive), in canonical SANCTION_ORDER. So "CAUTION - GAME
- * LOSS" expands to [CAUTION, WARNING, GAME LOSS] — the in-between WARNING
- * is part of the range by semantic intent, even though the data only lists
- * the endpoints. Single-sanction and placeholder inputs return as-is.
- * @param {ParsedSanction} parsed
- * @returns {string[]}
- */
-export function expandSanctionRange(parsed) {
-  if (parsed.kind !== "multi") return parsed.sanctions;
-  const start = SANCTION_ORDER.indexOf(parsed.sanctions[0]);
-  const end = SANCTION_ORDER.indexOf(parsed.sanctions[parsed.sanctions.length - 1]);
-  // Defensive: if either endpoint isn't canonical, fall back to the literal
-  // list. parseSanction already gates against this, but a callsite that
-  // hand-builds a ParsedSanction shouldn't crash.
-  if (start === -1 || end === -1 || start > end) return parsed.sanctions;
-  return SANCTION_ORDER.slice(start, end + 1);
-}
-
-/**
- * Filters by enabled sanction set. An empty set means "no filter active"
- * (equivalent to all enabled). Multi-sanction items match if ANY level
- * within the range (endpoints AND in-between) is enabled — so filtering
- * by WARNING includes a "CAUTION - GAME LOSS" slow-play entry, because
- * the range covers it. Placeholder items ("???", "///", empty) never match
- * an active filter: a judge filtering by a specific sanction wants only
- * resolved entries, not TBD ones.
- * @param {VademecumEntry} item
- * @param {Set<string> | null | undefined} enabled
- * @returns {boolean}
- */
-export function matchSanction(item, enabled) {
-  if (!enabled || enabled.size === 0) return true;
-  const parsed = parseSanction(item.sanction);
-  if (parsed.kind === "placeholder") return false;
-  return expandSanctionRange(parsed).some((s) => enabled.has(s));
-}
-
-/**
  * @param {VademecumEntry[]} items
  * @param {string | null | undefined} query
- * @param {Set<string> | null | undefined} enabledSanctions
  * @returns {VademecumEntry[]}
  */
-export function computeFiltered(items, query, enabledSanctions) {
-  return items.filter((it) => matchSearch(it, query) && matchSanction(it, enabledSanctions));
+export function computeFiltered(items, query) {
+  return items.filter((it) => matchSearch(it, query));
 }
 
 /**

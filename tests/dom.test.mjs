@@ -124,7 +124,6 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const empty = document.getElementById("empty");
   const count = document.getElementById("count");
   const loading = document.getElementById("loading");
-  const filters = document.getElementById("sanction-filters");
   const q = document.getElementById("q");
   const reset = document.getElementById("reset");
 
@@ -135,11 +134,9 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const cards = list.querySelectorAll("details.item");
   assert.equal(cards.length, FIXTURE.length, "one card per fixture entry");
 
-  // Sanction chips render and are unpressed initially. There is no TBD chip:
-  // placeholder entries are filtered out when any sanction filter is active.
-  const chips = filters.querySelectorAll(".chip");
-  assert.equal(chips.length, 5, "five canonical sanctions, no TBD chip");
-  for (const c of chips) assert.equal(c.getAttribute("aria-pressed"), "false");
+  // Sanction filter chips were removed; there should be no chip-group element.
+  assert.equal(document.getElementById("sanction-filters"), null, "filter chip group is gone");
+  assert.equal(list.parentElement.querySelectorAll(".chip").length, 0, "no chip elements rendered");
 
   // Reference link is wired
   const refLinks = list.querySelectorAll(".item-ref");
@@ -190,33 +187,6 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   assert.equal(list.querySelectorAll("details.item").length, FIXTURE.length);
   assert.equal(reset.hidden, true);
 
-  // ---- Sanction chip filter ----
-  const cautionChip = [...chips].find((c) => c.dataset.sanction === "CAUTION");
-  cautionChip.click();
-  await tick(20);
-  assert.equal(cautionChip.getAttribute("aria-pressed"), "true");
-  // CAUTION matches the single-CAUTION row AND the CAUTION-GAME LOSS multi row.
-  const cautionFiltered = list.querySelectorAll("details.item");
-  assert.equal(cautionFiltered.length, 2);
-
-  // Toggle off CAUTION, enable WARNING — the multi range CAUTION-GAME LOSS
-  // covers the in-between WARNING level, so the slow-play card still matches
-  // even though "WARNING" is not literally in its sanction string.
-  cautionChip.click();
-  await tick(20);
-  const warningChip = [...chips].find((c) => c.dataset.sanction === "WARNING");
-  warningChip.click();
-  await tick(20);
-  const warningFiltered = list.querySelectorAll("details.item");
-  assert.equal(warningFiltered.length, 1, "WARNING filter catches the CAUTION-GAME LOSS range");
-  assert.match(warningFiltered[0].querySelector(".item-title").textContent || "", /Slow play/i);
-  warningChip.click();
-  await tick(20);
-  // After both chips are toggled off, no filter is active.
-  assert.equal(cautionChip.getAttribute("aria-pressed"), "false");
-  assert.equal(warningChip.getAttribute("aria-pressed"), "false");
-  assert.equal(list.querySelectorAll("details.item").length, FIXTURE.length);
-
   // ---- Hash deep-link to an item ----
   const targetSlug = "deck-buste-segnate-con-schema";
   window.location.hash = `#item=${targetSlug}`;
@@ -227,14 +197,12 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   assert.ok(target, "deep-linked item is rendered");
   assert.equal(target.open, true, "deep-linked item is auto-opened");
 
-  // ---- Hash filter encoding ----
-  window.location.hash = "#q=buste&s=GAME%20LOSS";
+  // ---- Hash query encoding ----
+  window.location.hash = "#q=con%20schema";
   window.dispatchEvent(new window.Event("hashchange"));
   await tick(40);
 
-  assert.equal(q.value, "buste");
-  const gameLossChip = [...filters.querySelectorAll(".chip")].find((c) => c.dataset.sanction === "GAME LOSS");
-  assert.equal(gameLossChip.getAttribute("aria-pressed"), "true");
+  assert.equal(q.value, "con schema");
   const hashFiltered = list.querySelectorAll("details.item");
   assert.equal(hashFiltered.length, 1);
   assert.match(hashFiltered[0].querySelector(".item-title").textContent || "", /Buste segnate \(con schema\)/i);

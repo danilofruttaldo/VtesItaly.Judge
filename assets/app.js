@@ -1,12 +1,10 @@
 /* VTES Italy Judge — Vademecum sanzioni.
- * Loads the prebuilt vademecum.json and renders a searchable, filterable list
- * grouped by category. Optimized for phone consultation: single column,
- * sticky search/filter chips, expandable cards via native <details>.
+ * Loads the prebuilt vademecum.json and renders a searchable list grouped
+ * by category. Optimized for phone consultation: single column, sticky
+ * search box, expandable cards via native <details>.
  */
 import {
-  SANCTION_ORDER,
   SANCTION_LABELS,
-  SANCTION_FILTER_LABELS,
   SANCTION_SLUGS,
   escapeHtml,
   highlightHtml,
@@ -18,18 +16,14 @@ import {
   validateData,
 } from "./core.mjs";
 
-const FILTER_LABELS = { ...SANCTION_FILTER_LABELS };
-
 const state = {
   items: [],
   query: "",
-  enabled: new Set(), // empty = no filter
   pendingItemAnchor: null, // slug of an item to scroll/open on next render
 };
 
 const el = {
   q: /** @type {HTMLInputElement} */ (document.getElementById("q")),
-  filters: /** @type {HTMLElement} */ (document.getElementById("sanction-filters")),
   list: /** @type {HTMLElement} */ (document.getElementById("list")),
   empty: /** @type {HTMLElement} */ (document.getElementById("empty")),
   emptyReset: /** @type {HTMLButtonElement | null} */ (document.getElementById("empty-reset")),
@@ -86,35 +80,11 @@ function itemEdgeAttrs(parsed) {
   return `data-s1="other"`;
 }
 
-function renderFilterChips() {
-  // Only canonical sanctions are filterable. Placeholder entries (???/"//"/
-  // empty) have no chip — they always appear when no filter is active and
-  // are filtered out when any sanction chip is on, which is the intent:
-  // a judge filtering by CAUTION does not want unresolved-TBD entries.
-  const order = SANCTION_ORDER;
-  // The chip color comes from a static CSS rule keyed on data-sanction —
-  // no inline style attribute, so the page works under a strict CSP.
-  el.filters.innerHTML = order
-    .map((s) => {
-      const label = FILTER_LABELS[s];
-      return `<button class="chip" type="button" data-sanction="${escapeHtml(s)}" aria-pressed="false"><span class="chip-dot" aria-hidden="true"></span>${escapeHtml(label)}</button>`;
-    })
-    .join("");
-}
-
-function syncFilterChips() {
-  el.filters.querySelectorAll(".chip").forEach((c) => {
-    const chip = /** @type {HTMLElement} */ (c);
-    const s = chip.dataset.sanction;
-    chip.setAttribute("aria-pressed", state.enabled.has(s) ? "true" : "false");
-  });
-}
-
 function render() {
-  const filtered = computeFiltered(state.items, state.query, state.enabled);
+  const filtered = computeFiltered(state.items, state.query);
   const total = state.items.length;
   el.count.textContent = filtered.length === total ? `${total} voci` : `${filtered.length} / ${total}`;
-  el.reset.hidden = state.query === "" && state.enabled.size === 0;
+  el.reset.hidden = state.query === "";
 
   if (filtered.length === 0) {
     el.list.innerHTML = "";
@@ -124,13 +94,13 @@ function render() {
   el.empty.hidden = true;
 
   const groups = groupByCategory(filtered);
-  // Any filter (query OR chip) auto-expands so the result is visible without
-  // an extra tap. Without this, filtering by chip would hide everything
-  // behind closed accordions on mobile.
-  const filtersActive = state.query !== "" || state.enabled.size > 0;
+  // An active query auto-expands all results so the matched terms are
+  // visible without an extra tap. Without this, a filtered list would
+  // hide everything behind closed accordions on mobile.
+  const queryActive = state.query !== "";
   const html = [];
   for (const [category, items] of groups) {
-    const open = filtersActive ? " open" : "";
+    const open = queryActive ? " open" : "";
     html.push(`<details class="category"${open}>`);
     html.push(
       `<summary class="category-summary"><span class="category-title">${escapeHtml(category)}</span><span class="category-count">${items.length}</span></summary>`,
@@ -140,7 +110,7 @@ function render() {
       const parsed = parseSanction(it.sanction);
       const ref = renderReference(it.reference);
       const slug = itemSlug(it);
-      const itemOpen = filtersActive ? " open" : "";
+      const itemOpen = queryActive ? " open" : "";
       const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
       const titleHtml = highlightHtml(it.infraction, state.query);
       // Card sections mirror the VEKN Judges' Guide subsections:
@@ -230,10 +200,11 @@ function revealItem(slug) {
 }
 
 /* ---------- URL hash state ---------- *
- * Encodes filters into location.hash so the user can bookmark/share a
- * filtered view. Format: #q=text&s=CAUTION,GAME%20LOSS&item=slug
- * Item anchor takes priority on initial load: we still apply filters but
- * also scroll/open the requested entry. We use replaceState to avoid
+ * Encodes the search query and a deep-link item slug into location.hash
+ * so the user can bookmark/share a query or a specific entry. Format:
+ *   #q=text&item=slug
+ * Item anchor takes priority on initial load: we still apply the query
+ * but also scroll/open the requested entry. We use replaceState to avoid
  * polluting the back button with every keystroke. */
 
 function readHashState() {
@@ -241,10 +212,6 @@ function readHashState() {
   const params = new URLSearchParams(h);
   return {
     q: params.get("q") || "",
-    s: (params.get("s") || "")
-      .split(",")
-      .map((x) => x.trim())
-      .filter(Boolean),
     item: params.get("item") || "",
   };
 }
@@ -253,7 +220,6 @@ let lastHashWritten = null; // null = no write yet, force the first one through
 function writeHashState() {
   const params = new URLSearchParams();
   if (state.query) params.set("q", state.query);
-  if (state.enabled.size > 0) params.set("s", [...state.enabled].join(","));
   const next = params.toString();
   if (next === lastHashWritten) return;
   lastHashWritten = next;
@@ -264,9 +230,7 @@ function writeHashState() {
 function applyHashState() {
   const h = readHashState();
   state.query = h.q;
-  state.enabled = new Set(h.s.filter((x) => SANCTION_ORDER.includes(x)));
   el.q.value = state.query;
-  syncFilterChips();
   state.pendingItemAnchor = h.item || null;
   // Reset the dedupe sentinel so the next user-driven mutation always
   // writes a normalised hash, even if the new value coincidentally
@@ -304,26 +268,9 @@ const onQueryInput = debounce((value) => {
 function bindEvents() {
   el.q.addEventListener("input", (e) => onQueryInput(/** @type {HTMLInputElement} */ (e.target).value));
 
-  el.filters.addEventListener("click", (e) => {
-    const chip = /** @type {HTMLElement | null} */ (/** @type {Element} */ (e.target).closest(".chip"));
-    if (!chip) return;
-    const s = chip.dataset.sanction;
-    if (state.enabled.has(s)) {
-      state.enabled.delete(s);
-      chip.setAttribute("aria-pressed", "false");
-    } else {
-      state.enabled.add(s);
-      chip.setAttribute("aria-pressed", "true");
-    }
-    writeHashState();
-    render();
-  });
-
   const doReset = () => {
     state.query = "";
-    state.enabled.clear();
     el.q.value = "";
-    syncFilterChips();
     writeHashState();
     render();
   };
@@ -429,7 +376,6 @@ function loadErrorMessage(err) {
 }
 
 async function init() {
-  renderFilterChips();
   bindEvents();
   try {
     const resp = await fetch("./data/vademecum.json", { cache: "no-cache" });
