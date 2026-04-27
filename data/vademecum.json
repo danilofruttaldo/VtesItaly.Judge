@@ -166,7 +166,7 @@
     "sanction": "CAUTION",
     "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta. Rientra in 114 come misapplicazione (non intenzionale) di una regola di gioco — VEKN 114 copre sia il giocare male una carta sia il non rispettare una regola.",
     "example": "Costo da pagare nella unlock phase; caccia obbligatoria a inizio turno; scarto forzato da effetto avversario; transfer obbligatorio in influence phase.",
-    "philosophy": "",
+    "philosophy": "VEKN 114 assume sempre la non intenzionalità: se il giudice ritiene l'omissione deliberata, l'infrazione si tratta come 163. Cheating - Fraud. L'omissione di un'azione obbligatoria rientra in 114 come misplay di una regola di gioco — il giocatore non viola il regolamento per ignoranza ma per disattenzione, da qui la sanzione minima di Caution.",
     "correzione": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback. Se però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
   },
   {
@@ -176,7 +176,7 @@
     "sanction": "CAUTION",
     "description": "Il giocatore mette in gioco una carta senza che il vampiro acting o le condizioni del tavolo soddisfino i requisiti della carta: clan, gruppo, disciplina, capacità minima, status particolare, sect.",
     "example": "Azione !potence giocata da un vampiro che non ha la disciplina; master con requisito di clan attivata da un vampiro di clan diverso; evento che richiede prince/justicar non presenti.",
-    "philosophy": "",
+    "philosophy": "VEKN 114 assume sempre la non intenzionalità: se il giudice ritiene l'errore deliberato, si applica 163. Cheating - Fraud. Giocare una carta senza i requisiti (clan, disciplina, capacità, sect) è il caso esemplare di 114 — gli esempi VEKN includono Dread Gaze sul proprio referendum o Art Museum senza Toreador in ready.",
     "correzione": "Se non si hanno i requisiti in assoluto (es. nessun vampiro è del clan richiesto o ha la disciplina richiesta), si riprende in mano la carta e si rimescola la carta pescata in più. Se un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo."
   },
   {
@@ -186,7 +186,7 @@
     "sanction": "CAUTION",
     "description": "Il giocatore applica in modo errato l'effetto di una propria carta, senza intenzione di trarne vantaggio: risolve un'opzione che la carta non concede, calcola male un costo o un valore, attiva un'abilità nella fase sbagliata, dimentica una condizione del testo.",
     "example": "Bleed con bonus che la carta non dà; costo pagato in pool invece che in blood; modifier giocato fuori sequenza.",
-    "philosophy": "",
+    "philosophy": "VEKN 114 assume sempre la non intenzionalità: se il giudice ritiene l'errore deliberato, si applica 163. Cheating - Fraud. Applicare male un effetto della propria carta — opzione non concessa, costo errato, fase sbagliata, condizione dimenticata — è un classico 'misplay' che rientra letteralmente in 114.",
     "correzione": "Se l'errore è ancora rimediabile si fa rollback o si applica l'effetto corretto; altrimenti si lascia lo stato e si annota la caution. Se l'errore si ripete, valutare warning."
   },
   {
