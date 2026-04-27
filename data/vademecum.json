@@ -106,7 +106,7 @@
     "sanction": "CAUTION",
     "description": "Il giocatore ha in mano meno carte di quante avrebbe dovuto pescare: dimentica di rimpiazzare una carta giocata, salta una pesca obbligatoria, o non ricostituisce la mano alla fine del turno. Generalmente è solo a svantaggio del giocatore. Se invece l'errore offre un vantaggio (es. dimenticarsi di rimpiazzare Magic of the Smith prima di cercare nel mazzo) la sanzione sale a warning.",
     "example": "Mano da 6 a fine turno invece che da 7; cripta lasciata a 3 dopo aver giocato un vampiro.",
-    "philosophy": "",
+    "philosophy": "Pescare meno carte del dovuto è generalmente a svantaggio del solo giocatore: VEKN 124 lo considera un'infrazione minore e applica solo Caution. Ricostituire la mano (o la cripta) è sufficiente, salvo i casi in cui l'errore offra un vantaggio (es. mancato rimpiazzo prima di una ricerca nel mazzo): in quei casi la sanzione sale a Warning.",
     "correzione": "Il giocatore pesca le carte mancanti per riportare la mano (o la cripta) alla dimensione corretta."
   },
   {
@@ -116,7 +116,7 @@
     "sanction": "CAUTION",
     "description": "Il giocatore ha pescato una o più carte in eccesso durante la mano iniziale (cripta da 4 invece di 3+1, libreria da 8 invece di 7) prima dell'inizio del primo turno.",
     "example": "Mescolato e pescato 8 carte di libreria; oppure 5 di cripta.",
-    "philosophy": "",
+    "philosophy": "Pescare carte in eccesso prima del primo turno è un'infrazione minore. La procedura VEKN — rimescolare e ripescare un numero ridotto di una carta, recuperando l'ultima a fine giro — risolve la situazione rapidamente e impedisce al giocatore di ricevere comunque la mano completa con un rimescolamento gratuito.",
     "correzione": "Il giocatore rimescola le carte nel mazzo, poi pesca il numero corretto meno 1. La carta mancante (cripta o libreria) viene pescata dopo che tutti i giocatori hanno completato il primo turno."
   },
   {
@@ -126,7 +126,7 @@
     "sanction": "WARNING",
     "description": "Durante un turno il giocatore pesca una carta in più rispetto a quanto dovuto, tipicamente per un'azione fraintesa o una pesca duplicata. Si considera pescata in più solo se vista: se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.",
     "example": "Pescata doppia dopo aver giocato una master; carta in più presa dopo aver risolto un effetto già completato.",
-    "philosophy": "",
+    "philosophy": "Pescare carte in eccesso durante la partita è la più severa delle infrazioni di Card Drawing perché può facilmente passare inosservata e dare un vantaggio significativo. VEKN 121 punisce con Warning per questa potenzialità di abuso e prevede Game Loss automatico se il giudice non riesce a ricomporre la situazione. La distinzione tra 'pescate' e 'viste' (122) è importante: vedere accidentalmente è molto più facile, quindi 122 è meno severa.",
     "correzione": "Se è chiaro quale sia la carta extra si rimescola quella nel mazzo; altrimenti si rimescola una carta a caso dalla mano del giocatore. Gli avversari hanno diritto di vedere ogni carta che il giocatore ha visto a causa dell'errore. Se un altro giocatore conosce già una porzione del mazzo (per effetti precedenti), la carta extra va riposta in cima al mazzo senza rimescolare, per preservare quella conoscenza. Se le carte pescate sono troppe perché il giudice possa correggere la situazione, escalation automatica a Game Loss. Salvaguardare comunque le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
   },
   {
@@ -136,7 +136,7 @@
     "sanction": "CAUTION",
     "description": "Mentre si pesca, si taglia o si rimescola il mazzo, una o più carte vengono rivelate involontariamente al giocatore stesso o agli altri giocatori. Si applica anche quando il giocatore vede involontariamente una carta dell'avversario, ad esempio girando una carta in più durante un effetto di scarto casuale. Se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
     "example": "Carta che scivola dalla mano durante la pesca; taglio in cui si vede l'ultima carta; mescolata in cui un'angolazione errata mostra la faccia.",
-    "philosophy": "",
+    "philosophy": "Vedere accidentalmente una carta è molto più facile che pescarla per davvero, quindi VEKN 122 applica una sanzione meno severa di 121: Caution invece di Warning. La regola si applica anche al vedere una carta dell'avversario per errore. Game Loss automatico se le carte viste sono troppe per essere ricomposte o se il vantaggio ottenuto è eccessivo.",
     "correzione": "Se la carta vista era la cima del mazzo, va riposta in cima senza rimescolare (per coerenza con 121); altrimenti va riposta nell'area di provenienza (mano del giocatore, scarto, mazzo a faccia in giù). Quando va rimescolata nel mazzo, salvaguardare le aree già ordinate. Escalation automatica a Game Loss se le carte viste sono troppe per essere ricomposte o se il vantaggio ottenuto è eccessivo (es. il giocatore ha visto una carta cruciale che cambia decisioni strategiche)."
   },
   {
