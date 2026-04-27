@@ -1,0 +1,110 @@
+name: CI
+
+# Single workflow per commit: ci → lighthouse → deploy.
+# Lighthouse and deploy reuse the _site/ artifact uploaded by `ci`, so the
+# whole build pipeline runs only once per push.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm audit --omit=dev
+
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run build:data
+      - run: npm test
+
+      - name: Bump sw.js VERSION to release timestamp
+        run: node scripts/stamp-sw.mjs
+
+      - name: Stage site
+        run: node scripts/stage-site.mjs
+
+      - name: Minify app.js / core.mjs / styles.css / sw.js in the staged copy
+        run: npm run minify
+
+      - name: Enforce artifact size budget
+        run: |
+          SIZE_MB=$(du -sm _site | cut -f1)
+          echo "_site artifact: ${SIZE_MB}MB"
+          if [ "$SIZE_MB" -gt 10 ]; then
+            echo "::error::_site is ${SIZE_MB}MB, above the 10MB budget."
+            exit 1
+          fi
+
+      - name: Upload _site artifact (shared with lighthouse + deploy)
+        uses: actions/upload-artifact@v7
+        with:
+          name: _site
+          path: _site
+          retention-days: 1
+
+  lighthouse:
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download _site artifact from ci
+        uses: actions/download-artifact@v8
+        with:
+          name: _site
+          path: _site
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: .lighthouserc.json
+          uploadArtifacts: true
+
+  deploy:
+    needs: [ci, lighthouse]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download _site artifact from ci
+        uses: actions/download-artifact@v8
+        with:
+          name: _site
+          path: _site
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

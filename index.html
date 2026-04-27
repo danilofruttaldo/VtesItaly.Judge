@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    />
+    <meta name="theme-color" content="#121214" />
+    <meta
+      name="description"
+      content="Vademecum sanzioni VTES Italia: infrazioni e penalità per arbitri di tornei, consultabili da telefono."
+    />
+    <link rel="canonical" href="https://judge.vtesitaly.com/" />
+    <link rel="icon" type="image/svg+xml" href="assets/vtes.svg" />
+    <link rel="icon" href="assets/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>VTES Italy Judge — Vademecum sanzioni</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script type="module" src="assets/app.js"></script>
+  </head>
+  <body>
+    <a href="#list" class="skip">Vai alle sanzioni</a>
+
+    <div class="topbar" id="topbar">
+      <header>
+        <h1>Vademecum sanzioni</h1>
+        <p class="sub">
+          Riferimento ufficiale:
+          <a href="https://www.vekn.net/tournament-rules" rel="noopener" target="_blank">VEKN Tournament Rules</a>
+        </p>
+      </header>
+
+      <div class="controls" role="search">
+        <input
+          type="search"
+          id="q"
+          placeholder="Cerca infrazione, nota, riferimento..."
+          autocomplete="off"
+          aria-label="Cerca nel vademecum"
+          enterkeyhint="search"
+        />
+        <div class="chip-group" id="sanction-filters" role="group" aria-label="Filtra per sanzione"></div>
+        <div class="meta-row">
+          <span class="count" id="count" aria-live="polite"></span>
+          <button class="reset" id="reset" type="button" hidden>Azzera</button>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <noscript>
+        <div class="empty">Questa pagina richiede JavaScript per filtrare le sanzioni.</div>
+      </noscript>
+      <div id="list" class="list"></div>
+      <div class="empty" id="empty" hidden>Nessuna sanzione corrisponde ai filtri.</div>
+      <div class="loading" id="loading">Caricamento...</div>
+    </main>
+  </body>
+</html>

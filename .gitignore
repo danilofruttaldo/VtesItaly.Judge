@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+
+# Local dev staging
+_site/
+
+# Build artifact (rebuilt from the CSV by scripts/build_data.mjs)
+data/vademecum.json
+
+# Node tooling (lint/format/test only — the site itself has no JS deps)
+node_modules/
+npm-debug.log*
+.eslintcache
