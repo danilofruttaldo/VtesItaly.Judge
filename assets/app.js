@@ -190,15 +190,9 @@ function renderUnsafe() {
       html.push(
         `<section class="item-section item-section-penalty${penModifier}"><h3 class="item-section-label">Penalty</h3><div class="item-section-body">${penHtml}</div></section>`,
       );
-      // Reference + share controls live at the bottom of the card so the
-      // judge reads description and correzione first, then jumps to the
-      // VEKN rule or copies a link. Refs are wrapped in their own row so
-      // they don't clash with the share button alignment.
+      // References live at the bottom of the card so the judge reads
+      // description and correzione first, then jumps to the VEKN rule.
       if (ref) html.push(`<div class="item-refs">${ref}</div>`);
-      const shareHref = `#item=${encodeURIComponent(slug)}`;
-      html.push(
-        `<div class="item-actions"><a class="item-share" href="${escapeHtml(shareHref)}" aria-label="Copia link a questa voce">Link a questa voce</a></div>`,
-      );
       html.push(`</div>`);
       html.push(`</details>`);
     }
@@ -364,24 +358,6 @@ function bindEvents() {
   window.addEventListener("offline", updateOnlineState);
   updateOnlineState();
 
-  // Click on per-item "Link a questa voce" copies the URL to clipboard.
-  el.list.addEventListener("click", (e) => {
-    const a = /** @type {HTMLAnchorElement | null} */ (/** @type {Element} */ (e.target).closest(".item-share"));
-    if (!a) return;
-    e.preventDefault();
-    const href = a.getAttribute("href") || "";
-    const url = new URL(href, location.href).href;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(
-        () => flashShare(a, "Link copiato"),
-        () => flashShare(a, "Copia non riuscita"),
-      );
-    } else {
-      // Fall back to navigation; user can copy from the address bar.
-      location.hash = href;
-    }
-  });
-
   // Sticky topbar condense on scroll. We toggle a class on <html> instead of
   // listening per-frame so CSS can decide what to hide/shrink.
   const onScroll = () => {
@@ -412,26 +388,6 @@ function bindEvents() {
     });
     printSnapshot = null;
   });
-}
-
-function flashShare(node, text) {
-  const original = node.textContent;
-  node.textContent = text;
-  node.classList.add("is-flashed");
-  // 2.2s gives slow readers on mobile time to register the confirmation
-  // before the text snaps back. A short haptic tap (when supported)
-  // confirms the copy without forcing the judge to look at the screen.
-  if (typeof navigator.vibrate === "function") {
-    try {
-      navigator.vibrate(15);
-    } catch {
-      /* noop — Safari iOS doesn't expose vibrate */
-    }
-  }
-  setTimeout(() => {
-    node.textContent = original;
-    node.classList.remove("is-flashed");
-  }, 2200);
 }
 
 function setUpdated(headerValue) {

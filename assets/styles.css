@@ -535,7 +535,12 @@ main {
 /* ---------- Item body (expanded) ---------- */
 
 .item-body {
-  padding: 0 0.875rem 0.875rem;
+  /* Top padding gives the first section ("Definition") breathing room
+   * from the summary row above; without it the section label sits
+   * flush against the title and the card looks cramped on expand. */
+  padding: 0.5rem 0.875rem 0.875rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.1rem;
 }
 
 .item-refs {
@@ -657,37 +662,6 @@ a.item-ref:focus-visible {
   color: var(--mark-fg);
   padding: 0.05em 0.15em;
   border-radius: 0.15em;
-}
-
-.item-actions {
-  margin-top: 0.6rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.item-share {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 0.4rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 0.25rem;
-  background: transparent;
-  min-height: 36px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.item-share:hover,
-.item-share:focus-visible {
-  color: var(--fg);
-  border-color: var(--border-strong);
-}
-
-.item-share.is-flashed {
-  color: var(--s-caution);
-  border-color: var(--s-caution);
 }
 
 /* ---------- Empty / loading / footer ---------- */
@@ -875,7 +849,6 @@ a.item-ref:focus-visible {
    * on paper. */
   .controls,
   .reset,
-  .item-actions,
   .offline,
   .sw-update {
     display: none !important;
