@@ -12,6 +12,7 @@ import {
   groupByCategory,
   judgesGuideUrl,
   parseReference,
+  parseSanction,
 } from "../assets/core.mjs";
 
 test("norm lowercases and strips diacritics", () => {
@@ -69,10 +70,24 @@ test("matchSanction filters by enabled sanctions", () => {
   assert.equal(matchSanction(sample[1], enabled), false);
 });
 
-test("matchSanction routes non-standard sanctions to OTHER bucket", () => {
-  const enabled = new Set(["OTHER"]);
+test("matchSanction routes placeholder sanctions to TBD bucket", () => {
+  const enabled = new Set(["TBD"]);
   assert.equal(matchSanction(sample[3], enabled), true); // ???
   assert.equal(matchSanction(sample[0], enabled), false); // CAUTION
+});
+
+test("matchSanction with multi-sanction items matches any enabled sanction", () => {
+  const slowPlay = {
+    category: "CONDOTTA IMPROPRIA",
+    infraction: "SLOW PLAY",
+    reference: "141 - 162",
+    sanction: "CAUTION - GAME LOSS",
+    notes: "",
+  };
+  assert.equal(matchSanction(slowPlay, new Set(["CAUTION"])), true);
+  assert.equal(matchSanction(slowPlay, new Set(["GAME LOSS"])), true);
+  assert.equal(matchSanction(slowPlay, new Set(["WARNING"])), false);
+  assert.equal(matchSanction(slowPlay, new Set(["TBD"])), false); // it IS canonical
 });
 
 test("computeFiltered combines search + sanction filters", () => {
@@ -143,4 +158,40 @@ test("parseReference returns null url for unknown numbers", () => {
   assert.equal(out[0].number, 999);
   assert.equal(out[0].url, null);
   assert.equal(out[0].title, null);
+});
+
+test("parseSanction recognises canonical single sanctions", () => {
+  const out = parseSanction("CAUTION");
+  assert.equal(out.kind, "single");
+  assert.deepEqual(out.sanctions, ["CAUTION"]);
+  assert.equal(out.description, "");
+});
+
+test("parseSanction parses multi-sanction with ' - ' separator", () => {
+  const out = parseSanction("CAUTION - GAME LOSS");
+  assert.equal(out.kind, "multi");
+  assert.deepEqual(out.sanctions, ["CAUTION", "GAME LOSS"]);
+});
+
+test("parseSanction maps placeholders to localised descriptions", () => {
+  assert.equal(parseSanction("///").description, "Caso particolare — vedi note");
+  assert.equal(parseSanction("???").description, "Da definire");
+  assert.equal(parseSanction("").description, "Da definire");
+  for (const v of ["///", "???", ""]) {
+    assert.equal(parseSanction(v).kind, "placeholder");
+    assert.deepEqual(parseSanction(v).sanctions, []);
+  }
+});
+
+test("parseSanction surfaces unknown values as placeholder description", () => {
+  const out = parseSanction("MAGIC");
+  assert.equal(out.kind, "placeholder");
+  assert.equal(out.description, "MAGIC");
+  assert.deepEqual(out.sanctions, []);
+});
+
+test("parseSanction tolerates whitespace around the separator", () => {
+  const out = parseSanction("CAUTION  -  GAME LOSS");
+  assert.equal(out.kind, "multi");
+  assert.deepEqual(out.sanctions, ["CAUTION", "GAME LOSS"]);
 });

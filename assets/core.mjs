@@ -4,6 +4,69 @@
 
 export const SANCTION_ORDER = ["CAUTION", "WARNING", "GAME LOSS", "DISQUALIFICATION", "DISQUALIFICATION WITHOUT PRIZE"];
 
+const SANCTION_SET = new Set(SANCTION_ORDER);
+
+/* Display labels: short, sentence-case, optimized for narrow phone badges. */
+export const SANCTION_LABELS = {
+  CAUTION: "Caution",
+  WARNING: "Warning",
+  "GAME LOSS": "Game loss",
+  DISQUALIFICATION: "Disqualification",
+  "DISQUALIFICATION WITHOUT PRIZE": "DQ senza premio",
+};
+
+/* CSS custom-property names for each canonical sanction. Used to drive the
+ * left-edge color (and the gradient when multi). Kept here so the data layer
+ * decides which color goes where, not the markup. */
+export const SANCTION_VARS = {
+  CAUTION: "--s-caution",
+  WARNING: "--s-warning",
+  "GAME LOSS": "--s-gameloss",
+  DISQUALIFICATION: "--s-dq",
+  "DISQUALIFICATION WITHOUT PRIZE": "--s-dqnp",
+};
+
+/* Italian descriptions for entries where the SANZIONE field is empty or a
+ * placeholder. The CSV uses "///" for situational/no-formal-sanction cases
+ * and "???" for entries the editorial board hasn't decided yet. */
+export const SANCTION_FALLBACKS = {
+  "": "Da definire",
+  "///": "Caso particolare — vedi note",
+  "???": "Da definire",
+};
+
+/* Parses the raw SANZIONE cell into a structured form so the rendering layer
+ * can decide colors, badges, and filter membership without re-parsing.
+ *
+ * Returns one of:
+ *   { kind: "single",      sanctions: ["CAUTION"],            description: "" }
+ *   { kind: "multi",       sanctions: ["CAUTION","GAME LOSS"], description: "" }
+ *   { kind: "placeholder", sanctions: [],                      description: "Da definire" }
+ *
+ * Multi-sanction cells use " - " as separator (e.g. "CAUTION - GAME LOSS"
+ * for slow play, where the severity depends on intent). Both endpoints must
+ * be canonical; otherwise the cell is treated as a placeholder.
+ */
+export function parseSanction(raw) {
+  const t = (raw || "").trim();
+  if (Object.prototype.hasOwnProperty.call(SANCTION_FALLBACKS, t)) {
+    return { kind: "placeholder", sanctions: [], description: SANCTION_FALLBACKS[t], raw: t };
+  }
+  if (SANCTION_SET.has(t)) {
+    return { kind: "single", sanctions: [t], description: "", raw: t };
+  }
+  const parts = t
+    .split(/\s*-\s*/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length >= 2 && parts.every((p) => SANCTION_SET.has(p))) {
+    return { kind: "multi", sanctions: parts, description: "", raw: t };
+  }
+  // Unknown / non-canonical: surface the raw value as the description so the
+  // user still sees what was authored, instead of silently hiding it.
+  return { kind: "placeholder", sanctions: [], description: t || "Da definire", raw: t };
+}
+
 export const JUDGES_GUIDE_URL = "https://www.vekn.net/judges-guide";
 
 /* Map of penalty rule numbers to the exact heading text on the Judges' Guide
@@ -101,13 +164,15 @@ export function matchSearch(item, query) {
 }
 
 /* Filters by enabled sanction set. An empty set means "no filter active"
- * (equivalent to all enabled). Items with non-standard sanction strings
- * (empty, "???", "///", "CAUTION - GAME LOSS") fall into the "OTHER" bucket. */
+ * (equivalent to all enabled). Multi-sanction items match if ANY of their
+ * sanctions is enabled (so filtering by CAUTION includes "CAUTION - GAME
+ * LOSS" slow-play entries). Placeholder items ("???", "///", empty) fall
+ * into the "TBD" bucket. */
 export function matchSanction(item, enabled) {
   if (!enabled || enabled.size === 0) return true;
-  const s = (item.sanction || "").trim();
-  if (SANCTION_ORDER.includes(s)) return enabled.has(s);
-  return enabled.has("OTHER");
+  const parsed = parseSanction(item.sanction);
+  if (parsed.kind === "placeholder") return enabled.has("TBD");
+  return parsed.sanctions.some((s) => enabled.has(s));
 }
 
 export function computeFiltered(items, query, enabledSanctions) {

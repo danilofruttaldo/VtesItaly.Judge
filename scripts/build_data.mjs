@@ -87,6 +87,20 @@ for (let i = 0; i < expected.length; i++) {
   }
 }
 
+/* Sentence-case transform for Italian prose. The CSV is authored ALL CAPS;
+ * we normalize to "first letter of each sentence uppercase, rest lowercase"
+ * for legibility. Apostrophes (E', PIU', PUO') don't trigger a new sentence
+ * because they aren't sentence-ending punctuation. Card names embedded in
+ * notes (MONTREAL, FAME, MAGIC OF THE SMITH) lose their capitalization —
+ * acceptable trade for uniform readability; the CSV can override individual
+ * entries with explicit mixed-case if a name looks wrong.
+ */
+function sentenceCase(s) {
+  if (!s) return s;
+  const lower = s.replace(/\r\n?/g, "\n").toLowerCase();
+  return lower.replace(/(^|[.!?…]\s+)(\p{L})/gu, (_, p, c) => p + c.toUpperCase());
+}
+
 const items = [];
 let lastCategory = "";
 for (let r = 1; r < rows.length; r++) {
@@ -95,11 +109,11 @@ for (let r = 1; r < rows.length; r++) {
   if (!infrazione) continue;
   if (infrazione.toUpperCase() === "ALTRE PROPOSTE") continue;
   items.push({
-    category: lastCategory,
-    infraction: infrazione,
+    category: sentenceCase(lastCategory),
+    infraction: sentenceCase(infrazione),
     reference: riferimenti,
-    sanction: sanzione,
-    notes: note,
+    sanction: sanzione, // sanction codes stay UPPERCASE; rendering layer prettifies
+    notes: sentenceCase(note),
   });
 }
 

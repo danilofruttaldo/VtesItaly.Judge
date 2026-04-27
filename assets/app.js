@@ -1,17 +1,27 @@
 /* VTES Italy Judge — Vademecum sanzioni.
  * Loads the prebuilt vademecum.json and renders a searchable, filterable list
- * grouped by TIPOLOGIA. Optimized for phone consultation: single column,
- * sticky search/filter, expandable cards.
+ * grouped by category. Optimized for phone consultation: single column,
+ * sticky search/filter chips, expandable cards via native <details>.
  */
-import { SANCTION_ORDER, escapeHtml, computeFiltered, groupByCategory, parseReference } from "./core.mjs";
+import {
+  SANCTION_ORDER,
+  SANCTION_LABELS,
+  SANCTION_VARS,
+  escapeHtml,
+  computeFiltered,
+  groupByCategory,
+  parseReference,
+  parseSanction,
+} from "./core.mjs";
 
 const FILTER_LABELS = {
-  CAUTION: "Caution",
-  WARNING: "Warning",
-  "GAME LOSS": "Game loss",
-  DISQUALIFICATION: "DQ",
-  "DISQUALIFICATION WITHOUT PRIZE": "DQ no prize",
-  OTHER: "Altro",
+  ...SANCTION_LABELS,
+  TBD: "TBD",
+};
+
+const FILTER_VARS = {
+  ...SANCTION_VARS,
+  TBD: "--s-other",
 };
 
 const state = {
@@ -30,9 +40,6 @@ const el = {
   reset: document.getElementById("reset"),
 };
 
-/* Renders the reference cell as one or more anchors to the Judges' Guide.
- * Falls back to plain text when the number isn't in our known-rules map, so
- * the user still sees the reference but doesn't click into a broken link. */
 function renderReference(ref) {
   const parsed = parseReference(ref);
   if (parsed.length === 0) return "";
@@ -41,23 +48,52 @@ function renderReference(ref) {
     if (!p.url) return `<span class="item-ref">${escapeHtml(label)}</span>`;
     return `<a class="item-ref" href="${escapeHtml(p.url)}" rel="noopener" target="_blank" title="${escapeHtml(p.title)}">${escapeHtml(label)}</a>`;
   });
-  return links.join(" · ");
+  return links.join("");
+}
+
+/* Renders the sanction badge(s) inside the item summary. Multi-sanction
+ * entries enumerate each sanction as a separate pill so the user sees the
+ * full range at a glance. Placeholders render as a neutral pill with the
+ * fallback description (e.g. "Da definire") so empty cells aren't blank. */
+function renderSanctionBadge(parsed) {
+  if (parsed.kind === "placeholder") {
+    return `<span class="badge badge-tbd">${escapeHtml(parsed.description)}</span>`;
+  }
+  return parsed.sanctions
+    .map((s) => `<span class="badge" data-sanction="${escapeHtml(s)}">${escapeHtml(SANCTION_LABELS[s] || s)}</span>`)
+    .join("");
+}
+
+/* Builds the inline style for an item's left-edge color strip. Multi-sanction
+ * items get a vertical gradient blending the two endpoint colors; single
+ * sanctions get a solid color; placeholders use the neutral "other" color. */
+function itemEdgeStyle(parsed) {
+  if (parsed.kind === "single") {
+    return `--edge: var(${SANCTION_VARS[parsed.sanctions[0]]})`;
+  }
+  if (parsed.kind === "multi") {
+    const first = SANCTION_VARS[parsed.sanctions[0]];
+    const last = SANCTION_VARS[parsed.sanctions[parsed.sanctions.length - 1]];
+    return `--edge: linear-gradient(to bottom, var(${first}), var(${last}))`;
+  }
+  return `--edge: var(--s-other)`;
 }
 
 function renderFilterChips() {
-  const order = [...SANCTION_ORDER, "OTHER"];
+  const order = [...SANCTION_ORDER, "TBD"];
   el.filters.innerHTML = order
-    .map(
-      (s) =>
-        `<button class="chip" type="button" data-sanction="${escapeHtml(s)}" aria-pressed="false">${escapeHtml(FILTER_LABELS[s])}</button>`,
-    )
+    .map((s) => {
+      const label = FILTER_LABELS[s];
+      const cssVar = FILTER_VARS[s];
+      return `<button class="chip" type="button" data-sanction="${escapeHtml(s)}" aria-pressed="false" style="--chip-color: var(${cssVar})"><span class="chip-dot" aria-hidden="true"></span>${escapeHtml(label)}</button>`;
+    })
     .join("");
 }
 
 function render() {
   const filtered = computeFiltered(state.items, state.query, state.enabled);
   const total = state.items.length;
-  el.count.textContent = filtered.length === total ? `${total} sanzioni` : `${filtered.length} / ${total}`;
+  el.count.textContent = filtered.length === total ? `${total} voci` : `${filtered.length} / ${total}`;
   el.reset.hidden = state.query === "" && state.enabled.size === 0;
 
   if (filtered.length === 0) {
@@ -71,9 +107,6 @@ function render() {
   const filtersActive = state.query !== "" || state.enabled.size > 0;
   const html = [];
   for (const [category, items] of groups) {
-    // Auto-open categories when a filter is active so users see results
-    // without an extra tap. Closed by default in the unfiltered view to keep
-    // the phone screen short.
     const open = filtersActive ? " open" : "";
     html.push(`<details class="category"${open}>`);
     html.push(
@@ -81,18 +114,19 @@ function render() {
     );
     html.push(`<div class="category-body">`);
     for (const it of items) {
-      const sanction = it.sanction || "";
+      const parsed = parseSanction(it.sanction);
       const ref = renderReference(it.reference);
       const itemOpen = filtersActive && state.query !== "" ? " open" : "";
-      html.push(`<details class="item" data-sanction="${escapeHtml(sanction)}"${itemOpen}>`);
+      const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
+      html.push(`<details class="${klass}" style="${itemEdgeStyle(parsed)}"${itemOpen}>`);
       html.push(`<summary class="item-summary">`);
       html.push(`<span class="item-title">${escapeHtml(it.infraction)}</span>`);
-      html.push(`<span class="badge" data-sanction="${escapeHtml(sanction)}">${escapeHtml(sanction || "—")}</span>`);
+      html.push(`<span class="item-badges">${renderSanctionBadge(parsed)}</span>`);
       html.push(`</summary>`);
       html.push(`<div class="item-body">`);
-      if (ref) html.push(`<div class="item-meta">${ref}</div>`);
+      if (ref) html.push(`<div class="item-refs">${ref}</div>`);
       if (it.notes) html.push(`<div class="item-notes">${escapeHtml(it.notes)}</div>`);
-      if (!ref && !it.notes) html.push(`<div class="item-meta">Nessun dettaglio.</div>`);
+      if (!ref && !it.notes) html.push(`<div class="item-notes muted">Nessun dettaglio aggiuntivo.</div>`);
       html.push(`</div>`);
       html.push(`</details>`);
     }
@@ -129,8 +163,6 @@ function bindEvents() {
     el.filters.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
     render();
   });
-
-  // <details>/<summary> handle expand/collapse natively — no JS toggling.
 }
 
 async function init() {
