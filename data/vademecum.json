@@ -134,10 +134,10 @@
     "infraction": "Carta vista/rivelata per errore mentre si pesca/taglia",
     "reference": "122",
     "sanction": "CAUTION",
-    "description": "Mentre si pesca, si taglia o si rimescola il mazzo, una o più carte vengono rivelate involontariamente al giocatore stesso o agli altri giocatori. Se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
+    "description": "Mentre si pesca, si taglia o si rimescola il mazzo, una o più carte vengono rivelate involontariamente al giocatore stesso o agli altri giocatori. Si applica anche quando il giocatore vede involontariamente una carta dell'avversario, ad esempio girando una carta in più durante un effetto di scarto casuale. Se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
     "example": "Carta che scivola dalla mano durante la pesca; taglio in cui si vede l'ultima carta; mescolata in cui un'angolazione errata mostra la faccia.",
     "philosophy": "",
-    "correzione": "Le carte viste/rivelate per errore si rimescolano nel mazzo, salvaguardando le aree già ordinate."
+    "correzione": "Se la carta vista era la cima del mazzo, va riposta in cima senza rimescolare (per coerenza con 121); altrimenti va riposta nell'area di provenienza (mano del giocatore, scarto, mazzo a faccia in giù). Quando va rimescolata nel mazzo, salvaguardare le aree già ordinate. Escalation automatica a Game Loss se le carte viste sono troppe per essere ricomposte o se il vantaggio ottenuto è eccessivo (es. il giocatore ha visto una carta cruciale che cambia decisioni strategiche)."
   },
   {
     "category": "Azioni dimenticate",
