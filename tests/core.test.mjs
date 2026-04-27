@@ -7,7 +7,9 @@ import {
   JUDGES_GUIDE_RULES,
   norm,
   escapeHtml,
+  extractMentionedRules,
   highlightHtml,
+  highlightProse,
   itemSlug,
   matchSearch,
   computeFiltered,
@@ -202,10 +204,19 @@ test("parseSanction recognises canonical single sanctions", () => {
   assert.equal(out.description, "");
 });
 
-test("parseSanction parses multi-sanction with ' - ' separator", () => {
+test("parseSanction expands multi-sanction range to all intermediate steps", () => {
+  // Two-endpoint form is shorthand for a severity range: the parser
+  // expands it so the judge sees every intermediate sanction (not just
+  // the bookends) as a possible outcome.
   const out = parseSanction("CAUTION - GAME LOSS");
   assert.equal(out.kind, "multi");
-  assert.deepEqual(out.sanctions, ["CAUTION", "GAME LOSS"]);
+  assert.deepEqual(out.sanctions, ["CAUTION", "WARNING", "GAME LOSS"]);
+
+  const range = parseSanction("GAME LOSS - DISQUALIFICATION WITHOUT PRIZE");
+  assert.deepEqual(range.sanctions, ["GAME LOSS", "DISQUALIFICATION", "DISQUALIFICATION WITHOUT PRIZE"]);
+
+  const adjacent = parseSanction("CAUTION - WARNING");
+  assert.deepEqual(adjacent.sanctions, ["CAUTION", "WARNING"]);
 });
 
 test("parseSanction maps placeholders to localised descriptions", () => {
@@ -228,7 +239,8 @@ test("parseSanction surfaces unknown values as placeholder description", () => {
 test("parseSanction tolerates whitespace around the separator", () => {
   const out = parseSanction("CAUTION  -  GAME LOSS");
   assert.equal(out.kind, "multi");
-  assert.deepEqual(out.sanctions, ["CAUTION", "GAME LOSS"]);
+  // Whitespace-tolerant parsing still expands the range.
+  assert.deepEqual(out.sanctions, ["CAUTION", "WARNING", "GAME LOSS"]);
 });
 
 test("highlightHtml escapes plain text when query is empty", () => {
@@ -253,6 +265,79 @@ test("highlightHtml handles multiple, non-overlapping matches", () => {
 
 test("highlightHtml returns escaped text when no match", () => {
   assert.equal(highlightHtml("ciao <mondo>", "xyz"), "ciao &lt;mondo&gt;");
+});
+
+test("extractMentionedRules collects in-prose rule numbers, dedup vs reference", () => {
+  const item = {
+    category: "Deck",
+    infraction: "Buste segnate (con schema)",
+    reference: "132",
+    sanction: "GAME LOSS",
+    description: "Schema riconoscibile dal retro. Vedi 163. Cheating - Fraud.",
+    example: "Tutte le master segnate; cripta distinguibile.",
+    philosophy: "VEKN 132 base; se intenzionale → 163.",
+    correzione: "Sostituire le buste; in caso di intent applicare 163.",
+  };
+  const out = extractMentionedRules(item);
+  // 132 is the canonical reference → not duplicated; 163 is mentioned in
+  // multiple fields → returned once.
+  assert.deepEqual(
+    out.map((r) => r.number),
+    [163],
+  );
+  assert.ok(out[0].url.includes("163."));
+});
+
+test("extractMentionedRules ignores numbers not in the rules map", () => {
+  const item = {
+    category: "X",
+    infraction: "Y",
+    reference: "",
+    sanction: "",
+    description: "Una mano da 7 carte; cripta da 12; libreria 90.",
+    example: "",
+    philosophy: "",
+    correzione: "",
+  };
+  // 7, 12, 90 are not 3-digit; nothing matches the map.
+  assert.deepEqual(extractMentionedRules(item), []);
+});
+
+test("extractMentionedRules handles null/missing fields without throwing", () => {
+  assert.deepEqual(extractMentionedRules(null), []);
+  assert.deepEqual(extractMentionedRules(undefined), []);
+  assert.deepEqual(extractMentionedRules({}), []);
+});
+
+test("highlightProse linkifies known rule numbers in prose", () => {
+  const out = highlightProse("Vedi 163. Cheating per dettagli.", "");
+  assert.match(out, /<a class="rule-mention"[^>]*>163<\/a>/);
+  assert.ok(out.includes("Vedi "));
+  assert.ok(out.includes(". Cheating per dettagli."));
+});
+
+test("highlightProse leaves non-rule numbers as plain text", () => {
+  const out = highlightProse("Mano 7, libreria 90, anno 2026.", "");
+  assert.equal(out, "Mano 7, libreria 90, anno 2026.");
+});
+
+test("highlightProse marks query AND linkifies rule on overlap", () => {
+  // Query "163" overlaps the rule citation: both decorations apply.
+  const out = highlightProse("Regola 163 nel testo.", "163");
+  assert.match(out, /<a class="rule-mention"[^>]*>(<mark>163<\/mark>|163)<\/a>/);
+  assert.ok(out.includes("<mark>"), "mark should appear somewhere");
+});
+
+test("highlightProse escapes HTML and still linkifies", () => {
+  const out = highlightProse("<script> 163 </script>", "");
+  assert.ok(out.startsWith("&lt;script&gt;"));
+  assert.match(out, /<a class="rule-mention"[^>]*>163<\/a>/);
+});
+
+test("highlightProse handles empty / null inputs", () => {
+  assert.equal(highlightProse("", "anything"), "");
+  assert.equal(highlightProse(null, "x"), "");
+  assert.equal(highlightProse(undefined, "x"), "");
 });
 
 test("validateEntry accepts a canonical entry", () => {

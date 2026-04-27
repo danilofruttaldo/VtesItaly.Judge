@@ -161,11 +161,14 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   assert.equal(emptyPenalty.length, 1, "one fixture entry has no correzione");
   assert.match(emptyPenalty[0].textContent || "", /Nessuna azione specifica/);
 
-  // Multi-sanction badge: two pills + arrow separator
+  // Multi-sanction badge: range is now expanded to all intermediate steps
+  // (CAUTION → WARNING → GAME LOSS = 3 pills + 2 separators).
   const slowCard = [...cards].find((c) => /slow play/i.test(c.querySelector(".item-title").textContent));
   assert.ok(slowCard, "slow play card present");
   assert.ok(slowCard.classList.contains("item-multi"), "multi-sanction class on multi entry");
-  assert.ok(slowCard.querySelector(".badge-sep"), "arrow separator on multi-sanction badge group");
+  const slowBadges = slowCard.querySelectorAll(".item-summary .badge:not(.badge-tbd)");
+  assert.equal(slowBadges.length, 3, "expanded range yields 3 sanction pills");
+  assert.equal(slowCard.querySelectorAll(".badge-sep").length, 2, "2 separators between 3 pills");
 
   // ---- Search filter ----
   q.value = "slow";

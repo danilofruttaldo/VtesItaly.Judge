@@ -8,8 +8,10 @@ import {
   SANCTION_SLUGS,
   escapeHtml,
   highlightHtml,
+  highlightProse,
   itemSlug,
   computeFiltered,
+  extractMentionedRules,
   groupByCategory,
   parseReference,
   parseSanction,
@@ -36,22 +38,34 @@ const el = {
   swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
 };
 
-function renderReference(ref) {
-  const parsed = parseReference(ref);
-  if (parsed.length === 0) return "";
-  const links = parsed.map((p) => {
-    const label = `Rif. ${p.number}`;
-    // Unknown rule numbers (not in JUDGES_GUIDE_RULES) render as a non-clickable
-    // chip with an explanatory tooltip — without a hint, the judge can't tell
-    // whether the link is broken or the rule is intentionally outside the
-    // Judges' Guide map (e.g. local-only conventions).
-    if (!p.url) {
-      const reason = "Regola non mappata nella VEKN Judges' Guide";
-      return `<span class="item-ref item-ref-unknown" title="${escapeHtml(reason)}" aria-label="${escapeHtml(label)} — ${escapeHtml(reason)}">${escapeHtml(label)}</span>`;
-    }
-    return `<a class="item-ref" href="${escapeHtml(p.url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(p.title)}" aria-label="${escapeHtml(label)} — apre la VEKN Judges' Guide in una nuova scheda">${escapeHtml(label)}</a>`;
-  });
-  return links.join("");
+function renderRefChip(p, mentioned) {
+  const label = `Rif. ${p.number}`;
+  // Unknown rule numbers (not in JUDGES_GUIDE_RULES) render as a non-clickable
+  // chip with an explanatory tooltip — without a hint, the judge can't tell
+  // whether the link is broken or the rule is intentionally outside the
+  // Judges' Guide map (e.g. local-only conventions).
+  if (!p.url) {
+    const reason = "Regola non mappata nella VEKN Judges' Guide";
+    return `<span class="item-ref item-ref-unknown" title="${escapeHtml(reason)}" aria-label="${escapeHtml(label)} — ${escapeHtml(reason)}">${escapeHtml(label)}</span>`;
+  }
+  // "Mentioned" chips are rules cited inline in the prose but not the
+  // canonical reference for this card. Visually softer so the primary
+  // reference still leads — the title tooltip carries the disambiguation.
+  const cls = mentioned ? "item-ref item-ref-mentioned" : "item-ref";
+  const ariaSuffix = mentioned
+    ? "menzionato nel testo — apre la VEKN Judges' Guide in una nuova scheda"
+    : "apre la VEKN Judges' Guide in una nuova scheda";
+  return `<a class="${cls}" href="${escapeHtml(p.url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(p.title)}" aria-label="${escapeHtml(label)} — ${escapeHtml(ariaSuffix)}">${escapeHtml(label)}</a>`;
+}
+
+function renderReference(item) {
+  const primary = parseReference(item.reference);
+  const mentioned = extractMentionedRules(item);
+  if (primary.length === 0 && mentioned.length === 0) return "";
+  const parts = [];
+  for (const p of primary) parts.push(renderRefChip(p, false));
+  for (const p of mentioned) parts.push(renderRefChip(p, true));
+  return parts.join("");
 }
 
 /* Renders the sanction badge(s) inside the item summary. Multi-sanction
@@ -139,7 +153,7 @@ function renderUnsafe() {
     html.push(`<div class="category-body">`);
     for (const it of items) {
       const parsed = parseSanction(it.sanction);
-      const ref = renderReference(it.reference);
+      const ref = renderReference(it);
       const slug = itemSlug(it);
       const itemOpen = queryActive ? " open" : "";
       const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
@@ -154,12 +168,16 @@ function renderUnsafe() {
       // is always rendered — an empty value reads as "Nessuna azione
       // specifica oltre alla sanzione." so the judge sees explicitly
       // that no extra correction is required beyond the standard penalty.
-      const defHtml = it.description ? highlightHtml(it.description, state.query) : "";
-      const exHtml = it.example ? highlightHtml(it.example, state.query) : "";
-      const phHtml = it.philosophy ? highlightHtml(it.philosophy, state.query) : "";
+      // Prose fields use highlightProse: it both wraps the search query in
+      // <mark> AND linkifies any 3-digit rule number that matches the
+      // VEKN Judges' Guide map, so a citation like "163. Cheating" inside
+      // the body becomes a clickable deep-link without re-reading the prose.
+      const defHtml = it.description ? highlightProse(it.description, state.query) : "";
+      const exHtml = it.example ? highlightProse(it.example, state.query) : "";
+      const phHtml = it.philosophy ? highlightProse(it.philosophy, state.query) : "";
       const hasPenalty = Boolean(it.correzione && it.correzione.trim());
       const penHtml = hasPenalty
-        ? highlightHtml(it.correzione, state.query)
+        ? highlightProse(it.correzione, state.query)
         : `<span class="muted">Nessuna azione specifica oltre alla sanzione.</span>`;
       html.push(`<details id="item-${escapeHtml(slug)}" class="${klass}" ${itemEdgeAttrs(parsed)}${itemOpen}>`);
       html.push(`<summary class="item-summary">`);

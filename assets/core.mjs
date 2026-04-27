@@ -78,6 +78,19 @@ export function parseSanction(raw) {
     .map((s) => s.trim())
     .filter(Boolean);
   if (parts.length >= 2 && parts.every((p) => SANCTION_SET.has(p))) {
+    // Two-endpoint form ("CAUTION - GAME LOSS") is shorthand for a severity
+    // range. Expand it to include every intermediate sanction so the judge
+    // sees the full gradient (CAUTION → WARNING → GAME LOSS) instead of
+    // just the bookends — the middle outcomes are equally valid rulings.
+    const startIdx = SANCTION_ORDER.indexOf(parts[0]);
+    const endIdx = SANCTION_ORDER.indexOf(parts[parts.length - 1]);
+    if (startIdx >= 0 && endIdx >= 0 && startIdx !== endIdx) {
+      const lo = Math.min(startIdx, endIdx);
+      const hi = Math.max(startIdx, endIdx);
+      const expanded = SANCTION_ORDER.slice(lo, hi + 1);
+      const sanctions = startIdx <= endIdx ? expanded : expanded.slice().reverse();
+      return { kind: "multi", sanctions, description: "", raw: t };
+    }
     return { kind: "multi", sanctions: parts, description: "", raw: t };
   }
   // Unknown / non-canonical: surface the raw value as the description so the
@@ -173,6 +186,42 @@ export function parseReference(ref) {
 }
 
 /**
+ * Scans an entry's prose fields (description, example, philosophy,
+ * correzione) for VEKN rule numbers that exist in JUDGES_GUIDE_RULES,
+ * deduplicating against the canonical `reference` cell. Used to surface
+ * every applicable rule as a clickable chip so the judge doesn't have to
+ * re-read the prose to find an inline "VEKN 102" or "163. Cheating".
+ *
+ * Matches 3-digit standalone tokens and filters them through the rules
+ * map — non-rule numbers (counts, years) are dropped because they don't
+ * collide with the 101–164 keyspace.
+ *
+ * @param {VademecumEntry | null | undefined} item
+ * @returns {ReferenceLink[]}
+ */
+export function extractMentionedRules(item) {
+  if (!item) return [];
+  const primary = new Set(parseReference(item.reference).map((p) => p.number));
+  /** @type {Set<number>} */
+  const found = new Set();
+  const fields = [item.description, item.example, item.philosophy, item.correzione];
+  for (const field of fields) {
+    if (!field) continue;
+    const matches = String(field).matchAll(/\b(\d{3})\b/g);
+    for (const m of matches) {
+      const n = parseInt(m[1], 10);
+      if (!Number.isFinite(n)) continue;
+      if (!Object.prototype.hasOwnProperty.call(JUDGES_GUIDE_RULES, n)) continue;
+      if (primary.has(n)) continue;
+      found.add(n);
+    }
+  }
+  return [...found]
+    .sort((a, b) => a - b)
+    .map((n) => ({ number: n, title: JUDGES_GUIDE_RULES[n], url: judgesGuideUrl(n) }));
+}
+
+/**
  * Normalises a string for diacritic- and case-insensitive comparison: NFD
  * decomposition, combining-mark stripping, lowercase, trim. The output is
  * suitable for substring search but not for display.
@@ -245,6 +294,97 @@ export function highlightHtml(text, query) {
     cursor = e;
   }
   out += escapeHtml(src.slice(cursor));
+  return out;
+}
+
+/**
+ * Renders prose text with both query-highlight (<mark>) decoration and
+ * inline rule-number linkification: any 3-digit token that maps to a
+ * known JUDGES_GUIDE_RULES entry becomes a clickable deep-link to the
+ * Judges' Guide, while the search query (if any) is wrapped in <mark>.
+ *
+ * Both decorations can overlap on the same range (e.g. searching "163"
+ * inside a citation): we split the source at every boundary and emit
+ * each segment with whichever decorations fully cover it. Adjacent
+ * <mark>s on different segments are valid HTML and render correctly,
+ * even if the visual highlight has a tiny break at the link boundary.
+ *
+ * @param {string | null | undefined} text
+ * @param {string | null | undefined} query
+ * @returns {string}
+ */
+export function highlightProse(text, query) {
+  const src = text === null || text === undefined ? "" : String(text);
+  if (!src) return "";
+
+  /** @type {{ start: number, end: number, number: number }[]} */
+  const ruleAnns = [];
+  for (const m of src.matchAll(/\b(\d{3})\b/g)) {
+    const n = parseInt(m[1], 10);
+    if (Object.prototype.hasOwnProperty.call(JUDGES_GUIDE_RULES, n)) {
+      ruleAnns.push({
+        start: /** @type {number} */ (m.index),
+        end: /** @type {number} */ (m.index) + m[0].length,
+        number: n,
+      });
+    }
+  }
+
+  const qn = norm(query);
+  /** @type {{ start: number, end: number }[]} */
+  const markAnns = [];
+  if (qn) {
+    let projected = "";
+    /** @type {number[]} */
+    const map = [];
+    for (let i = 0; i < src.length; i++) {
+      const piece = src[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+      for (const c of piece) {
+        projected += c;
+        map.push(i);
+      }
+    }
+    let from = 0;
+    while (from <= projected.length - qn.length) {
+      const idx = projected.indexOf(qn, from);
+      if (idx < 0) break;
+      const start = map[idx];
+      const endProj = idx + qn.length - 1;
+      const end = (map[endProj] ?? src.length - 1) + 1;
+      markAnns.push({ start, end });
+      from = endProj + 1;
+    }
+  }
+
+  if (ruleAnns.length === 0 && markAnns.length === 0) return escapeHtml(src);
+
+  /** @type {Set<number>} */
+  const boundaries = new Set([0, src.length]);
+  for (const a of ruleAnns) {
+    boundaries.add(a.start);
+    boundaries.add(a.end);
+  }
+  for (const a of markAnns) {
+    boundaries.add(a.start);
+    boundaries.add(a.end);
+  }
+  const sorted = [...boundaries].sort((a, b) => a - b);
+
+  let out = "";
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const segStart = sorted[i];
+    const segEnd = sorted[i + 1];
+    const ruleHere = ruleAnns.find((a) => a.start <= segStart && a.end >= segEnd);
+    const markHere = markAnns.find((a) => a.start <= segStart && a.end >= segEnd);
+    let chunk = escapeHtml(src.slice(segStart, segEnd));
+    if (markHere) chunk = `<mark>${chunk}</mark>`;
+    if (ruleHere) {
+      const url = judgesGuideUrl(ruleHere.number);
+      const title = JUDGES_GUIDE_RULES[ruleHere.number];
+      chunk = `<a class="rule-mention" href="${escapeHtml(url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(title)}">${chunk}</a>`;
+    }
+    out += chunk;
+  }
   return out;
 }
 

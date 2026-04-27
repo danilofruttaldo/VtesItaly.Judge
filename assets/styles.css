@@ -583,6 +583,24 @@ a.item-ref::after {
   cursor: help;
 }
 
+/* "Mentioned" rules are those cited inline in the body text but NOT the
+ * canonical reference for this card. They render with a softer outline
+ * so the primary reference (filled chip) still leads the eye, while the
+ * inline citations remain one tap away from the VEKN Judges' Guide. */
+a.item-ref-mentioned {
+  color: var(--muted);
+  border-color: var(--border);
+  background: transparent;
+  font-weight: 500;
+}
+
+a.item-ref-mentioned:hover,
+a.item-ref-mentioned:focus-visible {
+  color: var(--s-caution);
+  border-color: color-mix(in srgb, var(--s-caution) 40%, transparent);
+  background: color-mix(in srgb, var(--s-caution) 6%, transparent);
+}
+
 a.item-ref:hover,
 a.item-ref:focus-visible {
   background: color-mix(in srgb, var(--s-caution) 18%, transparent);
@@ -662,6 +680,33 @@ a.item-ref:focus-visible {
   color: var(--mark-fg);
   padding: 0.05em 0.15em;
   border-radius: 0.15em;
+}
+
+/* Inline rule citations inside prose: subtle dotted underline + accent
+ * color so the number is clearly clickable without breaking reading
+ * rhythm. The bottom chip row remains the at-a-glance summary; this
+ * provides a one-tap shortcut from the exact spot the rule is cited. */
+.item-section-body .rule-mention {
+  color: var(--s-caution);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.item-section-body .rule-mention:hover,
+.item-section-body .rule-mention:focus-visible {
+  text-decoration-style: solid;
+  text-decoration-thickness: 2px;
+}
+
+/* When a search hit overlaps a rule citation, the <mark> sits inside the
+ * <a>. Restore the link's underline on the marked text so it still reads
+ * as clickable, and tighten the mark's padding so the underline doesn't
+ * misalign across the boundary. */
+.item-section-body .rule-mention mark {
+  text-decoration: inherit;
+  padding: 0;
 }
 
 /* ---------- Empty / loading / footer ---------- */
