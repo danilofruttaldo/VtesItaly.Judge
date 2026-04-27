@@ -93,11 +93,11 @@
     "category": "Deck",
     "infraction": "Buste segnate (con schema)",
     "reference": "132",
-    "sanction": "DISQUALIFICATION WITHOUT PRIZE",
-    "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro. Il regolamento assume che la marcatura non sia intenzionale: in assenza di spiegazioni valide, se c'è uno schema si presume sia intenzionale, e l'infrazione si tratta come 163. Cheating - Fraud.",
+    "sanction": "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro. Il regolamento assume di base la non intenzionalità: la sanzione standard è Game Loss. Se il giudice ritiene la marcatura intenzionale, l'infrazione si tratta come 163. Cheating - Fraud (squalifica senza premio).",
     "example": "Tutte le master segnate allo stesso modo; libreria distinguibile dalla cripta dal retro; segni ricorrenti su carte chiave.",
     "philosophy": "",
-    "correzione": "Squalifica senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
+    "correzione": "Game Loss e sostituzione delle buste prima del round successivo. In caso di intenzionalità accertata si applica 163. Cheating - Fraud: squalifica senza premio, documentazione dell'episodio e segnalazione all'organizzazione."
   },
   {
     "category": "Carte pescate",
