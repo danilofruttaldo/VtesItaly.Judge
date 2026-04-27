@@ -246,7 +246,7 @@ export function highlightHtml(text, query) {
 }
 
 /**
- * @typedef {{ category?: string, infraction?: string, reference?: string, sanction?: string, description?: string, intervention?: string }} VademecumEntry
+ * @typedef {{ category?: string, infraction?: string, reference?: string, sanction?: string, description?: string, example?: string, philosophy?: string, correzione?: string }} VademecumEntry
  */
 
 /**
@@ -279,7 +279,16 @@ export function itemSlug(item) {
 export function matchSearch(item, query) {
   const q = norm(query);
   if (!q) return true;
-  const hay = [item.category, item.infraction, item.reference, item.sanction, item.description, item.intervention]
+  const hay = [
+    item.category,
+    item.infraction,
+    item.reference,
+    item.sanction,
+    item.description,
+    item.example,
+    item.philosophy,
+    item.correzione,
+  ]
     .map(norm)
     .join(" \n ");
   return hay.includes(q);
@@ -333,8 +342,8 @@ export function groupByCategory(items) {
  * crash the page). Keep the two in sync.
  *
  * Required fields: category, infraction, reference, sanction, description,
- * intervention. Only category and infraction must be non-empty; the rest
- * may be empty strings, but they MUST be present as strings.
+ * example, philosophy, correzione. Only category and infraction must be
+ * non-empty; the rest may be empty strings, but they MUST be present as strings.
  */
 const REFERENCE_RE = /^(|\/\/\/|\d+|\d+\s*-\s*\d+)$/;
 const SANCTION_VALUES = new Set([
@@ -353,7 +362,20 @@ const SANCTION_VALUES = new Set([
   "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
   "DISQUALIFICATION - DISQUALIFICATION WITHOUT PRIZE",
 ]);
-const ENTRY_KEYS = ["category", "infraction", "reference", "sanction", "description", "intervention"];
+/* Field order mirrors the VEKN Judges' Guide structure (Definition →
+ * Example(s) → Philosophy → Penalty), with `sanction` carrying the
+ * canonical Penalty severity for filtering and `correzione` carrying the
+ * procedural prose that follows in the Penalty subsection. */
+const ENTRY_KEYS = [
+  "category",
+  "infraction",
+  "reference",
+  "sanction",
+  "description",
+  "example",
+  "philosophy",
+  "correzione",
+];
 
 /**
  * Validate a single vademecum entry.

@@ -9,7 +9,7 @@
     "entry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["category", "infraction", "reference", "sanction", "description", "intervention"],
+      "required": ["category", "infraction", "reference", "sanction", "description", "example", "philosophy", "correzione"],
       "properties": {
         "category": {
           "type": "string",
@@ -52,11 +52,19 @@
         },
         "description": {
           "type": "string",
-          "description": "Casistica e esempi. Stringa vuota se non pertinente."
+          "description": "VEKN 'Definition': quando si verifica la fattispecie. UI label: 'Definizione'. Stringa vuota se la sola lettura del titolo basta."
         },
-        "intervention": {
+        "example": {
           "type": "string",
-          "description": "Cosa deve fare il giudice. Stringa vuota se l'azione discende dalla sanzione standard."
+          "description": "VEKN 'Example(s)': casistiche concrete riconoscibili a tavolino, separate da '; '. UI label: 'Esempio'. Stringa vuota se non pertinente."
+        },
+        "philosophy": {
+          "type": "string",
+          "description": "VEKN 'Philosophy': razionale dietro la sanzione, ciò che la regola intende prevenire. UI label: 'Filosofia'. Stringa vuota se non pertinente."
+        },
+        "correzione": {
+          "type": "string",
+          "description": "Procedura correttiva contenuta nel subsection VEKN 'Penalty' (la severità è in 'sanction'). UI label: 'Penalità'. Stringa vuota quando non c'è azione oltre alla sanzione standard."
         }
       }
     }

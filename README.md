@@ -41,6 +41,18 @@ eccezionali — la stessa pipeline gira in CI e bloccherà il push.
 direttamente. Lo schema canonico è in [`data/vademecum.schema.json`](data/vademecum.schema.json) ed è validato
 ad ogni `npm test` da [`tests/data.test.mjs`](tests/data.test.mjs) — voci malformate fanno fallire la CI.
 
+Lo schema riflette la struttura della VEKN Judges' Guide (Definition, Example(s),
+Philosophy, Penalty). I campi narrativi rendono nella card nello stesso ordine
+con le label italiane corrispondenti:
+
+| Campo JSON    | UI label    | VEKN subsection | Note                                                  |
+| ------------- | ----------- | --------------- | ----------------------------------------------------- |
+| `description` | Definizione | Definition      | Quando si verifica la fattispecie                     |
+| `example`     | Esempio     | Example(s)      | Casistiche concrete a tavolino                        |
+| `philosophy`  | Filosofia   | Philosophy      | Razionale della regola                                |
+| `sanction`    | _badge_     | Penalty (level) | Livello canonico, filtrabile                          |
+| `correzione`  | Penalità    | Penalty (prose) | Procedura correttiva contenuta nel subsection Penalty |
+
 Schema per voce:
 
 ```json
@@ -49,8 +61,10 @@ Schema per voce:
   "infraction": "Titolo dell'infrazione",
   "reference": "131",
   "sanction": "CAUTION",
-  "description": "Quando si verifica e con quali esempi",
-  "intervention": "Cosa deve fare il giudice"
+  "description": "Quando si verifica la fattispecie",
+  "example": "Casistiche concrete separate da '; '",
+  "philosophy": "Razionale della regola",
+  "correzione": "Cosa deve fare il giudice oltre alla sanzione"
 }
 ```
 
@@ -60,9 +74,11 @@ Schema per voce:
   `///` caso particolare, `""` non specificato).
 - `reference` accetta numero singolo (`131`), range (`141 - 162`), vuoto o `///`.
   Numeri noti vengono linkati alla [VEKN Judges' Guide](https://www.vekn.net/judges-guide)
-  via Text Fragment.
-- `description` e `intervention` sono opzionali (stringa vuota se non pertinenti).
-  La card mostra solo le sezioni effettivamente popolate.
+  via Text Fragment (verificati 22/22 contro la pagina live).
+- `description`, `example`, `philosophy`, `correzione` sono tutti campi obbligatori
+  ma possono essere stringhe vuote. Le sezioni Definizione/Esempio/Filosofia
+  rendono solo se popolate; **Penalità** è sempre rendered — quando `correzione`
+  è vuota mostra "Nessuna azione specifica oltre alla sanzione".
 - L'unicità della coppia `(category, infraction)` è gatewata in CI: i duplicati
   fanno fallire la build (slug DOM e deep-link diventerebbero ambigui).
 

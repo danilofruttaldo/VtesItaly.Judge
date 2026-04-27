@@ -44,7 +44,9 @@ const sample = [
     reference: "131",
     sanction: "CAUTION",
     description: "",
-    intervention: "sostituire",
+    example: "",
+    philosophy: "",
+    correzione: "sostituire",
   },
   {
     category: "DECK",
@@ -52,15 +54,19 @@ const sample = [
     reference: "132",
     sanction: "GAME LOSS",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   },
   {
     category: "CONDOTTA IMPROPRIA",
     infraction: "BARARE",
     reference: "163",
     sanction: "DISQUALIFICATION WITHOUT PRIZE",
-    description: "es. aggiungere pool",
-    intervention: "",
+    description: "alterazione",
+    example: "aggiungere pool",
+    philosophy: "",
+    correzione: "",
   },
   {
     category: "CONDOTTA IMPROPRIA",
@@ -68,7 +74,9 @@ const sample = [
     reference: "",
     sanction: "???",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   },
 ];
 
@@ -77,7 +85,7 @@ test("matchSearch is empty-query permissive", () => {
   assert.equal(matchSearch(sample[0], "   "), true);
 });
 
-test("matchSearch matches across infraction, intervention, reference, category", () => {
+test("matchSearch matches across infraction, correzione, reference, category", () => {
   assert.equal(matchSearch(sample[0], "buste"), true);
   assert.equal(matchSearch(sample[0], "131"), true);
   assert.equal(matchSearch(sample[0], "deck"), true);
@@ -85,9 +93,10 @@ test("matchSearch matches across infraction, intervention, reference, category",
   assert.equal(matchSearch(sample[0], "nonesistente"), false);
 });
 
-test("matchSearch matches description and intervention fields", () => {
-  assert.equal(matchSearch(sample[2], "aggiungere"), true); // description
-  assert.equal(matchSearch(sample[0], "sostituire"), true); // intervention
+test("matchSearch matches description, example and correzione fields", () => {
+  assert.equal(matchSearch(sample[2], "alterazione"), true); // description
+  assert.equal(matchSearch(sample[2], "aggiungere"), true); // example
+  assert.equal(matchSearch(sample[0], "sostituire"), true); // correzione
 });
 
 test("matchSanction with empty filter set matches everything", () => {
@@ -114,7 +123,9 @@ test("matchSanction with multi-sanction items matches any enabled sanction", () 
     reference: "141 - 162",
     sanction: "CAUTION - GAME LOSS",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   };
   assert.equal(matchSanction(slowPlay, new Set(["CAUTION"])), true);
   assert.equal(matchSanction(slowPlay, new Set(["GAME LOSS"])), true);
@@ -259,7 +270,9 @@ test("validateEntry accepts a canonical entry", () => {
     reference: "131",
     sanction: "CAUTION",
     description: "ok",
-    intervention: "",
+    example: "una sleeve graffiata",
+    philosophy: "",
+    correzione: "",
   });
   assert.equal(r.ok, true);
   assert.deepEqual(r.errors, []);
@@ -277,7 +290,8 @@ test("validateEntry flags missing, extra and non-string fields", () => {
   const r = validateEntry({ category: "X", infraction: "Y", reference: "131", sanction: "CAUTION" });
   assert.equal(r.ok, false);
   assert.ok(r.errors.some((e) => e.includes("description")));
-  assert.ok(r.errors.some((e) => e.includes("intervention")));
+  assert.ok(r.errors.some((e) => e.includes("example")));
+  assert.ok(r.errors.some((e) => e.includes("correzione")));
 
   const r2 = validateEntry({
     category: "X",
@@ -285,7 +299,9 @@ test("validateEntry flags missing, extra and non-string fields", () => {
     reference: "131",
     sanction: "CAUTION",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
     notes: "extra",
   });
   assert.equal(r2.ok, false);
@@ -297,7 +313,9 @@ test("validateEntry flags missing, extra and non-string fields", () => {
     reference: "131",
     sanction: "CAUTION",
     description: 42,
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   });
   assert.equal(r3.ok, false);
   assert.ok(r3.errors.some((e) => e.includes('"description"') && e.includes("not a string")));
@@ -310,7 +328,9 @@ test("validateEntry rejects empty category or infraction", () => {
     reference: "",
     sanction: "",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   });
   assert.equal(r.ok, false);
   assert.ok(r.errors.some((e) => e.includes("category is empty")));
@@ -324,7 +344,9 @@ test("validateEntry rejects malformed reference and unknown sanction", () => {
     reference: "foo",
     sanction: "MEGA LOSS",
     description: "",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   });
   assert.equal(r.ok, false);
   assert.ok(r.errors.some((e) => e.includes("reference")));
@@ -339,7 +361,9 @@ test("validateEntry accepts canonical placeholder and range forms", () => {
       reference: ref,
       sanction: "",
       description: "",
-      intervention: "",
+      example: "",
+      philosophy: "",
+      correzione: "",
     });
     assert.equal(r.ok, true, `ref ${JSON.stringify(ref)} should pass: ${r.errors.join(", ")}`);
   }
@@ -350,7 +374,9 @@ test("validateEntry accepts canonical placeholder and range forms", () => {
       reference: "",
       sanction: s,
       description: "",
-      intervention: "",
+      example: "",
+      philosophy: "",
+      correzione: "",
     });
     assert.equal(r.ok, true, `sanction ${JSON.stringify(s)} should pass: ${r.errors.join(", ")}`);
   }
@@ -358,8 +384,26 @@ test("validateEntry accepts canonical placeholder and range forms", () => {
 
 test("validateData splits valid entries from issues without throwing", () => {
   const { entries, issues } = validateData([
-    { category: "A", infraction: "B", reference: "", sanction: "", description: "", intervention: "" },
-    { category: "", infraction: "", reference: "x", sanction: "", description: "", intervention: "" },
+    {
+      category: "A",
+      infraction: "B",
+      reference: "",
+      sanction: "",
+      description: "",
+      example: "",
+      philosophy: "",
+      correzione: "",
+    },
+    {
+      category: "",
+      infraction: "",
+      reference: "x",
+      sanction: "",
+      description: "",
+      example: "",
+      philosophy: "",
+      correzione: "",
+    },
     "not an object",
   ]);
   assert.equal(entries.length, 1);

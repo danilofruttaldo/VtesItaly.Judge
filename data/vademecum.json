@@ -4,40 +4,50 @@
     "infraction": "Carta (trasferibile) in più o in meno",
     "reference": "",
     "sanction": "CAUTION",
-    "description": "Il numero di copie di una carta poco impattante o sostituibile con altre dello stesso ruolo nel mazzo non corrisponde alla decklist. La differenza non altera in modo significativo la strategia.\nEs. una Fame in più o in meno, una Montreal Convention extra, una vessel di troppo in un mazzo che ne contiene molte.",
-    "intervention": ""
+    "description": "Il numero di copie di una carta poco impattante o sostituibile con altre dello stesso ruolo nel mazzo non corrisponde alla decklist. La differenza non altera in modo significativo la strategia.",
+    "example": "Una Fame in più o in meno; una Montreal Convention extra; una vessel di troppo in un mazzo che ne contiene molte.",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Carta (non trasferibile, non strategica) in più o in meno",
     "reference": "",
     "sanction": "WARNING",
-    "description": "Il totale delle carte in mazzo o in cripta non corrisponde alla decklist, ma la discrepanza non offre un vantaggio strategico evidente.\nEs. decklist da 90 carte e mazzo da 89; sono segnati 10 Govern the Unaligned ma nel mazzo ce ne sono 9.",
-    "intervention": ""
+    "description": "Il totale delle carte in mazzo o in cripta non corrisponde alla decklist, ma la discrepanza non offre un vantaggio strategico evidente.",
+    "example": "Decklist da 90 carte e mazzo da 89; sono segnati 10 Govern the Unaligned ma nel mazzo ce ne sono 9.",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Carta molto strategica/situazionale in più o in meno",
     "reference": "",
     "sanction": "DISQUALIFICATION",
-    "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist.\nEs. una Direct Intervention non dichiarata, una Archon Investigation in più, una Wash o una Sudden Reversal extra.",
-    "intervention": ""
+    "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist.",
+    "example": "Una Direct Intervention non dichiarata; una Archon Investigation in più; una Wash o una Sudden Reversal extra.",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Carta diversa nel mazzo",
     "reference": "",
     "sanction": "WARNING",
-    "description": "Una carta nel mazzo è diversa da quella indicata in decklist, ma di ruolo equivalente o non strategicamente determinante.\nEs. al posto di una Radio Free Australia ce n'è un'altra, al posto di Lost in Crowds c'è Into Thin Air.",
-    "intervention": "Dato che il mazzo è già stato giocato, si lascia com'è e si corregge la decklist."
+    "description": "Una carta nel mazzo è diversa da quella indicata in decklist, ma di ruolo equivalente o non strategicamente determinante.",
+    "example": "Al posto di una Radio Free Australia ce n'è un'altra; al posto di Lost in Crowds c'è Into Thin Air.",
+    "philosophy": "",
+    "correzione": "Dato che il mazzo è già stato giocato, si lascia com'è e si corregge la decklist."
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Differenze più marcate nel mazzo",
     "reference": "",
     "sanction": "GAME LOSS",
-    "description": "Il mazzo presenta più sostituzioni rispetto alla decklist, oppure una sostituzione che cambia in modo significativo il piano di gioco.\nEs. una bleed modifier sostituita con un bounce, più carte di disciplina diverse rispetto a quelle dichiarate, una linea strategica intera differente.",
-    "intervention": ""
+    "description": "Il mazzo presenta più sostituzioni rispetto alla decklist, oppure una sostituzione che cambia in modo significativo il piano di gioco.",
+    "example": "Una bleed modifier sostituita con un bounce; più carte di disciplina diverse rispetto a quelle dichiarate; una linea strategica intera differente.",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Deck vs decklist",
@@ -45,15 +55,19 @@
     "reference": "101",
     "sanction": "WARNING",
     "description": "La decklist depositata non rispetta le regole di formato (cripta diversa da 12 carte, libreria con meno di 60 o più di 90 carte, totali errati, carte non legali nel formato), ma il mazzo fisicamente presentato è conforme.",
-    "intervention": "Il giocatore deve correggere la decklist in modo che sia uguale al mazzo."
+    "example": "",
+    "philosophy": "",
+    "correzione": "Il giocatore deve correggere la decklist in modo che sia uguale al mazzo."
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Mazzo illegale (decklist legale)",
     "reference": "102",
     "sanction": "GAME LOSS",
-    "description": "La decklist è formalmente corretta, ma il mazzo che il giocatore sta usando viola le regole di formato.\nEs. cripta con meno di 12 carte, libreria con più di 90 carte, doppione di una carta unica, presenza di carte non legali nel formato.",
-    "intervention": "Il giocatore deve adeguare il mazzo alla decklist."
+    "description": "La decklist è formalmente corretta, ma il mazzo che il giocatore sta usando viola le regole di formato.",
+    "example": "Cripta con meno di 12 carte; libreria con più di 90 carte; doppione di una carta unica; presenza di carte non legali nel formato.",
+    "philosophy": "",
+    "correzione": "Il giocatore deve adeguare il mazzo alla decklist."
   },
   {
     "category": "Deck vs decklist",
@@ -61,126 +75,158 @@
     "reference": "101",
     "sanction": "GAME LOSS",
     "description": "Sia la decklist sia il mazzo violano le regole di formato. La sanzione si applica alla discrepanza più grave.",
-    "intervention": "Il giocatore deve rendere legale la decklist e adeguare il mazzo di conseguenza."
+    "example": "",
+    "philosophy": "",
+    "correzione": "Il giocatore deve rendere legale la decklist e adeguare il mazzo di conseguenza."
   },
   {
     "category": "Deck",
     "infraction": "Buste segnate (senza schema apparente)",
     "reference": "131",
     "sanction": "CAUTION",
-    "description": "Una o più buste protettive presentano segni di usura, graffi o macchie distinguibili, ma senza un pattern che permetta di identificare carte specifiche dal retro. La marcatura è considerata accidentale.\nEs. busta piegata in un angolo, graffio isolato sul retro, macchia su una sola sleeve.",
-    "intervention": "Il giocatore deve sostituire le buste danneggiate."
+    "description": "Una o più buste protettive presentano segni di usura, graffi o macchie distinguibili, ma senza un pattern che permetta di identificare carte specifiche dal retro. La marcatura è considerata accidentale.",
+    "example": "Busta piegata in un angolo; graffio isolato sul retro; macchia su una sola sleeve.",
+    "philosophy": "",
+    "correzione": "Il giocatore deve sostituire le buste danneggiate."
   },
   {
     "category": "Deck",
     "infraction": "Buste segnate (con schema)",
     "reference": "132",
-    "sanction": "GAME LOSS",
-    "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro (es. tutte le master segnate allo stesso modo, libreria diversa dalla cripta, segni ricorrenti su carte chiave).\nIl regolamento assume che la marcatura sia non intenzionale; in assenza di spiegazioni valide, se c'è uno schema si presume sia intenzionale.",
-    "intervention": "Si applica la sanzione per 163. Cheating - Fraud (disqualification without prize)."
+    "sanction": "DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro. Il regolamento assume che la marcatura non sia intenzionale: in assenza di spiegazioni valide, se c'è uno schema si presume sia intenzionale, e l'infrazione si tratta come 163. Cheating - Fraud.",
+    "example": "Tutte le master segnate allo stesso modo; libreria distinguibile dalla cripta dal retro; segni ricorrenti su carte chiave.",
+    "philosophy": "",
+    "correzione": "Squalifica senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta pescata in meno",
     "reference": "124",
     "sanction": "CAUTION",
-    "description": "Il giocatore ha in mano meno carte di quante avrebbe dovuto pescare: dimentica di rimpiazzare una carta giocata, salta una pesca obbligatoria, o non ricostituisce la mano alla fine del turno.\nGeneralmente è solo a svantaggio del giocatore. Se invece l'errore offre un vantaggio (es. dimenticarsi di rimpiazzare Magic of the Smith prima di cercare nel mazzo) la sanzione sale a warning.",
-    "intervention": ""
+    "description": "Il giocatore ha in mano meno carte di quante avrebbe dovuto pescare: dimentica di rimpiazzare una carta giocata, salta una pesca obbligatoria, o non ricostituisce la mano alla fine del turno. Generalmente è solo a svantaggio del giocatore. Se invece l'errore offre un vantaggio (es. dimenticarsi di rimpiazzare Magic of the Smith prima di cercare nel mazzo) la sanzione sale a warning.",
+    "example": "Mano da 6 a fine turno invece che da 7; cripta lasciata a 3 dopo aver giocato un vampiro.",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta pescata in più a inizio partita",
     "reference": "123",
     "sanction": "CAUTION",
-    "description": "Il giocatore ha pescato una o più carte in eccesso durante la mano iniziale (cripta da 4 invece di 3+1, libreria da 8 invece di 7) prima dell'inizio del primo turno.\nEs. mescolato e pescato 8 carte di libreria, oppure 5 di cripta.",
-    "intervention": "Il giocatore rimescola le carte nel mazzo, poi pesca il numero corretto meno 1. La carta mancante (cripta o libreria) viene pescata dopo che tutti i giocatori hanno completato il primo turno."
+    "description": "Il giocatore ha pescato una o più carte in eccesso durante la mano iniziale (cripta da 4 invece di 3+1, libreria da 8 invece di 7) prima dell'inizio del primo turno.",
+    "example": "Mescolato e pescato 8 carte di libreria; oppure 5 di cripta.",
+    "philosophy": "",
+    "correzione": "Il giocatore rimescola le carte nel mazzo, poi pesca il numero corretto meno 1. La carta mancante (cripta o libreria) viene pescata dopo che tutti i giocatori hanno completato il primo turno."
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta pescata in più durante la partita",
     "reference": "121",
     "sanction": "WARNING",
-    "description": "Durante un turno il giocatore pesca una carta in più rispetto a quanto dovuto, tipicamente per un'azione fraintesa o una pesca duplicata.\nSi considera pescata in più solo se vista. Se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.",
-    "intervention": "Negli altri casi, se è chiaro quale sia la carta extra, si rimescola quella, altrimenti una carta a caso. Nel rimescolare bisogna salvaguardare le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
+    "description": "Durante un turno il giocatore pesca una carta in più rispetto a quanto dovuto, tipicamente per un'azione fraintesa o una pesca duplicata. Si considera pescata in più solo se vista: se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.",
+    "example": "Pescata doppia dopo aver giocato una master; carta in più presa dopo aver risolto un effetto già completato.",
+    "philosophy": "",
+    "correzione": "Se è chiaro quale sia la carta extra, si rimescola quella, altrimenti una carta a caso. Nel rimescolare bisogna salvaguardare le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta vista/rivelata per errore mentre si pesca/taglia",
     "reference": "122",
     "sanction": "CAUTION",
-    "description": "Mentre si pesca, si taglia o si rimescola il mazzo, una o più carte vengono rivelate involontariamente al giocatore stesso o agli altri giocatori.\nEs. carta che scivola dalla mano durante la pesca, taglio in cui si vede l'ultima carta, mescolata in cui un'angolazione errata mostra la faccia.\nSe nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
-    "intervention": "Le carte viste/rivelate per errore si rimescolano nel mazzo, salvaguardando le aree già ordinate (vedi sopra)."
+    "description": "Mentre si pesca, si taglia o si rimescola il mazzo, una o più carte vengono rivelate involontariamente al giocatore stesso o agli altri giocatori. Se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
+    "example": "Carta che scivola dalla mano durante la pesca; taglio in cui si vede l'ultima carta; mescolata in cui un'angolazione errata mostra la faccia.",
+    "philosophy": "",
+    "correzione": "Le carte viste/rivelate per errore si rimescolano nel mazzo, salvaguardando le aree già ordinate."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione non obbligatoria dimenticata senza aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile.\nEs. dimenticato di prendere il pool di edge ma ho già usato una blood doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
-    "intervention": "Di base, l'azione dimenticata è persa. Si può concedere di recuperarla solo se tutti i giocatori al tavolo sono d'accordo."
+    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile.",
+    "example": "Dimenticato di prendere il pool di edge ma ho già usato una blood doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
+    "philosophy": "",
+    "correzione": "Di base, l'azione dimenticata è persa. Si può concedere di recuperarla solo se tutti i giocatori al tavolo sono d'accordo."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione non obbligatoria dimenticata dopo aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto/rivelato/pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo.\nEs. dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
-    "intervention": "L'azione dimenticata è persa."
+    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto, rivelato o pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo.",
+    "example": "Dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
+    "philosophy": "",
+    "correzione": "L'azione dimenticata è persa."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione obbligatoria dimenticata",
     "reference": "114",
     "sanction": "CAUTION",
-    "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta.\nEs. costo da pagare nella unlock phase, caccia obbligatoria a inizio turno, scarto forzato da effetto avversario, transfer obbligatorio in influence phase.",
-    "intervention": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback.\nSe però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
+    "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta.",
+    "example": "Costo da pagare nella unlock phase; caccia obbligatoria a inizio turno; scarto forzato da effetto avversario; transfer obbligatorio in influence phase.",
+    "philosophy": "",
+    "correzione": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback. Se però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
   },
   {
     "category": "Errori utilizzo carte",
     "infraction": "Carta giocata senza avere i requisiti",
     "reference": "114",
     "sanction": "CAUTION",
-    "description": "Il giocatore mette in gioco una carta senza che il vampiro acting o le condizioni del tavolo soddisfino i requisiti della carta: clan, gruppo, disciplina, capacità minima, status particolare, sect.\nEs. azione !potence giocata da un vampiro che non ha la disciplina, master con requisito di clan attivata da un vampiro di clan diverso, evento che richiede prince/justicar non presenti.",
-    "intervention": "Se non si hanno i requisiti in assoluto (es. nessun vampiro è del clan richiesto o ha la disciplina richiesta), si riprende in mano la carta e si rimescola la carta pescata in più.\nSe un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo."
+    "description": "Il giocatore mette in gioco una carta senza che il vampiro acting o le condizioni del tavolo soddisfino i requisiti della carta: clan, gruppo, disciplina, capacità minima, status particolare, sect.",
+    "example": "Azione !potence giocata da un vampiro che non ha la disciplina; master con requisito di clan attivata da un vampiro di clan diverso; evento che richiede prince/justicar non presenti.",
+    "philosophy": "",
+    "correzione": "Se non si hanno i requisiti in assoluto (es. nessun vampiro è del clan richiesto o ha la disciplina richiesta), si riprende in mano la carta e si rimescola la carta pescata in più. Se un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo."
   },
   {
     "category": "Errori utilizzo carte",
     "infraction": "Errore (non intenzionale) nell'utilizzo dell'effetto di una propria carta",
     "reference": "114",
     "sanction": "CAUTION",
-    "description": "Il giocatore applica in modo errato l'effetto di una propria carta, senza intenzione di trarne vantaggio: risolve un'opzione che la carta non concede, calcola male un costo o un valore, attiva un'abilità nella fase sbagliata, dimentica una condizione del testo.\nEs. bleed con bonus che la carta non dà, costo pagato in pool invece che in blood, modifier giocato fuori sequenza.",
-    "intervention": "Se l'errore è ancora rimediabile si fa rollback o si applica l'effetto corretto; altrimenti si lascia lo stato e si annota la caution. Se l'errore si ripete, valutare warning."
+    "description": "Il giocatore applica in modo errato l'effetto di una propria carta, senza intenzione di trarne vantaggio: risolve un'opzione che la carta non concede, calcola male un costo o un valore, attiva un'abilità nella fase sbagliata, dimentica una condizione del testo.",
+    "example": "Bleed con bonus che la carta non dà; costo pagato in pool invece che in blood; modifier giocato fuori sequenza.",
+    "philosophy": "",
+    "correzione": "Se l'errore è ancora rimediabile si fa rollback o si applica l'effetto corretto; altrimenti si lascia lo stato e si annota la caution. Se l'errore si ripete, valutare warning."
   },
   {
     "category": "Condotta impropria",
     "infraction": "Accordo apparentemente svantaggioso",
     "reference": "///",
     "sanction": "///",
-    "description": "Un giocatore propone o accetta un accordo che, dall'esterno, sembra svantaggioso per la propria posizione di gioco.\nA meno che non sia manifestamente un tentativo di barare, i giudici non devono entrare nel merito della vantaggiosità di un accordo: fa parte delle abilità di un giocatore capire quando un accordo è vantaggioso o meno.",
-    "intervention": ""
+    "description": "Un giocatore propone o accetta un accordo che, dall'esterno, sembra svantaggioso per la propria posizione di gioco. A meno che non sia manifestamente un tentativo di barare, i giudici non devono entrare nel merito della vantaggiosità di un accordo: fa parte delle abilità di un giocatore capire quando un accordo è vantaggioso o meno.",
+    "example": "",
+    "philosophy": "",
+    "correzione": ""
   },
   {
     "category": "Condotta impropria",
     "infraction": "Aiuto esterno",
     "reference": "",
     "sanction": "???",
-    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori.\nEs. spettatore che indica una linea di gioco, amico che segnala carte già giocate, giocatore eliminato che resta al tavolo e commenta.",
-    "intervention": "Allontanare l'esterno dal tavolo. Valutare l'impatto sulla partita: se l'informazione ha già modificato le decisioni, considerare un rollback o, in casi gravi, sanzionare il giocatore complice (warning o superiore)."
+    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori.",
+    "example": "Spettatore che indica una linea di gioco; amico che segnala carte già giocate; giocatore eliminato che resta al tavolo e commenta.",
+    "philosophy": "",
+    "correzione": "Allontanare l'esterno dal tavolo. Valutare l'impatto sulla partita: se l'informazione ha già modificato le decisioni, considerare un rollback o, in casi gravi, sanzionare il giocatore complice (warning o superiore)."
   },
   {
     "category": "Condotta impropria",
     "infraction": "Slow play",
     "reference": "141 - 162",
     "sanction": "CAUTION - GAME LOSS",
-    "description": "Un giocatore impiega più tempo del ragionevole per le proprie azioni di gioco, rallentando il tavolo. La sanzione inferiore si applica per slow play non intenzionale (es. giocatore nuovo incerto su cosa fare); il game loss si applica per slow play intenzionale, tipicamente finalizzato a esaurire il tempo del round (stalling).\nEs. ripetuti turni lunghi senza azioni significative, esitazioni prolungate quando il vantaggio sul tempo è già acquisito, conteggi e ricalcoli ridondanti.",
-    "intervention": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto e, se il rallentamento prosegue, escalare la sanzione."
+    "description": "Un giocatore impiega più tempo del ragionevole per le proprie azioni di gioco, rallentando il tavolo. La sanzione inferiore si applica per slow play non intenzionale (es. giocatore nuovo incerto su cosa fare); il game loss si applica per slow play intenzionale, tipicamente finalizzato a esaurire il tempo del round (stalling).",
+    "example": "Ripetuti turni lunghi senza azioni significative; esitazioni prolungate quando il vantaggio sul tempo è già acquisito; conteggi e ricalcoli ridondanti.",
+    "philosophy": "",
+    "correzione": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto e, se il rallentamento prosegue, escalare la sanzione."
   },
   {
     "category": "Condotta impropria",
     "infraction": "Barare",
     "reference": "163",
     "sanction": "DISQUALIFICATION WITHOUT PRIZE",
-    "description": "Atti deliberati di alterazione del gioco a proprio vantaggio o a danno di un avversario.\nEs. aggiungersi pool di nascosto, togliere intenzionalmente meno pool di quanto perso, alterare il mazzo in modo che l'ordine non sia casuale, pescare carte da aree nascoste quali tasche o maniche, dichiarare azioni o stati di gioco falsi.",
-    "intervention": "Squalifica immediata senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
+    "description": "Atti deliberati di alterazione del gioco a proprio vantaggio o a danno di un avversario.",
+    "example": "Aggiungersi pool di nascosto; togliere intenzionalmente meno pool di quanto perso; alterare il mazzo in modo che l'ordine non sia casuale; pescare carte da aree nascoste quali tasche o maniche; dichiarare azioni o stati di gioco falsi.",
+    "philosophy": "",
+    "correzione": "Squalifica immediata senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
   }
 ]

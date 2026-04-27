@@ -20,7 +20,9 @@ const FIXTURE = [
     reference: "131",
     sanction: "CAUTION",
     description: "Marcatura accidentale di buste protettive.",
-    intervention: "Sostituire le buste danneggiate.",
+    example: "Sleeve graffiata; angolo piegato.",
+    philosophy: "",
+    correzione: "Sostituire le buste danneggiate.",
   },
   {
     category: "Deck",
@@ -28,7 +30,9 @@ const FIXTURE = [
     reference: "132",
     sanction: "GAME LOSS",
     description: "Pattern di marcature riconoscibile dal retro.",
-    intervention: "",
+    example: "",
+    philosophy: "",
+    correzione: "",
   },
   {
     category: "Condotta impropria",
@@ -36,7 +40,9 @@ const FIXTURE = [
     reference: "141 - 162",
     sanction: "CAUTION - GAME LOSS",
     description: "Tempo eccessivo per le decisioni.",
-    intervention: "Avviso e monitoraggio.",
+    example: "Esitazioni prolungate quando il vantaggio sul tempo è già acquisito.",
+    philosophy: "",
+    correzione: "Avviso e monitoraggio.",
   },
 ];
 
@@ -138,6 +144,25 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const refLinks = list.querySelectorAll(".item-ref");
   assert.ok(refLinks.length >= 1, "at least one rendered reference link");
 
+  // Example sections render only for entries that have a non-empty example.
+  const exampleSections = list.querySelectorAll(".item-section-example");
+  assert.equal(exampleSections.length, 2, "two fixture entries have an example, one doesn't");
+  assert.match(exampleSections[0].textContent || "", /Esempio/);
+
+  // Definizione section uses the VEKN-aligned label.
+  const defSections = list.querySelectorAll(".item-section-def");
+  assert.ok(defSections.length >= 1, "at least one Definizione rendered");
+  assert.match(defSections[0].textContent || "", /Definizione/);
+
+  // Penalità is always rendered (one per card). The empty-correzione entry
+  // shows the "Nessuna azione" fallback and gets the empty modifier class.
+  const penaltySections = list.querySelectorAll(".item-section-penalty");
+  assert.equal(penaltySections.length, FIXTURE.length, "Penalità rendered for every card");
+  assert.match(penaltySections[0].textContent || "", /Penalità/);
+  const emptyPenalty = list.querySelectorAll(".item-section-penalty-empty");
+  assert.equal(emptyPenalty.length, 1, "one fixture entry has no correzione");
+  assert.match(emptyPenalty[0].textContent || "", /Nessuna azione specifica/);
+
   // Multi-sanction badge: two pills + arrow separator
   const slowCard = [...cards].find((c) => /slow play/i.test(c.querySelector(".item-title").textContent));
   assert.ok(slowCard, "slow play card present");
@@ -236,7 +261,7 @@ test("DOM smoke: schema-invalid payload surfaces a format error", async () => {
       status: 200,
       headers: { get: () => null },
       async json() {
-        return [{ category: "", infraction: "" }]; // every row invalid
+        return [{ category: "", infraction: "", reference: "x", sanction: "MEGA" }]; // every row invalid
       },
     }),
   });
@@ -254,7 +279,16 @@ test("DOM smoke: partial validation drops bad rows but keeps the page useful", a
       async json() {
         return [
           ...FIXTURE,
-          { category: "", infraction: "", reference: "x", sanction: "MEGA", description: "", intervention: "" },
+          {
+            category: "",
+            infraction: "",
+            reference: "x",
+            sanction: "MEGA",
+            description: "",
+            example: "",
+            philosophy: "",
+            correzione: "",
+          },
         ];
       },
     }),

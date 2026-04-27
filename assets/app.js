@@ -141,11 +141,22 @@ function render() {
       const itemOpen = filtersActive ? " open" : "";
       const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
       const titleHtml = highlightHtml(it.infraction, state.query);
-      // Description is the situational context (examples, when it triggers).
-      // Intervention is what the judge does. Either or both can be empty.
-      const descHtml = it.description ? highlightHtml(it.description, state.query) : "";
-      const intHtml = it.intervention ? highlightHtml(it.intervention, state.query) : "";
-      const hasBody = ref || descHtml || intHtml;
+      // Card sections mirror the VEKN Judges' Guide subsections:
+      //   Definition  → Definizione (when the rule applies)
+      //   Example(s)  → Esempio     (concrete table-side cases)
+      //   Philosophy  → Filosofia   (rationale of the rule)
+      //   Penalty     → Penalità    (procedural correction; severity is the badge)
+      // Definizione/Esempio/Filosofia render only if populated. Penalità
+      // is always rendered — an empty value reads as "Nessuna azione
+      // specifica oltre alla sanzione." so the judge sees explicitly
+      // that no extra correction is required beyond the standard penalty.
+      const defHtml = it.description ? highlightHtml(it.description, state.query) : "";
+      const exHtml = it.example ? highlightHtml(it.example, state.query) : "";
+      const phHtml = it.philosophy ? highlightHtml(it.philosophy, state.query) : "";
+      const hasPenalty = Boolean(it.correzione && it.correzione.trim());
+      const penHtml = hasPenalty
+        ? highlightHtml(it.correzione, state.query)
+        : `<span class="muted">Nessuna azione specifica oltre alla sanzione.</span>`;
       html.push(`<details id="item-${escapeHtml(slug)}" class="${klass}" ${itemEdgeAttrs(parsed)}${itemOpen}>`);
       html.push(`<summary class="item-summary">`);
       html.push(`<span class="item-title">${titleHtml}</span>`);
@@ -156,21 +167,27 @@ function render() {
       html.push(`${renderSanctionBadge(parsed)}</span>`);
       html.push(`</summary>`);
       html.push(`<div class="item-body">`);
-      if (descHtml) {
+      if (defHtml) {
         html.push(
-          `<section class="item-section item-section-desc"><h3 class="item-section-label">Descrizione</h3><div class="item-section-body">${descHtml}</div></section>`,
+          `<section class="item-section item-section-def"><h3 class="item-section-label">Definizione</h3><div class="item-section-body">${defHtml}</div></section>`,
         );
       }
-      if (intHtml) {
+      if (exHtml) {
         html.push(
-          `<section class="item-section item-section-int"><h3 class="item-section-label">Intervento</h3><div class="item-section-body">${intHtml}</div></section>`,
+          `<section class="item-section item-section-example"><h3 class="item-section-label">Esempio</h3><div class="item-section-body">${exHtml}</div></section>`,
         );
       }
-      if (!hasBody) {
-        html.push(`<div class="item-notes muted">Nessun dettaglio aggiuntivo.</div>`);
+      if (phHtml) {
+        html.push(
+          `<section class="item-section item-section-philosophy"><h3 class="item-section-label">Filosofia</h3><div class="item-section-body">${phHtml}</div></section>`,
+        );
       }
+      const penModifier = hasPenalty ? "" : " item-section-penalty-empty";
+      html.push(
+        `<section class="item-section item-section-penalty${penModifier}"><h3 class="item-section-label">Penalità</h3><div class="item-section-body">${penHtml}</div></section>`,
+      );
       // Reference + share controls live at the bottom of the card so the
-      // judge reads description and intervention first, then jumps to the
+      // judge reads description and correzione first, then jumps to the
       // VEKN rule or copies a link. Refs are wrapped in their own row so
       // they don't clash with the share button alignment.
       if (ref) html.push(`<div class="item-refs">${ref}</div>`);

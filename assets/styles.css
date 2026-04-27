@@ -16,6 +16,14 @@
   --s-dq: #c84b4b;
   --s-dqnp: #8b1e3f;
   --s-other: #6b6b75;
+  /* Accent colors for the four card sections (VEKN structure: Definition /
+   * Example(s) / Philosophy / Penalty). Picked from hue families that the
+   * sanction palette does not occupy (teal, magenta/pink, purple, green) so
+   * no section can ever read as a Caution/Warning/Game-Loss/DQ badge. */
+  --sec-def: #2aa1b3;
+  --sec-example: #d086a8;
+  --sec-philosophy: #8a5cb0;
+  --sec-penalty: #3da664;
 
   /* Mark highlight (search hits): same hue as caution but tuned for body
    * legibility — yellow gives the strongest scan-ability on dark bg. */
@@ -38,6 +46,13 @@
     --s-dq: #a8333a;
     --s-dqnp: #5a0f29;
     --s-other: #7a7a85;
+    /* Light-mode section accents: same hues as dark mode, slightly deeper
+     * so they read on a white background while staying clear of the
+     * sanction palette. */
+    --sec-def: #1d8090;
+    --sec-example: #b25881;
+    --sec-philosophy: #6c4498;
+    --sec-penalty: #1f8146;
     --mark-bg: rgba(184, 122, 7, 0.28);
     --mark-fg: #2a1a00;
   }
@@ -643,12 +658,17 @@ a.item-ref:focus-visible {
   font-style: italic;
 }
 
-/* Labeled sections inside the expanded card: "Descrizione" describes when
- * the infraction triggers; "Intervento" describes what the judge does.
- * The label is small and uppercase so it reads as a header but doesn't
- * compete with the body text. */
+/* Labeled sections inside the expanded card. Each section is colour-coded
+ * with its own accent so the eye groups text by purpose at a glance:
+ * Descrizione = blue-violet (definition), Esempio = sand (illustrative),
+ * Correzione = green (corrective action). Accent colors live outside the
+ * sanction palette so they never read as a CAUTION/WARNING/etc. badge. */
 .item-section {
   margin: 0 0 0.6rem;
+  border-left: 3px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
 }
 
 .item-section:last-of-type {
@@ -662,13 +682,57 @@ a.item-ref:focus-visible {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  padding-left: 0.5rem;
-  border-left: 3px solid var(--border-strong);
 }
 
-.item-section-int .item-section-label {
-  border-left-color: color-mix(in srgb, var(--s-caution) 60%, transparent);
-  color: color-mix(in srgb, var(--s-caution) 70%, var(--muted));
+/* Per-section accent: tinted left border + label color + faint background
+ * tint so the four sections are visually distinct without shouting. */
+.item-section-def {
+  border-left-color: color-mix(in srgb, var(--sec-def) 65%, transparent);
+  background: color-mix(in srgb, var(--sec-def) 7%, var(--bg-2));
+}
+.item-section-def .item-section-label {
+  color: color-mix(in srgb, var(--sec-def) 75%, var(--muted));
+}
+
+.item-section-example {
+  border-left-color: color-mix(in srgb, var(--sec-example) 65%, transparent);
+  background: color-mix(in srgb, var(--sec-example) 7%, var(--bg-2));
+}
+.item-section-example .item-section-label {
+  color: color-mix(in srgb, var(--sec-example) 75%, var(--muted));
+}
+/* Example body is italic to signal "this is illustrative" without competing
+ * with the rule wording. */
+.item-section-example .item-section-body {
+  font-style: italic;
+  color: color-mix(in srgb, var(--fg) 92%, var(--muted));
+}
+
+.item-section-philosophy {
+  border-left-color: color-mix(in srgb, var(--sec-philosophy) 65%, transparent);
+  background: color-mix(in srgb, var(--sec-philosophy) 7%, var(--bg-2));
+}
+.item-section-philosophy .item-section-label {
+  color: color-mix(in srgb, var(--sec-philosophy) 75%, var(--muted));
+}
+
+.item-section-penalty {
+  border-left-color: color-mix(in srgb, var(--sec-penalty) 65%, transparent);
+  background: color-mix(in srgb, var(--sec-penalty) 7%, var(--bg-2));
+}
+.item-section-penalty .item-section-label {
+  color: color-mix(in srgb, var(--sec-penalty) 75%, var(--muted));
+}
+
+/* Penalità is always rendered. When the entry has no specific procedure,
+ * the body is a "no extra action required" message — drop the accent so the
+ * empty state doesn't read as if it requires attention. */
+.item-section-penalty.item-section-penalty-empty {
+  border-left-color: var(--border-strong);
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+}
+.item-section-penalty.item-section-penalty-empty .item-section-label {
+  color: var(--muted);
 }
 
 .item-section-body {
