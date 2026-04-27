@@ -216,7 +216,7 @@
     "sanction": "CAUTION - GAME LOSS",
     "description": "Un giocatore impiega più tempo del ragionevole per le proprie azioni di gioco, rallentando il tavolo. La sanzione inferiore si applica per slow play non intenzionale (es. giocatore nuovo incerto su cosa fare); il game loss si applica per slow play intenzionale, tipicamente finalizzato a esaurire il tempo del round (stalling).",
     "example": "Ripetuti turni lunghi senza azioni significative; esitazioni prolungate quando il vantaggio sul tempo è già acquisito; conteggi e ricalcoli ridondanti.",
-    "philosophy": "",
+    "philosophy": "VEKN 141 (Slow Play) non richiede al giudice di provare l'intenzionalità: ogni giocatore ha la responsabilità di non danneggiare gli avversari con il proprio ritmo. Il giudice valuta i punteggi del tavolo per decidere se escalare a 162 (Stalling, Game Loss). Lo stalling intenzionale non richiede neanche di giocare lento — basta perdere tempo con attività inutili (es. usare Vast Wealth ripetutamente sapendo che non c'è più equipaggiamento da trovare) per cadere in 162.",
     "correzione": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto e, se il rallentamento prosegue, escalare la sanzione."
   },
   {
