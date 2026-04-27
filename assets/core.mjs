@@ -295,11 +295,32 @@ export function matchSearch(item, query) {
 }
 
 /**
+ * Expands a multi-sanction range to every severity level between the
+ * endpoints (inclusive), in canonical SANCTION_ORDER. So "CAUTION - GAME
+ * LOSS" expands to [CAUTION, WARNING, GAME LOSS] — the in-between WARNING
+ * is part of the range by semantic intent, even though the data only lists
+ * the endpoints. Single-sanction and placeholder inputs return as-is.
+ * @param {ParsedSanction} parsed
+ * @returns {string[]}
+ */
+export function expandSanctionRange(parsed) {
+  if (parsed.kind !== "multi") return parsed.sanctions;
+  const start = SANCTION_ORDER.indexOf(parsed.sanctions[0]);
+  const end = SANCTION_ORDER.indexOf(parsed.sanctions[parsed.sanctions.length - 1]);
+  // Defensive: if either endpoint isn't canonical, fall back to the literal
+  // list. parseSanction already gates against this, but a callsite that
+  // hand-builds a ParsedSanction shouldn't crash.
+  if (start === -1 || end === -1 || start > end) return parsed.sanctions;
+  return SANCTION_ORDER.slice(start, end + 1);
+}
+
+/**
  * Filters by enabled sanction set. An empty set means "no filter active"
- * (equivalent to all enabled). Multi-sanction items match if ANY of their
- * sanctions is enabled (so filtering by CAUTION includes "CAUTION - GAME
- * LOSS" slow-play entries). Placeholder items ("???", "///", empty) fall
- * into the "TBD" bucket.
+ * (equivalent to all enabled). Multi-sanction items match if ANY level
+ * within the range (endpoints AND in-between) is enabled — so filtering
+ * by WARNING includes a "CAUTION - GAME LOSS" slow-play entry, because
+ * the range covers it. Placeholder items ("???", "///", empty) fall into
+ * the "TBD" bucket.
  * @param {VademecumEntry} item
  * @param {Set<string> | null | undefined} enabled
  * @returns {boolean}
@@ -308,7 +329,7 @@ export function matchSanction(item, enabled) {
   if (!enabled || enabled.size === 0) return true;
   const parsed = parseSanction(item.sanction);
   if (parsed.kind === "placeholder") return enabled.has("TBD");
-  return parsed.sanctions.some((s) => enabled.has(s));
+  return expandSanctionRange(parsed).some((s) => enabled.has(s));
 }
 
 /**

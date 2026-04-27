@@ -194,14 +194,26 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   cautionChip.click();
   await tick(20);
   assert.equal(cautionChip.getAttribute("aria-pressed"), "true");
-  // CAUTION matches the single-CAUTION row AND the CAUTION-GAME LOSS multi row
+  // CAUTION matches the single-CAUTION row AND the CAUTION-GAME LOSS multi row.
   const cautionFiltered = list.querySelectorAll("details.item");
   assert.equal(cautionFiltered.length, 2);
 
-  // Toggle off
+  // Toggle off CAUTION, enable WARNING — the multi range CAUTION-GAME LOSS
+  // covers the in-between WARNING level, so the slow-play card still matches
+  // even though "WARNING" is not literally in its sanction string.
   cautionChip.click();
   await tick(20);
+  const warningChip = [...chips].find((c) => c.dataset.sanction === "WARNING");
+  warningChip.click();
+  await tick(20);
+  const warningFiltered = list.querySelectorAll("details.item");
+  assert.equal(warningFiltered.length, 1, "WARNING filter catches the CAUTION-GAME LOSS range");
+  assert.match(warningFiltered[0].querySelector(".item-title").textContent || "", /Slow play/i);
+  warningChip.click();
+  await tick(20);
+  // After both chips are toggled off, no filter is active.
   assert.equal(cautionChip.getAttribute("aria-pressed"), "false");
+  assert.equal(warningChip.getAttribute("aria-pressed"), "false");
   assert.equal(list.querySelectorAll("details.item").length, FIXTURE.length);
 
   // ---- Hash deep-link to an item ----

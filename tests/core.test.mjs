@@ -17,6 +17,7 @@ import {
   parseSanction,
   validateEntry,
   validateData,
+  expandSanctionRange,
 } from "../assets/core.mjs";
 
 test("norm lowercases and strips diacritics", () => {
@@ -116,7 +117,7 @@ test("matchSanction routes placeholder sanctions to TBD bucket", () => {
   assert.equal(matchSanction(sample[0], enabled), false); // CAUTION
 });
 
-test("matchSanction with multi-sanction items matches any enabled sanction", () => {
+test("matchSanction with multi-sanction items matches every level in the range", () => {
   const slowPlay = {
     category: "CONDOTTA IMPROPRIA",
     infraction: "SLOW PLAY",
@@ -127,10 +128,37 @@ test("matchSanction with multi-sanction items matches any enabled sanction", () 
     philosophy: "",
     correzione: "",
   };
+  // Endpoints match.
   assert.equal(matchSanction(slowPlay, new Set(["CAUTION"])), true);
   assert.equal(matchSanction(slowPlay, new Set(["GAME LOSS"])), true);
-  assert.equal(matchSanction(slowPlay, new Set(["WARNING"])), false);
+  // The in-between level (WARNING) is part of the range too — the data only
+  // lists the endpoints but the semantic intent is the full inclusive range.
+  assert.equal(matchSanction(slowPlay, new Set(["WARNING"])), true);
+  // Out-of-range levels do not match.
+  assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION"])), false);
+  assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION WITHOUT PRIZE"])), false);
   assert.equal(matchSanction(slowPlay, new Set(["TBD"])), false); // it IS canonical
+});
+
+test("expandSanctionRange returns inclusive range for multi, identity otherwise", () => {
+  // Multi: includes every level between the endpoints in canonical order.
+  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION - GAME LOSS")), ["CAUTION", "WARNING", "GAME LOSS"]);
+  assert.deepEqual(expandSanctionRange(parseSanction("WARNING - DISQUALIFICATION")), [
+    "WARNING",
+    "GAME LOSS",
+    "DISQUALIFICATION",
+  ]);
+  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION - DISQUALIFICATION WITHOUT PRIZE")), [
+    "CAUTION",
+    "WARNING",
+    "GAME LOSS",
+    "DISQUALIFICATION",
+    "DISQUALIFICATION WITHOUT PRIZE",
+  ]);
+  // Single sanction: returns the single-element list as-is.
+  assert.deepEqual(expandSanctionRange(parseSanction("CAUTION")), ["CAUTION"]);
+  // Placeholder: empty list.
+  assert.deepEqual(expandSanctionRange(parseSanction("???")), []);
 });
 
 test("computeFiltered combines search + sanction filters", () => {
