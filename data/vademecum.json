@@ -96,7 +96,7 @@
     "sanction": "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
     "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro. Il regolamento assume di base la non intenzionalità: la sanzione standard è Game Loss. Se il giudice ritiene la marcatura intenzionale, l'infrazione si tratta come 163. Cheating - Fraud (squalifica senza premio).",
     "example": "Tutte le master segnate allo stesso modo; libreria distinguibile dalla cripta dal retro; segni ricorrenti su carte chiave.",
-    "philosophy": "Quando le marcature seguono uno schema, il vantaggio potenziale per il giocatore è alto e la sanzione deve essere significativa. VEKN 132 assume comunque che le marcature siano accidentali: il caso base è Game Loss. Se il giudice ritiene la marcatura intenzionale si applica 163. Cheating - Fraud — squalifica senza premio.",
+    "philosophy": "Quando le marcature seguono uno schema, il vantaggio potenziale per il giocatore è alto e la sanzione deve essere significativa. Il caso base di VEKN 132 (Game Loss) presume comunque la non intenzionalità: lo schema basta a giustificare Game Loss, ma non a presumere il barare deliberato. Se il giudice ha evidenza che la marcatura è intenzionale, l'infrazione si tratta come 163. Cheating - Fraud — squalifica senza premio.",
     "correzione": "Game Loss e sostituzione delle buste prima del round successivo. In caso di intenzionalità accertata si applica 163. Cheating - Fraud: squalifica senza premio, documentazione dell'episodio e segnalazione all'organizzazione."
   },
   {
