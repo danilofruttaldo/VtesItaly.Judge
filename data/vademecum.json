@@ -7,7 +7,7 @@
     "description": "Il numero di copie di una carta poco impattante o sostituibile con altre dello stesso ruolo nel mazzo non corrisponde alla decklist. La differenza non altera in modo significativo la strategia.",
     "example": "Una Fame in più o in meno; una Montreal Convention extra; una vessel di troppo in un mazzo che ne contiene molte.",
     "philosophy": "VEKN 102 prevede di base Game Loss per ogni mismatch mazzo/decklist; il vademecum italiano applica un gradiente più fine in base all'impatto strategico. Per una carta trasferibile o ridondante (Fame, Montreal Convention, vessel in surplus) il peso è trascurabile: Caution è sufficiente, la decklist va comunque corretta.",
-    "correzione": ""
+    "correzione": "Si lascia il mazzo com'è (è già stato giocato) e si corregge la decklist al numero di copie effettivo."
   },
   {
     "category": "Deck vs decklist",
@@ -17,7 +17,7 @@
     "description": "Il totale delle carte in mazzo o in cripta non corrisponde alla decklist, ma la discrepanza non offre un vantaggio strategico evidente.",
     "example": "Decklist da 90 carte e mazzo da 89; sono segnati 10 Govern the Unaligned ma nel mazzo ce ne sono 9.",
     "philosophy": "Gradiente italiano sulla VEKN 102: una discrepanza nel totale di carte o in copie multiple di una carta non strategica non offre vantaggio apprezzabile ma segna negligenza nella compilazione. Warning.",
-    "correzione": ""
+    "correzione": "Si lascia il mazzo com'è e si corregge la decklist al totale effettivo. Se la discrepanza è chiaramente un errore di trascrizione, fix della sola decklist senza ulteriori interventi."
   },
   {
     "category": "Deck vs decklist",
@@ -27,7 +27,7 @@
     "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist.",
     "example": "Una Direct Intervention non dichiarata; una Archon Investigation in più; una Wash o una Sudden Reversal extra.",
     "philosophy": "Gradiente italiano sulla VEKN 102: una silver bullet o una carta a impatto immediato non dichiarata altera radicalmente le decisioni del tavolo. Anche se non intenzionale, il vantaggio è troppo grande per consentire la prosecuzione. Disqualification.",
-    "correzione": ""
+    "correzione": "Squalifica del giocatore dal torneo. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
   },
   {
     "category": "Deck vs decklist",
@@ -47,7 +47,7 @@
     "description": "Il mazzo presenta più sostituzioni rispetto alla decklist, oppure una sostituzione che cambia in modo significativo il piano di gioco.",
     "example": "Una bleed modifier sostituita con un bounce; più carte di disciplina diverse rispetto a quelle dichiarate; una linea strategica intera differente.",
     "philosophy": "Gradiente italiano sulla VEKN 102: più sostituzioni, o una sostituzione strutturale che cambia il piano di gioco (bleed modifier → bounce, disciplina diversa), rendono il mazzo giocato sostanzialmente diverso da quello dichiarato. Game Loss.",
-    "correzione": ""
+    "correzione": "Il giocatore perde la partita in corso. Prima del round successivo deve adeguare il mazzo alla decklist; se la discrepanza è chiaramente un errore di trascrizione, può correggere la decklist invece del mazzo."
   },
   {
     "category": "Deck vs decklist",
