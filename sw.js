@@ -15,6 +15,11 @@ const VERSION = "v1";
 const SHELL_CACHE = `shell-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 
+// `vademecum.json` is intentionally NOT precached: it's editorial data
+// that changes more often than the shell, so locking judges into the
+// install-time copy until the next SW VERSION bump risks rulings on
+// stale rules. The fetch handler below caches it network-first into
+// RUNTIME_CACHE so it's still available offline after the first load.
 const SHELL_FILES = [
   "./",
   "./index.html",
@@ -25,7 +30,6 @@ const SHELL_FILES = [
   "./assets/vtes.svg",
   "./assets/favicon.ico",
   "./assets/apple-touch-icon.png",
-  "./data/vademecum.json",
 ];
 
 sw.addEventListener("install", (e) => {

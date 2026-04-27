@@ -38,8 +38,11 @@
     --s-dq: #a8333a;
     --s-dqnp: #5a0f29;
     --s-other: #7a7a85;
-    --mark-bg: rgba(184, 122, 7, 0.28);
-    --mark-fg: #2a1a00;
+    /* Boosted opacity + darker fg pushes contrast clearly past WCAG AA
+     * (4.5:1) on the body background — readability of highlighted hits
+     * is critical when scanning rules under tournament lighting. */
+    --mark-bg: rgba(184, 122, 7, 0.36);
+    --mark-fg: #1a0e00;
   }
 }
 
@@ -149,7 +152,9 @@ a {
 
 /* On scroll, condense the header on small screens: the sub line collapses
  * and the title shrinks slightly so the search/chip strip stays close to
- * the viewport top. Skipped on desktop where vertical space isn't tight. */
+ * the viewport top. Skipped on desktop where vertical space isn't tight.
+ * Safe-area top inset is preserved on `.topbar` itself (see above) so the
+ * title never clips under a notch even when the inner header padding shrinks. */
 @media (max-width: 719px) {
   .is-scrolled .topbar header {
     padding-top: 0.25rem;
@@ -247,6 +252,14 @@ main {
   overflow: hidden;
 }
 
+/* When a search query is active, every visible category is one that
+ * contains at least one match — emphasise the count badge so it reads
+ * as "N hits in this section" instead of just an item count. */
+.category-has-matches > .category-summary .category-count {
+  background: color-mix(in srgb, var(--s-warning) 22%, transparent);
+  color: var(--fg);
+}
+
 .category-summary {
   list-style: none;
   cursor: pointer;
@@ -330,9 +343,24 @@ main {
   scroll-margin-top: 200px;
 }
 
-.item:target {
+/* Deep-linked or focused-summary items get a clearly visible accent: a
+ * tinted background plus an outer glow plus a thicker accent left rail.
+ * The bordered look alone was easy to miss on mobile under bright light. */
+.item:target,
+.item:has(> .item-summary:focus-visible) {
   border-color: var(--s-caution);
+  background: color-mix(in srgb, var(--s-caution) 8%, var(--bg-2));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--s-caution) 40%, transparent);
+}
+
+.item:target::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--s-caution);
+  border-radius: 0.375rem 0 0 0.375rem;
+  pointer-events: none;
 }
 
 .item-summary {
@@ -450,11 +478,17 @@ main {
   }
 }
 
+/* Arrow between two pills on multi-sanction items reads as a severity
+ * range ("CAUTION → GAME LOSS"), not as cumulative penalties. We make
+ * it visually distinct from the body text so the relationship between
+ * the two pills is unambiguous on a quick scan. */
 .badge-sep {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0 0.05rem;
+  color: var(--fg);
+  opacity: 0.65;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0 0.15rem;
+  align-self: center;
 }
 
 .badge[data-sanction="CAUTION"] {
@@ -689,7 +723,38 @@ a.item-ref:focus-visible {
 }
 
 .updated[hidden],
+.offline[hidden],
 .sw-update[hidden] {
+  display: none;
+}
+
+/* Offline chip — subtle, persistent when the device reports offline so
+ * the judge knows they're consulting the SW-cached vademecum. The dot
+ * is a small filled circle in the warning hue (also visible to color-
+ * blind users thanks to the explicit text). */
+.offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--s-warning) 40%, var(--border));
+  background: color-mix(in srgb, var(--s-warning) 10%, var(--bg-2));
+  color: var(--fg);
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+
+.offline-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--s-warning);
+  flex: 0 0 auto;
+}
+
+/* Print-only line identifying the source on a paper copy. Hidden in
+ * the running app — only revealed by the @media print rules below. */
+.print-source {
   display: none;
 }
 
@@ -773,12 +838,39 @@ a.item-ref:focus-visible {
   .topbar {
     position: static;
     border-bottom: 2px solid #000;
+    padding-top: 0;
   }
+  /* Keep the header (title + VEKN reference) on the printed page so a
+   * judge picking up the paper later knows the source and the document.
+   * The interactive controls (search box, reset button, count) and the
+   * footer's online-state chips are still hidden — they have no meaning
+   * on paper. */
   .controls,
-  .meta-row,
   .reset,
-  .item-actions {
+  .item-actions,
+  .offline,
+  .sw-update {
     display: none !important;
+  }
+  .topbar header {
+    padding: 0.5rem 0 0.25rem;
+  }
+  .topbar h1 {
+    font-size: 1.4rem;
+  }
+  .topbar .sub,
+  .topbar .sub a {
+    color: #000 !important;
+  }
+  .updated {
+    display: inline-block !important;
+    font-size: 0.75rem;
+  }
+  .print-source {
+    display: block !important;
+    margin-top: 0.25rem;
+    font-size: 0.7rem;
+    color: #444;
   }
   details.category,
   details.item {

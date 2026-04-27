@@ -31,6 +31,7 @@ const el = {
   count: /** @type {HTMLElement} */ (document.getElementById("count")),
   reset: /** @type {HTMLButtonElement} */ (document.getElementById("reset")),
   updated: /** @type {HTMLElement | null} */ (document.getElementById("updated")),
+  offline: /** @type {HTMLElement | null} */ (document.getElementById("offline")),
   swUpdate: /** @type {HTMLElement | null} */ (document.getElementById("sw-update")),
   swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
 };
@@ -81,9 +82,30 @@ function itemEdgeAttrs(parsed) {
 }
 
 function render() {
+  try {
+    renderUnsafe();
+  } catch (err) {
+    // A render crash (bad data, malformed string in highlight, etc.) used
+    // to leave the page blank. Log and surface a recoverable error state
+    // so the judge can still see something — and reset to retry.
+    console.error("vademecum render failed:", err);
+    el.list.innerHTML = "";
+    el.empty.hidden = true;
+    el.loading.hidden = false;
+    el.loading.textContent = "Errore di visualizzazione. Premi Azzera e riprova.";
+    el.loading.classList.add("is-error");
+  }
+}
+
+function renderUnsafe() {
   const filtered = computeFiltered(state.items, state.query);
   const total = state.items.length;
-  el.count.textContent = filtered.length === total ? `${total} voci` : `${filtered.length} / ${total}`;
+  const isFiltered = filtered.length !== total;
+  el.count.textContent = isFiltered ? `${filtered.length} / ${total}` : `${total} voci`;
+  el.count.setAttribute(
+    "aria-label",
+    isFiltered ? `${filtered.length} voci su ${total} corrispondono ai filtri` : `${total} voci totali`,
+  );
   el.reset.hidden = state.query === "";
 
   if (filtered.length === 0) {
@@ -101,9 +123,11 @@ function render() {
   const html = [];
   for (const [category, items] of groups) {
     const open = queryActive ? " open" : "";
-    html.push(`<details class="category"${open}>`);
+    const matchClass = queryActive ? " category-has-matches" : "";
+    const countLabel = `${items.length} ${items.length === 1 ? "voce" : "voci"}${queryActive ? " corrispondenti" : ""}`;
+    html.push(`<details class="category${matchClass}"${open}>`);
     html.push(
-      `<summary class="category-summary"><span class="category-title">${escapeHtml(category)}</span><span class="category-count">${items.length}</span></summary>`,
+      `<summary class="category-summary"><span class="category-title">${escapeHtml(category)}</span><span class="category-count" aria-label="${escapeHtml(countLabel)}">${items.length}</span></summary>`,
     );
     html.push(`<div class="category-body">`);
     for (const it of items) {
@@ -194,9 +218,20 @@ function revealItem(slug) {
     p = p.parentElement;
   }
   node.open = true;
-  // Defer scrolling so the layout settles after open=true.
+  // Defer scrolling so the layout settles after open=true. We also move
+  // focus to the summary so keyboard users land inside the active card
+  // instead of having to tab through the collapsed list again.
   requestAnimationFrame(() => {
     node.scrollIntoView({ block: "start", behavior: "smooth" });
+    const summary = /** @type {HTMLElement | null} */ (node.querySelector(":scope > .item-summary"));
+    if (summary) {
+      if (!summary.hasAttribute("tabindex")) summary.setAttribute("tabindex", "-1");
+      try {
+        summary.focus({ preventScroll: true });
+      } catch {
+        summary.focus();
+      }
+    }
   });
 }
 
@@ -246,15 +281,23 @@ function applyHashState() {
  * @template {(...args: any[]) => any} F
  * @param {F} fn
  * @param {number} ms
- * @returns {(...args: Parameters<F>) => void}
+ * @returns {((...args: Parameters<F>) => void) & { cancel: () => void }}
  */
 function debounce(fn, ms) {
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let t;
-  return (...args) => {
+  /** @type {((...args: Parameters<F>) => void) & { cancel?: () => void }} */
+  const wrapped = (...args) => {
     if (t !== undefined) clearTimeout(t);
     t = setTimeout(() => fn(...args), ms);
   };
+  wrapped.cancel = () => {
+    if (t !== undefined) {
+      clearTimeout(t);
+      t = undefined;
+    }
+  };
+  return /** @type {((...args: Parameters<F>) => void) & { cancel: () => void }} */ (wrapped);
 }
 
 const onQueryInput = debounce((value) => {
@@ -270,6 +313,9 @@ function bindEvents() {
   el.q.addEventListener("input", (e) => onQueryInput(/** @type {HTMLInputElement} */ (e.target).value));
 
   const doReset = () => {
+    // Cancel any in-flight debounced render so it doesn't fire after we've
+    // already cleared the query and re-rendered (would cause a flicker).
+    onQueryInput.cancel();
     state.query = "";
     el.q.value = "";
     writeHashState();
@@ -280,6 +326,35 @@ function bindEvents() {
 
   // Listen to hash changes so external links / browser nav update state.
   window.addEventListener("hashchange", () => applyHashState());
+
+  // Global keyboard shortcut: Ctrl+K (or Cmd+K) focuses the search box from
+  // anywhere on the page so judges can jump to it without scrolling. Esc
+  // inside the search box clears any active query — matches the affordance
+  // hinted at in the placeholder.
+  window.addEventListener("keydown", (e) => {
+    const ke = /** @type {KeyboardEvent} */ (e);
+    if ((ke.ctrlKey || ke.metaKey) && !ke.shiftKey && !ke.altKey && ke.key.toLowerCase() === "k") {
+      e.preventDefault();
+      el.q.focus();
+      el.q.select();
+      return;
+    }
+    if (ke.key === "Escape" && document.activeElement === el.q && state.query !== "") {
+      e.preventDefault();
+      doReset();
+    }
+  });
+
+  // Online/offline indicator. We surface offline as a subtle footer chip so
+  // judges know they're consulting cached data — relevant when a torneo's
+  // wifi drops mid-ruling. The cache itself is handled by the SW.
+  const updateOnlineState = () => {
+    if (!el.offline) return;
+    el.offline.hidden = navigator.onLine;
+  };
+  window.addEventListener("online", updateOnlineState);
+  window.addEventListener("offline", updateOnlineState);
+  updateOnlineState();
 
   // Click on per-item "Link a questa voce" copies the URL to clipboard.
   el.list.addEventListener("click", (e) => {
@@ -335,10 +410,20 @@ function flashShare(node, text) {
   const original = node.textContent;
   node.textContent = text;
   node.classList.add("is-flashed");
+  // 2.2s gives slow readers on mobile time to register the confirmation
+  // before the text snaps back. A short haptic tap (when supported)
+  // confirms the copy without forcing the judge to look at the screen.
+  if (typeof navigator.vibrate === "function") {
+    try {
+      navigator.vibrate(15);
+    } catch {
+      /* noop — Safari iOS doesn't expose vibrate */
+    }
+  }
   setTimeout(() => {
     node.textContent = original;
     node.classList.remove("is-flashed");
-  }, 1400);
+  }, 2200);
 }
 
 function setUpdated(headerValue) {
@@ -352,8 +437,16 @@ function setUpdated(headerValue) {
     el.updated.hidden = true;
     return;
   }
-  const fmt = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", year: "numeric" });
-  el.updated.textContent = `Aggiornato: ${fmt.format(d)}`;
+  // Prefer locale-aware formatting; fall back to ISO date if Intl is
+  // unavailable or the runtime rejects the locale (older WebViews).
+  let formatted;
+  try {
+    formatted = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", year: "numeric" }).format(d);
+  } catch {
+    formatted = d.toISOString().slice(0, 10);
+  }
+  el.updated.textContent = `Aggiornato: ${formatted}`;
+  el.updated.setAttribute("datetime", d.toISOString());
   el.updated.hidden = false;
 }
 
@@ -379,7 +472,11 @@ function loadErrorMessage(err) {
 async function init() {
   bindEvents();
   try {
-    const resp = await fetch("./data/vademecum.json", { cache: "no-cache" });
+    // Default cache lets the SW + HTTP cache decide freshness. The SW uses
+    // a network-first strategy for vademecum.json (sw.js fetch handler),
+    // so judges get the latest data when online and the cached copy when
+    // offline — without paying a forced revalidation on every page load.
+    const resp = await fetch("./data/vademecum.json");
     if (!resp.ok) {
       const e = /** @type {Error & { status: number }} */ (new Error(`HTTP ${resp.status}`));
       e.status = resp.status;

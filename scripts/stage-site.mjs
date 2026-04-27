@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const SITE = "_site";
@@ -18,6 +18,24 @@ if (!existsSync("data/vademecum.json")) {
   process.exit(1);
 }
 cpSync("data/vademecum.json", `${SITE}/data/vademecum.json`);
+
+// Sanity-check: by the time stage-site runs in CI, stamp-sw.mjs must have
+// rewritten the placeholder "v1" VERSION to a UTC timestamp. If we ship
+// the placeholder, every cache key collides across deploys and clients
+// never see updates. Fail loudly here rather than ten minutes after the
+// rollout when nobody can flush the SW.
+const stagedSw = readFileSync(`${SITE}/sw.js`, "utf8");
+const versionMatch = stagedSw.match(/^const VERSION = "(.*)";$/m);
+if (!versionMatch) {
+  console.error("stage-site: sw.js has no VERSION declaration. Did stamp-sw.mjs run?");
+  process.exit(1);
+}
+if (versionMatch[1] === "v1" && process.env.CI === "true") {
+  console.error(
+    "stage-site: sw.js still has placeholder VERSION 'v1'. Run `node scripts/stamp-sw.mjs` before staging.",
+  );
+  process.exit(1);
+}
 
 function dirSize(dir) {
   let total = 0;

@@ -44,9 +44,10 @@
         <input
           type="search"
           id="q"
-          placeholder="Cerca infrazione, nota, riferimento..."
+          placeholder="Cerca infrazione, nota, riferimento... (Ctrl+K)"
           autocomplete="off"
-          aria-label="Cerca nel vademecum"
+          aria-label="Cerca nel vademecum (scorciatoia: Ctrl+K)"
+          aria-keyshortcuts="Control+K"
           enterkeyhint="search"
         />
         <div class="meta-row">
@@ -72,9 +73,14 @@
 
     <footer class="app-footer">
       <span class="updated" id="updated" hidden></span>
+      <span class="offline" id="offline" role="status" aria-live="polite" hidden>
+        <span class="offline-dot" aria-hidden="true"></span>
+        Offline — stai consultando i dati salvati localmente
+      </span>
       <span class="sw-update" id="sw-update" hidden>
         <button class="sw-update-btn" id="sw-update-btn" type="button">Aggiornamento disponibile — ricarica</button>
       </span>
+      <span class="print-source" aria-hidden="true">judge.vtesitaly.com — Vademecum sanzioni</span>
     </footer>
   </body>
 </html>

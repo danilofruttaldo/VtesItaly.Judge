@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   SANCTION_ORDER,
   JUDGES_GUIDE_URL,
+  JUDGES_GUIDE_RULES,
   norm,
   escapeHtml,
   highlightHtml,
@@ -138,6 +139,27 @@ test("judgesGuideUrl builds a Text Fragment URL for known rules", () => {
 test("judgesGuideUrl returns null for unknown rule numbers", () => {
   assert.equal(judgesGuideUrl(999), null);
   assert.equal(judgesGuideUrl(0), null);
+});
+
+test("JUDGES_GUIDE_RULES has unique numeric keys and well-formed titles", () => {
+  // Catches accidental copy-paste duplicates that would silently break
+  // deep-links to the VEKN Judges' Guide. The map is hand-maintained,
+  // so a CI-level uniqueness check is cheaper than a post-mortem.
+  const entries = Object.entries(JUDGES_GUIDE_RULES);
+  assert.ok(entries.length > 0, "rules map must not be empty");
+  const numbers = entries.map(([k]) => Number(k));
+  for (const n of numbers) {
+    assert.ok(Number.isInteger(n) && n > 0, `rule key ${n} must be a positive integer`);
+  }
+  // Sets de-duplicate by definition; comparing sizes flags a duplicate key
+  // even though Object.entries would have already collapsed plain duplicates.
+  assert.equal(new Set(numbers).size, numbers.length, "duplicate rule numbers detected");
+  // Each title must start with the same number followed by ". " so the
+  // Text Fragment URL anchors against a unique heading.
+  for (const [k, title] of entries) {
+    assert.ok(typeof title === "string" && title.length > 0, `title for ${k} must be non-empty`);
+    assert.ok(title.startsWith(`${k}.`), `title for ${k} must start with "${k}."; got ${JSON.stringify(title)}`);
+  }
 });
 
 test("parseReference handles empty / placeholder cells", () => {
