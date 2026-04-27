@@ -127,7 +127,7 @@
     "description": "Durante un turno il giocatore pesca una carta in più rispetto a quanto dovuto, tipicamente per un'azione fraintesa o una pesca duplicata. Si considera pescata in più solo se vista: se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.",
     "example": "Pescata doppia dopo aver giocato una master; carta in più presa dopo aver risolto un effetto già completato.",
     "philosophy": "",
-    "correzione": "Se è chiaro quale sia la carta extra, si rimescola quella, altrimenti una carta a caso. Nel rimescolare bisogna salvaguardare le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
+    "correzione": "Se è chiaro quale sia la carta extra si rimescola quella nel mazzo; altrimenti si rimescola una carta a caso dalla mano del giocatore. Gli avversari hanno diritto di vedere ogni carta che il giocatore ha visto a causa dell'errore. Se un altro giocatore conosce già una porzione del mazzo (per effetti precedenti), la carta extra va riposta in cima al mazzo senza rimescolare, per preservare quella conoscenza. Se le carte pescate sono troppe perché il giudice possa correggere la situazione, escalation automatica a Game Loss. Salvaguardare comunque le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
   },
   {
     "category": "Carte pescate",
