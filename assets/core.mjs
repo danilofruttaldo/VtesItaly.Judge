@@ -154,12 +154,87 @@ export function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => HTML_ESCAPE[c]);
 }
 
+/* HTML-escapes `text` and wraps query matches in <mark>. The match is
+ * accent- and case-insensitive (same equivalence class as norm()), so a
+ * search for "perche" highlights "perché" in the source. Matches are
+ * non-overlapping and rendered in the order they appear. Returns plain
+ * escaped HTML when query is empty or has no hit. */
+export function highlightHtml(text, query) {
+  const src = text === null || text === undefined ? "" : String(text);
+  const qn = norm(query);
+  if (!src || !qn) return escapeHtml(src);
+
+  // Build a normalized projection of `src` and a parallel index map so we
+  // can search in the normalized space and emit slices of the original.
+  let projected = "";
+  const map = []; // map[i] = source index that produced projected[i]
+  for (let i = 0; i < src.length; i++) {
+    const piece = src[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    for (const c of piece) {
+      projected += c;
+      map.push(i);
+    }
+  }
+
+  const ranges = [];
+  let from = 0;
+  while (from <= projected.length - qn.length) {
+    const idx = projected.indexOf(qn, from);
+    if (idx < 0) break;
+    const start = map[idx];
+    const endProjected = idx + qn.length - 1;
+    const endSrc = (map[endProjected] ?? src.length - 1) + 1;
+    ranges.push([start, endSrc]);
+    from = endProjected + 1;
+  }
+  if (ranges.length === 0) return escapeHtml(src);
+
+  let out = "";
+  let cursor = 0;
+  for (const [s, e] of ranges) {
+    if (s < cursor) continue;
+    out += escapeHtml(src.slice(cursor, s));
+    out += `<mark>${escapeHtml(src.slice(s, e))}</mark>`;
+    cursor = e;
+  }
+  out += escapeHtml(src.slice(cursor));
+  return out;
+}
+
+/* Stable, URL-safe slug for an item, derived from category + infraction.
+ * Used as the DOM id of each card so that location.hash can deep-link to
+ * a specific entry (e.g. share "#item-condotta-impropria-slow-play"). The
+ * slug is intentionally derived (not authored) so judges don't need to
+ * maintain ids in vademecum.json. Collisions are unlikely — category +
+ * infraction is unique by editorial convention. */
+export function itemSlug(item) {
+  const base = `${item.category || ""} ${item.infraction || ""}`;
+  return (
+    norm(base)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "item"
+  );
+}
+
 /* Returns true when the item matches the search query against any of the
- * searchable text fields. Empty query matches everything. */
+ * searchable text fields. Empty query matches everything. The legacy
+ * `notes` field is still accepted so older data snapshots remain
+ * searchable until they're migrated. */
 export function matchSearch(item, query) {
   const q = norm(query);
   if (!q) return true;
-  const hay = [item.category, item.infraction, item.reference, item.sanction, item.notes].map(norm).join(" \n ");
+  const hay = [
+    item.category,
+    item.infraction,
+    item.reference,
+    item.sanction,
+    item.description,
+    item.intervention,
+    item.notes,
+  ]
+    .map(norm)
+    .join(" \n ");
   return hay.includes(q);
 }
 

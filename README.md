@@ -21,10 +21,11 @@ direttamente. Schema per voce:
 ```json
 {
   "category": "Categoria",
-  "infraction": "Descrizione dell'infrazione",
+  "infraction": "Titolo dell'infrazione",
   "reference": "131",
   "sanction": "CAUTION",
-  "notes": "Note e chiarimenti"
+  "description": "Quando si verifica e con quali esempi",
+  "intervention": "Cosa deve fare il giudice"
 }
 ```
 
@@ -34,6 +35,9 @@ direttamente. Schema per voce:
 - `reference` accetta numero singolo (`131`), range (`141 - 162`), o vuoto/`///`.
   Numeri noti vengono linkati alla [VEKN Judges' Guide](https://www.vekn.net/judges-guide)
   via Text Fragment.
+- `description` e `intervention` sono entrambi opzionali (stringa vuota se non
+  pertinente). La card mostra solo le sezioni effettivamente popolate. Per
+  retro-compatibilità è ancora accettato un campo `notes` come fallback.
 
 ## Build & deploy
 

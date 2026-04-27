@@ -1,163 +1,186 @@
 [
   {
     "category": "Deck vs decklist",
-    "infraction": "Carta (trasferibile) in piu' o in meno",
+    "infraction": "Carta (trasferibile) in più o in meno",
     "reference": "",
     "sanction": "CAUTION",
-    "notes": "Es. Montreal, fame"
+    "description": "Es. Montreal, fame.",
+    "intervention": ""
   },
   {
     "category": "Deck vs decklist",
-    "infraction": "Carta (non trasferibile, non strategica) in piu' o in meno",
+    "infraction": "Carta (non trasferibile, non strategica) in più o in meno",
     "reference": "",
     "sanction": "WARNING",
-    "notes": "Es. Decklist da 90 carte, mazzo da 89 carte, sono segnati 10 govern ma nel mazzo ce ne sono 9"
+    "description": "Es. Decklist da 90 carte, mazzo da 89 carte; sono segnati 10 govern ma nel mazzo ce ne sono 9.",
+    "intervention": ""
   },
   {
     "category": "Deck vs decklist",
-    "infraction": "Carta molto strategica/situazionale in piu' o in meno",
+    "infraction": "Carta molto strategica/situazionale in più o in meno",
     "reference": "",
     "sanction": "DISQUALIFICATION",
-    "notes": "Es. Direct, archon investigation"
+    "description": "Es. Direct, archon investigation.",
+    "intervention": ""
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Carta diversa nel mazzo",
     "reference": "",
     "sanction": "WARNING",
-    "notes": "Es. Al posto di una radio ce n'e' un'altra, al posto di lost in crowds c'e' into thin air\ndato che il mazzo e' gia' stato giocato, si lascia com'e' e si corregge la decklist"
+    "description": "Es. Al posto di una radio ce n'è un'altra, al posto di lost in crowds c'è into thin air.",
+    "intervention": "Dato che il mazzo è già stato giocato, si lascia com'è e si corregge la decklist."
   },
   {
     "category": "Deck vs decklist",
-    "infraction": "Differenze piu' marcate nel mazzo",
+    "infraction": "Differenze più marcate nel mazzo",
     "reference": "",
     "sanction": "GAME LOSS",
-    "notes": ""
+    "description": "",
+    "intervention": ""
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Decklist illegale (mazzo legale)",
     "reference": "101",
     "sanction": "WARNING",
-    "notes": "Il giocatore deve corregge la decklist in modo che sia uguale al mazzo"
+    "description": "",
+    "intervention": "Il giocatore deve correggere la decklist in modo che sia uguale al mazzo."
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Mazzo illegale (decklist legale)",
     "reference": "102",
     "sanction": "GAME LOSS",
-    "notes": "Il giocatore deve adeguare il mazzo alla decklist"
+    "description": "",
+    "intervention": "Il giocatore deve adeguare il mazzo alla decklist."
   },
   {
     "category": "Deck vs decklist",
     "infraction": "Decklist e mazzo illegali",
     "reference": "101",
     "sanction": "GAME LOSS",
-    "notes": "Il giocatore deve rendere legale la decklist e adeguare il mazzo di conseguenza"
+    "description": "",
+    "intervention": "Il giocatore deve rendere legale la decklist e adeguare il mazzo di conseguenza."
   },
   {
     "category": "Deck",
     "infraction": "Buste segnate (senza schema apparente)",
     "reference": "131",
     "sanction": "CAUTION",
-    "notes": "Il giocatore deve sostituire le buste danneggiate"
+    "description": "",
+    "intervention": "Il giocatore deve sostituire le buste danneggiate."
   },
   {
     "category": "Deck",
     "infraction": "Buste segnate (con schema)",
     "reference": "132",
     "sanction": "GAME LOSS",
-    "notes": "Il regolamento assume che la marcatura sia non intenzionale. In assenza di spiegazioni valide, se c'e' uno schema si presume sia intenzionale e si applica la sanzione per 163.cheating - fraud (disqualification without prize)"
+    "description": "Il regolamento assume che la marcatura sia non intenzionale. In assenza di spiegazioni valide, se c'è uno schema si presume sia intenzionale.",
+    "intervention": "Si applica la sanzione per 163. Cheating - Fraud (disqualification without prize)."
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta pescata in meno",
     "reference": "124",
     "sanction": "CAUTION",
-    "notes": "Generalmente e' solo a svantaggio del giocatore.\nSe invece ad esempio ci si dimentica di rimpiazzare magic of the smith prima di cercare nel mazzo => warning"
+    "description": "Generalmente è solo a svantaggio del giocatore.\nSe invece ad esempio ci si dimentica di rimpiazzare magic of the smith prima di cercare nel mazzo => warning.",
+    "intervention": ""
   },
   {
     "category": "Carte pescate",
-    "infraction": "Carta pescata in piu' a inizio partita",
+    "infraction": "Carta pescata in più a inizio partita",
     "reference": "123",
     "sanction": "CAUTION",
-    "notes": "Il giocatore rimescola le carte nel mazzo, poi pesca il numero corretto meno 1. La carta mancante (cripta o libreria) viene pescata dopo che tutti i giocatori hanno completato il primo turno"
+    "description": "",
+    "intervention": "Il giocatore rimescola le carte nel mazzo, poi pesca il numero corretto meno 1. La carta mancante (cripta o libreria) viene pescata dopo che tutti i giocatori hanno completato il primo turno."
   },
   {
     "category": "Carte pescate",
-    "infraction": "Carta pescata in piu' durante la partita",
+    "infraction": "Carta pescata in più durante la partita",
     "reference": "121",
     "sanction": "WARNING",
-    "notes": "Si considera pescata in piu' solo se vista. Se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.\nNegli altri casi, se e' chiaro quale sia la carta extra, si rimescola quella, altrimenti una carta a caso. Nel rimescolare bisogna salvaguardare le aree del mazzo gia' ordinate (es. Eventuali carte messe in fondo al mazzo per effetti)"
+    "description": "Si considera pescata in più solo se vista. Se ci si accorge dell'errore prima che qualcuno abbia visto la carta, si rimette a posto e si procede senza sanzione.",
+    "intervention": "Negli altri casi, se è chiaro quale sia la carta extra, si rimescola quella, altrimenti una carta a caso. Nel rimescolare bisogna salvaguardare le aree del mazzo già ordinate (es. eventuali carte messe in fondo al mazzo per effetti)."
   },
   {
     "category": "Carte pescate",
     "infraction": "Carta vista/rivelata per errore mentre si pesca/taglia",
     "reference": "122",
     "sanction": "CAUTION",
-    "notes": "Come sopra, se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione. Le carte viste/rivelate per errore si rimescolano nel mazzo, salvaguardando le aree gia' ordinate (vedi sopra)"
+    "description": "Come sopra, se nessuno ha visto la carta, si rimette a posto e si procede senza sanzione.",
+    "intervention": "Le carte viste/rivelate per errore si rimescolano nel mazzo, salvaguardando le aree già ordinate (vedi sopra)."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione non obbligatoria dimenticata senza aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "notes": "Es. Dimenticato di prendere il pool di edge ma ho gia' usato una blood doll.\nDi base, l'azione dimenticata e' persa. Si puo' concedere di recuperarla solo se tutti i giocatori al tavolo sono d'accordo"
+    "description": "Es. Dimenticato di prendere il pool di edge ma ho già usato una blood doll.",
+    "intervention": "Di base, l'azione dimenticata è persa. Si può concedere di recuperarla solo se tutti i giocatori al tavolo sono d'accordo."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione non obbligatoria dimenticata dopo aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "notes": "Es. Dimenticato di usare una vessel ma ho gia' giocato e rimpiazzato una master, dimenticato di influenzare ma ho gia' scartato e rimpiazzato.\nL'azione dimenticata e' persa."
+    "description": "Es. Dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
+    "intervention": "L'azione dimenticata è persa."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione obbligatoria dimenticata",
     "reference": "114",
     "sanction": "CAUTION",
-    "notes": "Es. Costi da pagare nella unlock, cacce obbligatorie.\nL'azione dimenticata deve essere recuperata. Se necessario, si fa rollback.\nSe pero' sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera piu'"
+    "description": "Es. Costi da pagare nella unlock, cacce obbligatorie.",
+    "intervention": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback.\nSe però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
   },
   {
     "category": "Errori utilizzo carte",
     "infraction": "Carta giocata senza avere i requisiti",
     "reference": "114",
     "sanction": "CAUTION",
-    "notes": "Se non si hanno i requisiti in assoluto (es. Nessun vampiro e' del clan richiesto o ha la disciplina richiesta) si riprende in mano la carta e si rimescola la carta pescata in piu'\nse un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo"
+    "description": "",
+    "intervention": "Se non si hanno i requisiti in assoluto (es. nessun vampiro è del clan richiesto o ha la disciplina richiesta), si riprende in mano la carta e si rimescola la carta pescata in più.\nSe un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo."
   },
   {
     "category": "Errori utilizzo carte",
     "infraction": "Errore (non intenzionale) nell'utilizzo dell'effetto di una propria carta",
     "reference": "114",
     "sanction": "CAUTION",
-    "notes": ""
+    "description": "",
+    "intervention": ""
   },
   {
     "category": "Condotta impropria",
     "infraction": "Accordo apparentemente svantaggioso",
     "reference": "///",
     "sanction": "///",
-    "notes": "A meno che non sia manifestamente un tentativo di barare, i giudici non devono entrare nel merito della vantaggiosita' di un accordo. Fa parte delle abilita' di un giocatore capire quando un accordo e' vantaggioso o meno"
+    "description": "A meno che non sia manifestamente un tentativo di barare, i giudici non devono entrare nel merito della vantaggiosità di un accordo. Fa parte delle abilità di un giocatore capire quando un accordo è vantaggioso o meno.",
+    "intervention": ""
   },
   {
     "category": "Condotta impropria",
     "infraction": "Aiuto esterno",
     "reference": "",
     "sanction": "???",
-    "notes": "Una persona esterna alla partita fornisce suggerimenti o rivela carte in mano ad altri giocatori"
+    "description": "Una persona esterna alla partita fornisce suggerimenti o rivela carte in mano ad altri giocatori.",
+    "intervention": ""
   },
   {
     "category": "Condotta impropria",
     "infraction": "Slow play",
     "reference": "141 - 162",
     "sanction": "CAUTION - GAME LOSS",
-    "notes": "In caso un giocatore si prenda piu' tempo di quanto ragionevole per effettuare azioni di gioco, il judge puo' assegnare tempo extra per compensare quello perduto.\nLa sanzione inferiore si applica per slow play non intenzionale (es. Giocatore nuovo incerto su cosa fare), mentre il game loss si applica per slow play intenzionale"
+    "description": "Un giocatore si prende più tempo di quanto ragionevole per effettuare azioni di gioco. La sanzione inferiore si applica per slow play non intenzionale (es. giocatore nuovo incerto su cosa fare), mentre il game loss si applica per slow play intenzionale.",
+    "intervention": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto."
   },
   {
     "category": "Condotta impropria",
     "infraction": "Barare",
     "reference": "163",
     "sanction": "DISQUALIFICATION WITHOUT PRIZE",
-    "notes": "Es. Aggiungersi pool di nascosto, togliere intenzionalmente meno pool di quanto perso, alterare il mazzo in modo che l'ordine non sia casuale, pescare carte da aree nascoste quali tasche o maniche, ecc..."
+    "description": "Es. aggiungersi pool di nascosto, togliere intenzionalmente meno pool di quanto perso, alterare il mazzo in modo che l'ordine non sia casuale, pescare carte da aree nascoste quali tasche o maniche, ecc.",
+    "intervention": ""
   }
 ]

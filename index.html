@@ -59,8 +59,17 @@
         <div class="empty">Questa pagina richiede JavaScript per filtrare le sanzioni.</div>
       </noscript>
       <div id="list" class="list"></div>
-      <div class="empty" id="empty" hidden>Nessuna sanzione corrisponde ai filtri.</div>
+      <div class="empty" id="empty" hidden>
+        <div>Nessuna sanzione corrisponde ai filtri.</div>
+        <div class="empty-actions">
+          <button class="reset-empty" id="empty-reset" type="button">Azzera filtri</button>
+        </div>
+      </div>
       <div class="loading" id="loading">Caricamento...</div>
     </main>
+
+    <footer class="app-footer">
+      <span class="updated" id="updated" hidden></span>
+    </footer>
   </body>
 </html>

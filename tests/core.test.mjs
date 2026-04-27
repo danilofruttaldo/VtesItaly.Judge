@@ -6,6 +6,8 @@ import {
   JUDGES_GUIDE_URL,
   norm,
   escapeHtml,
+  highlightHtml,
+  itemSlug,
   matchSearch,
   matchSanction,
   computeFiltered,
@@ -34,16 +36,38 @@ test("escapeHtml escapes HTML-dangerous characters", () => {
 });
 
 const sample = [
-  { category: "DECK", infraction: "BUSTE SEGNATE", reference: "131", sanction: "CAUTION", notes: "sostituire" },
-  { category: "DECK", infraction: "BUSTE SEGNATE CON SCHEMA", reference: "132", sanction: "GAME LOSS", notes: "" },
+  {
+    category: "DECK",
+    infraction: "BUSTE SEGNATE",
+    reference: "131",
+    sanction: "CAUTION",
+    description: "",
+    intervention: "sostituire",
+  },
+  {
+    category: "DECK",
+    infraction: "BUSTE SEGNATE CON SCHEMA",
+    reference: "132",
+    sanction: "GAME LOSS",
+    description: "",
+    intervention: "",
+  },
   {
     category: "CONDOTTA IMPROPRIA",
     infraction: "BARARE",
     reference: "163",
     sanction: "DISQUALIFICATION WITHOUT PRIZE",
-    notes: "es. aggiungere pool",
+    description: "es. aggiungere pool",
+    intervention: "",
   },
-  { category: "CONDOTTA IMPROPRIA", infraction: "AIUTO ESTERNO", reference: "", sanction: "???", notes: "" },
+  {
+    category: "CONDOTTA IMPROPRIA",
+    infraction: "AIUTO ESTERNO",
+    reference: "",
+    sanction: "???",
+    description: "",
+    intervention: "",
+  },
 ];
 
 test("matchSearch is empty-query permissive", () => {
@@ -51,12 +75,22 @@ test("matchSearch is empty-query permissive", () => {
   assert.equal(matchSearch(sample[0], "   "), true);
 });
 
-test("matchSearch matches across infraction, notes, reference, category", () => {
+test("matchSearch matches across infraction, intervention, reference, category", () => {
   assert.equal(matchSearch(sample[0], "buste"), true);
   assert.equal(matchSearch(sample[0], "131"), true);
   assert.equal(matchSearch(sample[0], "deck"), true);
   assert.equal(matchSearch(sample[0], "sostituire"), true);
   assert.equal(matchSearch(sample[0], "nonesistente"), false);
+});
+
+test("matchSearch matches description and intervention fields", () => {
+  assert.equal(matchSearch(sample[2], "aggiungere"), true); // description
+  assert.equal(matchSearch(sample[0], "sostituire"), true); // intervention
+});
+
+test("matchSearch still matches the legacy notes field for unmigrated rows", () => {
+  const legacy = { category: "X", infraction: "Y", reference: "", sanction: "CAUTION", notes: "vecchia nota" };
+  assert.equal(matchSearch(legacy, "vecchia"), true);
 });
 
 test("matchSanction with empty filter set matches everything", () => {
@@ -194,4 +228,38 @@ test("parseSanction tolerates whitespace around the separator", () => {
   const out = parseSanction("CAUTION  -  GAME LOSS");
   assert.equal(out.kind, "multi");
   assert.deepEqual(out.sanctions, ["CAUTION", "GAME LOSS"]);
+});
+
+test("highlightHtml escapes plain text when query is empty", () => {
+  assert.equal(highlightHtml("<b>x</b>", ""), "&lt;b&gt;x&lt;/b&gt;");
+  assert.equal(highlightHtml("a & b", null), "a &amp; b");
+});
+
+test("highlightHtml wraps matches in <mark> and escapes the rest", () => {
+  assert.equal(highlightHtml("Slow play", "play"), "Slow <mark>play</mark>");
+  assert.equal(highlightHtml("a & b", "&"), "a <mark>&amp;</mark> b");
+});
+
+test("highlightHtml matches accent- and case-insensitively", () => {
+  // search "perche" should highlight "perché" preserving original glyph
+  assert.equal(highlightHtml("perché ora", "perche"), "<mark>perché</mark> ora");
+  assert.equal(highlightHtml("PIÙ tempo", "piu"), "<mark>PIÙ</mark> tempo");
+});
+
+test("highlightHtml handles multiple, non-overlapping matches", () => {
+  assert.equal(highlightHtml("più o meno più", "più"), "<mark>più</mark> o meno <mark>più</mark>");
+});
+
+test("highlightHtml returns escaped text when no match", () => {
+  assert.equal(highlightHtml("ciao <mondo>", "xyz"), "ciao &lt;mondo&gt;");
+});
+
+test("itemSlug derives a stable url-safe identifier", () => {
+  const a = itemSlug({ category: "Condotta impropria", infraction: "Slow play" });
+  assert.equal(a, "condotta-impropria-slow-play");
+  // Apostrophes, accents and punctuation collapse to single dashes
+  const b = itemSlug({ category: "Errori utilizzo carte", infraction: "Errore nell'utilizzo dell'effetto" });
+  assert.equal(b, "errori-utilizzo-carte-errore-nell-utilizzo-dell-effetto");
+  // Empty-ish input falls back to a non-empty slug
+  assert.equal(itemSlug({}), "item");
 });
