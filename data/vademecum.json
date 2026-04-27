@@ -214,9 +214,9 @@
     "infraction": "Slow play",
     "reference": "141 - 162",
     "sanction": "CAUTION - GAME LOSS",
-    "description": "Un giocatore impiega più tempo del ragionevole per le proprie azioni di gioco, rallentando il tavolo. La sanzione inferiore si applica per slow play non intenzionale (es. giocatore nuovo incerto su cosa fare); il game loss si applica per slow play intenzionale, tipicamente finalizzato a esaurire il tempo del round (stalling).",
+    "description": "Un giocatore impiega più tempo del ragionevole per le proprie azioni di gioco, rallentando il tavolo. La sanzione standard è Caution (141) e si applica a prescindere dall'intenzionalità. Il giudice escala a Game Loss (162. Stalling) quando ha evidenza chiara di stallo deliberato — tipicamente finalizzato a esaurire il tempo del round.",
     "example": "Ripetuti turni lunghi senza azioni significative; esitazioni prolungate quando il vantaggio sul tempo è già acquisito; conteggi e ricalcoli ridondanti.",
-    "philosophy": "VEKN 141 (Slow Play) non richiede al giudice di provare l'intenzionalità: ogni giocatore ha la responsabilità di non danneggiare gli avversari con il proprio ritmo. Il giudice valuta i punteggi del tavolo per decidere se escalare a 162 (Stalling, Game Loss). Lo stalling intenzionale non richiede neanche di giocare lento — basta perdere tempo con attività inutili (es. usare Vast Wealth ripetutamente sapendo che non c'è più equipaggiamento da trovare) per cadere in 162.",
+    "philosophy": "VEKN 141 si applica per il ritmo lento a prescindere dall'intenzionalità: nessun giocatore ha il diritto di danneggiare gli avversari con il proprio tempo, e il giudice non deve provare l'intento per assegnare Caution. Il giudice valuta i punteggi del tavolo per decidere se ci sono i presupposti per escalare a 162 (Stalling, Game Loss), che richiede invece evidenza chiara di stallo deliberato — anche senza giocare lento, perdendo tempo con azioni vuote (es. usare Vast Wealth ripetutamente sapendo che non c'è più equipaggiamento da trovare).",
     "correzione": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto e, se il rallentamento prosegue, escalare la sanzione."
   },
   {
