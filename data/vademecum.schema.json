@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://judge.vtesitaly.com/data/vademecum.schema.json",
+  "title": "VTES Italy — Vademecum sanzioni",
+  "description": "Sorgente canonica delle voci di vademecum. Array di voci, una per infrazione.",
+  "type": "array",
+  "items": { "$ref": "#/definitions/entry" },
+  "definitions": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "infraction", "reference", "sanction", "description", "intervention"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Macro-categoria editoriale (es. 'Deck vs decklist', 'Condotta impropria')."
+        },
+        "infraction": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Titolo dell'infrazione, in sentence case."
+        },
+        "reference": {
+          "type": "string",
+          "pattern": "^(|///|\\d+|\\d+\\s*-\\s*\\d+)$",
+          "description": "Riferimento alla VEKN Judges' Guide. Vuoto, '///', singolo numero (es. '131') o range (es. '141 - 162')."
+        },
+        "sanction": {
+          "type": "string",
+          "enum": [
+            "",
+            "???",
+            "///",
+            "CAUTION",
+            "WARNING",
+            "GAME LOSS",
+            "DISQUALIFICATION",
+            "DISQUALIFICATION WITHOUT PRIZE",
+            "CAUTION - WARNING",
+            "CAUTION - GAME LOSS",
+            "CAUTION - DISQUALIFICATION",
+            "CAUTION - DISQUALIFICATION WITHOUT PRIZE",
+            "WARNING - GAME LOSS",
+            "WARNING - DISQUALIFICATION",
+            "WARNING - DISQUALIFICATION WITHOUT PRIZE",
+            "GAME LOSS - DISQUALIFICATION",
+            "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
+            "DISQUALIFICATION - DISQUALIFICATION WITHOUT PRIZE"
+          ],
+          "description": "Sanzione canonica, range fra due sanzioni canoniche con separatore ' - ', o placeholder '???'/'///'/''."
+        },
+        "description": {
+          "type": "string",
+          "description": "Casistica e esempi. Stringa vuota se non pertinente."
+        },
+        "intervention": {
+          "type": "string",
+          "description": "Cosa deve fare il giudice. Stringa vuota se l'azione discende dalla sanzione standard."
+        }
+      }
+    }
+  }
+}

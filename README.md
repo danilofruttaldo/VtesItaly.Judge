@@ -8,15 +8,40 @@ Sito statico (vanilla JS, GitHub Pages, PWA).
 
 ```bash
 npm install
-npm test
-npm run lint
-./dev.ps1   # serve la directory su http://localhost:8766
+npm test            # unit + DOM smoke + schema gate
+npm run lint        # eslint --max-warnings=0
+npm run typecheck   # tsc --checkJs su core/app/sw + scripts/tests
+npm run format      # prettier --write .
 ```
+
+Per servire localmente:
+
+```bash
+./dev.sh            # macOS / Linux / Git Bash — http://localhost:8766
+./dev.ps1           # Windows PowerShell, con menu start/stop/restart
+```
+
+Entrambi servono la cartella corrente con `python3 -m http.server` (richiesto Python 3).
+
+### Pre-commit hook
+
+Una volta per clone, attiva il gate locale che esegue `format:check`, `lint`,
+`typecheck` e `npm test` prima di ogni commit:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Il file è in [`.githooks/pre-commit`](.githooks/pre-commit). Bypass con `git commit --no-verify` solo in casi
+eccezionali — la stessa pipeline gira in CI e bloccherà il push.
 
 ## Sorgente dati
 
 `data/vademecum.json` è la fonte canonica del vademecum (array di voci). Si edita
-direttamente. Schema per voce:
+direttamente. Lo schema canonico è in [`data/vademecum.schema.json`](data/vademecum.schema.json) ed è validato
+ad ogni `npm test` da [`tests/data.test.mjs`](tests/data.test.mjs) — voci malformate fanno fallire la CI.
+
+Schema per voce:
 
 ```json
 {
@@ -30,20 +55,27 @@ direttamente. Schema per voce:
 ```
 
 - `sanction` può essere singola (`CAUTION`, `WARNING`, `GAME LOSS`, `DISQUALIFICATION`,
-  `DISQUALIFICATION WITHOUT PRIZE`), multipla con separatore (`CAUTION - GAME LOSS`),
-  o placeholder (`???` da definire, `///` caso particolare).
-- `reference` accetta numero singolo (`131`), range (`141 - 162`), o vuoto/`///`.
+  `DISQUALIFICATION WITHOUT PRIZE`), un range fra due sanzioni canoniche con
+  separatore (es. `CAUTION - GAME LOSS`), o un placeholder (`???` da definire,
+  `///` caso particolare, `""` non specificato).
+- `reference` accetta numero singolo (`131`), range (`141 - 162`), vuoto o `///`.
   Numeri noti vengono linkati alla [VEKN Judges' Guide](https://www.vekn.net/judges-guide)
   via Text Fragment.
-- `description` e `intervention` sono entrambi opzionali (stringa vuota se non
-  pertinente). La card mostra solo le sezioni effettivamente popolate. Per
-  retro-compatibilità è ancora accettato un campo `notes` come fallback.
+- `description` e `intervention` sono opzionali (stringa vuota se non pertinenti).
+  La card mostra solo le sezioni effettivamente popolate.
+- L'unicità della coppia `(category, infraction)` è gatewata in CI: i duplicati
+  fanno fallire la build (slug DOM e deep-link diventerebbero ambigui).
+
+A runtime, voci malformate vengono scartate con `console.warn` e la pagina
+continua a funzionare; un payload del tutto invalido mostra un messaggio di
+errore esplicito al posto del caricamento.
 
 ## Build & deploy
 
-CI in `.github/workflows/deploy.yml` esegue tre job in sequenza per ogni push su `main`:
+CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main`:
 
-1. **ci** — lint, format check, test, stamp sw, stage in `_site/`, minify, budget
+1. **ci** — `npm audit`, lint, format check, typecheck, test (unit + DOM + schema),
+   stamp sw, stage in `_site/`, minify, budget 10MB
 2. **lighthouse** — gate accessibilità (≥ 0.9) sull'artefatto `_site`
 3. **deploy** — pubblica `_site/` su GitHub Pages
 
@@ -52,7 +84,15 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 ## Struttura
 
 - `index.html` + `assets/` — sorgenti del sito
+- `assets/core.mjs` — logica pura DOM-free (testabile, type-checked)
+- `assets/app.js` — bootstrap UI, eventi, render
 - `data/vademecum.json` — sorgente dati
+- `data/vademecum.schema.json` — schema canonico (JSON Schema Draft-07)
 - `sw.js` + `manifest.webmanifest` — PWA
 - `scripts/` — staging, stamp-sw, minify, test runner
-- `tests/` — `node --test` su moduli puri in `assets/core.mjs`
+- `tests/`
+  - `core.test.mjs` — moduli puri in `assets/core.mjs`
+  - `data.test.mjs` — gate schema su `data/vademecum.json`
+  - `dom.test.mjs` — smoke test end-to-end via jsdom (render, eventi, hash routing, error UX)
+- `.githooks/pre-commit` — gate locale (vedi sopra)
+- `tsconfig.json` — `checkJs` su tutto il codice JS

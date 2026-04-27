@@ -18,7 +18,7 @@ function sizeKb(path) {
 }
 
 for (const file of targets) {
-  const before = sizeKb(file);
+  const before = parseFloat(sizeKb(file));
   const contents = readFileSync(file, "utf8");
   const loader = file.endsWith(".css") ? "css" : "js";
   await build({
@@ -30,7 +30,7 @@ for (const file of targets) {
     target: ["es2022"],
     write: true,
   });
-  const after = sizeKb(file);
+  const after = parseFloat(sizeKb(file));
   const pct = (((before - after) / before) * 100).toFixed(0);
   console.log(`${file}: ${before} KB → ${after} KB (-${pct}%)`);
 }

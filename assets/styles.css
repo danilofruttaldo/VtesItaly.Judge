@@ -727,6 +727,11 @@ a.item-ref:focus-visible {
   color: var(--muted);
 }
 
+.loading.is-error {
+  color: var(--fg);
+  font-weight: 600;
+}
+
 .empty-actions {
   margin-top: 0.75rem;
 }

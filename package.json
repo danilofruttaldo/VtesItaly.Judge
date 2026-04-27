@@ -6,6 +6,7 @@
   "description": "VTES Italy judge tool (static site, vanilla JS).",
   "scripts": {
     "test": "node scripts/run-tests.mjs",
+    "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -14,11 +15,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
+    "@types/node": "^22.19.17",
     "esbuild": "^0.25.12",
     "eslint": "^9.14.0",
     "globals": "^15.12.0",
     "jsdom": "^26.1.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20"

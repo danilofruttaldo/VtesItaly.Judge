@@ -47,17 +47,20 @@ export const SANCTION_FALLBACKS = {
   "???": "Da definire",
 };
 
-/* Parses the raw SANZIONE cell into a structured form so the rendering layer
+/**
+ * @typedef {{ kind: "single" | "multi" | "placeholder", sanctions: string[], description: string, raw: string }} ParsedSanction
+ */
+
+/**
+ * Parses the raw SANZIONE cell into a structured form so the rendering layer
  * can decide colors, badges, and filter membership without re-parsing.
- *
- * Returns one of:
- *   { kind: "single",      sanctions: ["CAUTION"],            description: "" }
- *   { kind: "multi",       sanctions: ["CAUTION","GAME LOSS"], description: "" }
- *   { kind: "placeholder", sanctions: [],                      description: "Da definire" }
  *
  * Multi-sanction cells use " - " as separator (e.g. "CAUTION - GAME LOSS"
  * for slow play, where the severity depends on intent). Both endpoints must
  * be canonical; otherwise the cell is treated as a placeholder.
+ *
+ * @param {string | null | undefined} raw
+ * @returns {ParsedSanction}
  */
 export function parseSanction(raw) {
   const t = (raw || "").trim();
@@ -114,16 +117,25 @@ export const JUDGES_GUIDE_RULES = {
   164: "164. Cheating - Collusion",
 };
 
-/* Builds a deep-link to a specific rule on the Judges' Guide using the Text
+/**
+ * Builds a deep-link to a specific rule on the Judges' Guide using the Text
  * Fragments URL extension. Returns null when the number isn't in the map so
- * callers can render plain text instead of a broken link. */
+ * callers can render plain text instead of a broken link.
+ * @param {number} ruleNumber
+ * @returns {string | null}
+ */
 export function judgesGuideUrl(ruleNumber) {
   const title = JUDGES_GUIDE_RULES[ruleNumber];
   if (!title) return null;
   return `${JUDGES_GUIDE_URL}#:~:text=${encodeURIComponent(title)}`;
 }
 
-/* Parses a CSV "RIFERIMENTI" cell into one or more rule links.
+/**
+ * @typedef {{ number: number, title: string | null, url: string | null }} ReferenceLink
+ */
+
+/**
+ * Parses a CSV "RIFERIMENTI" cell into one or more rule links.
  *
  * The cell contains either:
  *   - "" or "///" → no reference
@@ -133,9 +145,11 @@ export function judgesGuideUrl(ruleNumber) {
  *     between them aren't always relevant (the CSV uses the range as a "see
  *     these two rules" shorthand, not "every rule in between").
  *
- * Returns an array of { number, title, url } entries (possibly empty). The
- * url is null when the number is unknown — callers should fall back to plain
- * text in that case to avoid linking into thin air.
+ * The url is null when the number is unknown — callers should fall back to
+ * plain text in that case to avoid linking into thin air.
+ *
+ * @param {string | null | undefined} ref
+ * @returns {ReferenceLink[]}
  */
 export function parseReference(ref) {
   if (!ref) return [];
@@ -155,22 +169,40 @@ export function parseReference(ref) {
   return out;
 }
 
+/**
+ * Normalises a string for diacritic- and case-insensitive comparison: NFD
+ * decomposition, combining-mark stripping, lowercase, trim. The output is
+ * suitable for substring search but not for display.
+ * @param {string | null | undefined} s
+ * @returns {string}
+ */
 export function norm(s) {
   if (s === null || s === undefined) return "";
   return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 }
 
+/** @type {Record<string, string>} */
 const HTML_ESCAPE = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+
+/**
+ * @param {string | null | undefined} s
+ * @returns {string}
+ */
 export function escapeHtml(s) {
   if (s === null || s === undefined) return "";
   return String(s).replace(/[&<>"']/g, (c) => HTML_ESCAPE[c]);
 }
 
-/* HTML-escapes `text` and wraps query matches in <mark>. The match is
+/**
+ * HTML-escapes `text` and wraps query matches in <mark>. The match is
  * accent- and case-insensitive (same equivalence class as norm()), so a
  * search for "perche" highlights "perché" in the source. Matches are
  * non-overlapping and rendered in the order they appear. Returns plain
- * escaped HTML when query is empty or has no hit. */
+ * escaped HTML when query is empty or has no hit.
+ * @param {string | null | undefined} text
+ * @param {string | null | undefined} query
+ * @returns {string}
+ */
 export function highlightHtml(text, query) {
   const src = text === null || text === undefined ? "" : String(text);
   const qn = norm(query);
@@ -213,12 +245,20 @@ export function highlightHtml(text, query) {
   return out;
 }
 
-/* Stable, URL-safe slug for an item, derived from category + infraction.
+/**
+ * @typedef {{ category?: string, infraction?: string, reference?: string, sanction?: string, description?: string, intervention?: string }} VademecumEntry
+ */
+
+/**
+ * Stable, URL-safe slug for an item, derived from category + infraction.
  * Used as the DOM id of each card so that location.hash can deep-link to
  * a specific entry (e.g. share "#item-condotta-impropria-slow-play"). The
  * slug is intentionally derived (not authored) so judges don't need to
  * maintain ids in vademecum.json. Collisions are unlikely — category +
- * infraction is unique by editorial convention. */
+ * infraction is unique by editorial convention (enforced by data.test.mjs).
+ * @param {VademecumEntry} item
+ * @returns {string}
+ */
 export function itemSlug(item) {
   const base = `${item.category || ""} ${item.infraction || ""}`;
   return (
@@ -229,32 +269,32 @@ export function itemSlug(item) {
   );
 }
 
-/* Returns true when the item matches the search query against any of the
- * searchable text fields. Empty query matches everything. The legacy
- * `notes` field is still accepted so older data snapshots remain
- * searchable until they're migrated. */
+/**
+ * Returns true when the item matches the search query against any of the
+ * searchable text fields. Empty query matches everything.
+ * @param {VademecumEntry} item
+ * @param {string | null | undefined} query
+ * @returns {boolean}
+ */
 export function matchSearch(item, query) {
   const q = norm(query);
   if (!q) return true;
-  const hay = [
-    item.category,
-    item.infraction,
-    item.reference,
-    item.sanction,
-    item.description,
-    item.intervention,
-    item.notes,
-  ]
+  const hay = [item.category, item.infraction, item.reference, item.sanction, item.description, item.intervention]
     .map(norm)
     .join(" \n ");
   return hay.includes(q);
 }
 
-/* Filters by enabled sanction set. An empty set means "no filter active"
+/**
+ * Filters by enabled sanction set. An empty set means "no filter active"
  * (equivalent to all enabled). Multi-sanction items match if ANY of their
  * sanctions is enabled (so filtering by CAUTION includes "CAUTION - GAME
  * LOSS" slow-play entries). Placeholder items ("???", "///", empty) fall
- * into the "TBD" bucket. */
+ * into the "TBD" bucket.
+ * @param {VademecumEntry} item
+ * @param {Set<string> | null | undefined} enabled
+ * @returns {boolean}
+ */
 export function matchSanction(item, enabled) {
   if (!enabled || enabled.size === 0) return true;
   const parsed = parseSanction(item.sanction);
@@ -262,16 +302,108 @@ export function matchSanction(item, enabled) {
   return parsed.sanctions.some((s) => enabled.has(s));
 }
 
+/**
+ * @param {VademecumEntry[]} items
+ * @param {string | null | undefined} query
+ * @param {Set<string> | null | undefined} enabledSanctions
+ * @returns {VademecumEntry[]}
+ */
 export function computeFiltered(items, query, enabledSanctions) {
   return items.filter((it) => matchSearch(it, query) && matchSanction(it, enabledSanctions));
 }
 
+/**
+ * @param {VademecumEntry[]} items
+ * @returns {Map<string, VademecumEntry[]>}
+ */
 export function groupByCategory(items) {
+  /** @type {Map<string, VademecumEntry[]>} */
   const groups = new Map();
   for (const it of items) {
     const k = it.category || "—";
     if (!groups.has(k)) groups.set(k, []);
-    groups.get(k).push(it);
+    /** @type {VademecumEntry[]} */ (groups.get(k)).push(it);
   }
   return groups;
+}
+
+/* Schema for a single vademecum entry. Mirrors data/vademecum.schema.json
+ * and is used both at build-time (tests/data.test.mjs gates CI) and at
+ * runtime (app.js filters malformed entries so a single bad row can't
+ * crash the page). Keep the two in sync.
+ *
+ * Required fields: category, infraction, reference, sanction, description,
+ * intervention. Only category and infraction must be non-empty; the rest
+ * may be empty strings, but they MUST be present as strings.
+ */
+const REFERENCE_RE = /^(|\/\/\/|\d+|\d+\s*-\s*\d+)$/;
+const SANCTION_VALUES = new Set([
+  "",
+  "???",
+  "///",
+  ...SANCTION_ORDER,
+  "CAUTION - WARNING",
+  "CAUTION - GAME LOSS",
+  "CAUTION - DISQUALIFICATION",
+  "CAUTION - DISQUALIFICATION WITHOUT PRIZE",
+  "WARNING - GAME LOSS",
+  "WARNING - DISQUALIFICATION",
+  "WARNING - DISQUALIFICATION WITHOUT PRIZE",
+  "GAME LOSS - DISQUALIFICATION",
+  "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
+  "DISQUALIFICATION - DISQUALIFICATION WITHOUT PRIZE",
+]);
+const ENTRY_KEYS = ["category", "infraction", "reference", "sanction", "description", "intervention"];
+
+/**
+ * Validate a single vademecum entry.
+ * @param {unknown} entry
+ * @returns {{ ok: boolean, errors: string[] }}
+ */
+export function validateEntry(entry) {
+  const errors = [];
+  if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+    return { ok: false, errors: ["entry is not an object"] };
+  }
+  const e = /** @type {Record<string, unknown>} */ (entry);
+  for (const k of ENTRY_KEYS) {
+    if (!(k in e)) errors.push(`missing field: ${k}`);
+    else if (typeof e[k] !== "string") errors.push(`field "${k}" is not a string`);
+  }
+  for (const k of Object.keys(e)) {
+    if (!ENTRY_KEYS.includes(k)) errors.push(`unknown field: ${k}`);
+  }
+  if (typeof e.category === "string" && e.category.trim() === "") errors.push("category is empty");
+  if (typeof e.infraction === "string" && e.infraction.trim() === "") errors.push("infraction is empty");
+  if (typeof e.reference === "string" && !REFERENCE_RE.test(e.reference)) {
+    errors.push(`reference "${e.reference}" does not match /^(|\\/\\/\\/|\\d+|\\d+\\s*-\\s*\\d+)$/`);
+  }
+  if (typeof e.sanction === "string" && !SANCTION_VALUES.has(e.sanction)) {
+    errors.push(`sanction "${e.sanction}" is not in the canonical set`);
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Validate the whole vademecum payload (must be an array of entries).
+ * Returns the list of valid entries plus a flat list of issues for
+ * diagnostics. Invalid entries are dropped, not coerced — so the runtime
+ * UI shows "less" rather than rendering garbage.
+ * @param {unknown} data
+ * @returns {{ entries: object[], issues: { index: number, errors: string[] }[] }}
+ */
+export function validateData(data) {
+  if (!Array.isArray(data)) {
+    return { entries: [], issues: [{ index: -1, errors: ["payload is not an array"] }] };
+  }
+  /** @type {object[]} */
+  const entries = [];
+  /** @type {{ index: number, errors: string[] }[]} */
+  const issues = [];
+  data.forEach((entry, index) => {
+    const { ok, errors } = validateEntry(entry);
+    if (ok) entries.push(/** @type {object} */ (entry));
+    else issues.push({ index, errors });
+  });
+  return { entries, issues };
 }

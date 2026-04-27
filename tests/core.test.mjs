@@ -15,6 +15,8 @@ import {
   judgesGuideUrl,
   parseReference,
   parseSanction,
+  validateEntry,
+  validateData,
 } from "../assets/core.mjs";
 
 test("norm lowercases and strips diacritics", () => {
@@ -88,11 +90,6 @@ test("matchSearch matches description and intervention fields", () => {
   assert.equal(matchSearch(sample[0], "sostituire"), true); // intervention
 });
 
-test("matchSearch still matches the legacy notes field for unmigrated rows", () => {
-  const legacy = { category: "X", infraction: "Y", reference: "", sanction: "CAUTION", notes: "vecchia nota" };
-  assert.equal(matchSearch(legacy, "vecchia"), true);
-});
-
 test("matchSanction with empty filter set matches everything", () => {
   const enabled = new Set();
   for (const it of sample) assert.equal(matchSanction(it, enabled), true);
@@ -116,7 +113,8 @@ test("matchSanction with multi-sanction items matches any enabled sanction", () 
     infraction: "SLOW PLAY",
     reference: "141 - 162",
     sanction: "CAUTION - GAME LOSS",
-    notes: "",
+    description: "",
+    intervention: "",
   };
   assert.equal(matchSanction(slowPlay, new Set(["CAUTION"])), true);
   assert.equal(matchSanction(slowPlay, new Set(["GAME LOSS"])), true);
@@ -252,6 +250,131 @@ test("highlightHtml handles multiple, non-overlapping matches", () => {
 
 test("highlightHtml returns escaped text when no match", () => {
   assert.equal(highlightHtml("ciao <mondo>", "xyz"), "ciao &lt;mondo&gt;");
+});
+
+test("validateEntry accepts a canonical entry", () => {
+  const r = validateEntry({
+    category: "Deck",
+    infraction: "Buste segnate",
+    reference: "131",
+    sanction: "CAUTION",
+    description: "ok",
+    intervention: "",
+  });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.errors, []);
+});
+
+test("validateEntry rejects non-objects", () => {
+  for (const v of [null, undefined, "x", 1, [], true]) {
+    const r = validateEntry(v);
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length > 0);
+  }
+});
+
+test("validateEntry flags missing, extra and non-string fields", () => {
+  const r = validateEntry({ category: "X", infraction: "Y", reference: "131", sanction: "CAUTION" });
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some((e) => e.includes("description")));
+  assert.ok(r.errors.some((e) => e.includes("intervention")));
+
+  const r2 = validateEntry({
+    category: "X",
+    infraction: "Y",
+    reference: "131",
+    sanction: "CAUTION",
+    description: "",
+    intervention: "",
+    notes: "extra",
+  });
+  assert.equal(r2.ok, false);
+  assert.ok(r2.errors.some((e) => e.includes("unknown field: notes")));
+
+  const r3 = validateEntry({
+    category: "X",
+    infraction: "Y",
+    reference: "131",
+    sanction: "CAUTION",
+    description: 42,
+    intervention: "",
+  });
+  assert.equal(r3.ok, false);
+  assert.ok(r3.errors.some((e) => e.includes('"description"') && e.includes("not a string")));
+});
+
+test("validateEntry rejects empty category or infraction", () => {
+  const r = validateEntry({
+    category: "",
+    infraction: "",
+    reference: "",
+    sanction: "",
+    description: "",
+    intervention: "",
+  });
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some((e) => e.includes("category is empty")));
+  assert.ok(r.errors.some((e) => e.includes("infraction is empty")));
+});
+
+test("validateEntry rejects malformed reference and unknown sanction", () => {
+  const r = validateEntry({
+    category: "X",
+    infraction: "Y",
+    reference: "foo",
+    sanction: "MEGA LOSS",
+    description: "",
+    intervention: "",
+  });
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some((e) => e.includes("reference")));
+  assert.ok(r.errors.some((e) => e.includes("sanction")));
+});
+
+test("validateEntry accepts canonical placeholder and range forms", () => {
+  for (const ref of ["", "///", "131", "141 - 162", "141  -  162"]) {
+    const r = validateEntry({
+      category: "X",
+      infraction: "Y",
+      reference: ref,
+      sanction: "",
+      description: "",
+      intervention: "",
+    });
+    assert.equal(r.ok, true, `ref ${JSON.stringify(ref)} should pass: ${r.errors.join(", ")}`);
+  }
+  for (const s of ["", "???", "///", "CAUTION", "CAUTION - GAME LOSS", "DISQUALIFICATION WITHOUT PRIZE"]) {
+    const r = validateEntry({
+      category: "X",
+      infraction: "Y",
+      reference: "",
+      sanction: s,
+      description: "",
+      intervention: "",
+    });
+    assert.equal(r.ok, true, `sanction ${JSON.stringify(s)} should pass: ${r.errors.join(", ")}`);
+  }
+});
+
+test("validateData splits valid entries from issues without throwing", () => {
+  const { entries, issues } = validateData([
+    { category: "A", infraction: "B", reference: "", sanction: "", description: "", intervention: "" },
+    { category: "", infraction: "", reference: "x", sanction: "", description: "", intervention: "" },
+    "not an object",
+  ]);
+  assert.equal(entries.length, 1);
+  assert.equal(issues.length, 2);
+  assert.deepEqual(
+    issues.map((i) => i.index),
+    [1, 2],
+  );
+});
+
+test("validateData rejects a non-array payload", () => {
+  const r = validateData({ items: [] });
+  assert.equal(r.entries.length, 0);
+  assert.equal(r.issues.length, 1);
+  assert.equal(r.issues[0].index, -1);
 });
 
 test("itemSlug derives a stable url-safe identifier", () => {

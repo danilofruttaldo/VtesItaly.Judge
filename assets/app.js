@@ -14,6 +14,7 @@ import {
   groupByCategory,
   parseReference,
   parseSanction,
+  validateData,
 } from "./core.mjs";
 
 const FILTER_LABELS = {
@@ -29,17 +30,17 @@ const state = {
 };
 
 const el = {
-  q: document.getElementById("q"),
-  filters: document.getElementById("sanction-filters"),
-  list: document.getElementById("list"),
-  empty: document.getElementById("empty"),
-  emptyReset: document.getElementById("empty-reset"),
-  loading: document.getElementById("loading"),
-  count: document.getElementById("count"),
-  reset: document.getElementById("reset"),
-  updated: document.getElementById("updated"),
-  swUpdate: document.getElementById("sw-update"),
-  swUpdateBtn: document.getElementById("sw-update-btn"),
+  q: /** @type {HTMLInputElement} */ (document.getElementById("q")),
+  filters: /** @type {HTMLElement} */ (document.getElementById("sanction-filters")),
+  list: /** @type {HTMLElement} */ (document.getElementById("list")),
+  empty: /** @type {HTMLElement} */ (document.getElementById("empty")),
+  emptyReset: /** @type {HTMLButtonElement | null} */ (document.getElementById("empty-reset")),
+  loading: /** @type {HTMLElement} */ (document.getElementById("loading")),
+  count: /** @type {HTMLElement} */ (document.getElementById("count")),
+  reset: /** @type {HTMLButtonElement} */ (document.getElementById("reset")),
+  updated: /** @type {HTMLElement | null} */ (document.getElementById("updated")),
+  swUpdate: /** @type {HTMLElement | null} */ (document.getElementById("sw-update")),
+  swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
 };
 
 function renderReference(ref) {
@@ -101,8 +102,9 @@ function renderFilterChips() {
 
 function syncFilterChips() {
   el.filters.querySelectorAll(".chip").forEach((c) => {
-    const s = c.dataset.sanction;
-    c.setAttribute("aria-pressed", state.enabled.has(s) ? "true" : "false");
+    const chip = /** @type {HTMLElement} */ (c);
+    const s = chip.dataset.sanction;
+    chip.setAttribute("aria-pressed", state.enabled.has(s) ? "true" : "false");
   });
 }
 
@@ -141,13 +143,9 @@ function render() {
       const titleHtml = highlightHtml(it.infraction, state.query);
       // Description is the situational context (examples, when it triggers).
       // Intervention is what the judge does. Either or both can be empty.
-      // Fallback to legacy `notes` for unmigrated rows so an old snapshot
-      // doesn't render blank during a transitional deploy.
       const descHtml = it.description ? highlightHtml(it.description, state.query) : "";
       const intHtml = it.intervention ? highlightHtml(it.intervention, state.query) : "";
-      const legacyNotesHtml =
-        !it.description && !it.intervention && it.notes ? highlightHtml(it.notes, state.query) : "";
-      const hasBody = ref || descHtml || intHtml || legacyNotesHtml;
+      const hasBody = ref || descHtml || intHtml;
       html.push(`<details id="item-${escapeHtml(slug)}" class="${klass}" ${itemEdgeAttrs(parsed)}${itemOpen}>`);
       html.push(`<summary class="item-summary">`);
       html.push(`<span class="item-title">${titleHtml}</span>`);
@@ -167,9 +165,6 @@ function render() {
         html.push(
           `<section class="item-section item-section-int"><h3 class="item-section-label">Intervento</h3><div class="item-section-body">${intHtml}</div></section>`,
         );
-      }
-      if (legacyNotesHtml) {
-        html.push(`<div class="item-notes">${legacyNotesHtml}</div>`);
       }
       if (!hasBody) {
         html.push(`<div class="item-notes muted">Nessun dettaglio aggiuntivo.</div>`);
@@ -198,11 +193,14 @@ function render() {
 }
 
 function revealItem(slug) {
-  const node = document.getElementById(`item-${slug}`);
+  const node = /** @type {HTMLDetailsElement | null} */ (document.getElementById(`item-${slug}`));
   if (!node) return;
+  /** @type {HTMLElement | null} */
   let p = node.parentElement;
   while (p) {
-    if (p.tagName === "DETAILS") p.open = true;
+    if (p.tagName === "DETAILS") {
+      /** @type {HTMLDetailsElement} */ (p).open = true;
+    }
     p = p.parentElement;
   }
   node.open = true;
@@ -260,10 +258,17 @@ function applyHashState() {
 
 /* ---------- Events ---------- */
 
+/**
+ * @template {(...args: any[]) => any} F
+ * @param {F} fn
+ * @param {number} ms
+ * @returns {(...args: Parameters<F>) => void}
+ */
 function debounce(fn, ms) {
-  let t = 0;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let t;
   return (...args) => {
-    clearTimeout(t);
+    if (t !== undefined) clearTimeout(t);
     t = setTimeout(() => fn(...args), ms);
   };
 }
@@ -278,10 +283,10 @@ const onQueryInput = debounce((value) => {
 }, 60);
 
 function bindEvents() {
-  el.q.addEventListener("input", (e) => onQueryInput(e.target.value));
+  el.q.addEventListener("input", (e) => onQueryInput(/** @type {HTMLInputElement} */ (e.target).value));
 
   el.filters.addEventListener("click", (e) => {
-    const chip = e.target.closest(".chip");
+    const chip = /** @type {HTMLElement | null} */ (/** @type {Element} */ (e.target).closest(".chip"));
     if (!chip) return;
     const s = chip.dataset.sanction;
     if (state.enabled.has(s)) {
@@ -311,10 +316,11 @@ function bindEvents() {
 
   // Click on per-item "Link a questa voce" copies the URL to clipboard.
   el.list.addEventListener("click", (e) => {
-    const a = e.target.closest(".item-share");
+    const a = /** @type {HTMLAnchorElement | null} */ (/** @type {Element} */ (e.target).closest(".item-share"));
     if (!a) return;
     e.preventDefault();
-    const url = new URL(a.getAttribute("href"), location.href).href;
+    const href = a.getAttribute("href") || "";
+    const url = new URL(href, location.href).href;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(
         () => flashShare(a, "Link copiato"),
@@ -322,7 +328,7 @@ function bindEvents() {
       );
     } else {
       // Fall back to navigation; user can copy from the address bar.
-      location.hash = a.getAttribute("href");
+      location.hash = href;
     }
   });
 
@@ -351,16 +357,21 @@ function bindEvents() {
   // Force-open every <details> at print time so judges can produce a
   // complete paper copy, then restore the prior state. Cheaper than
   // rendering twice and survives both Ctrl+P and "Save as PDF".
+  /** @type {boolean[] | null} */
   let printSnapshot = null;
   window.addEventListener("beforeprint", () => {
-    const all = el.list.querySelectorAll("details");
+    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
     printSnapshot = [...all].map((d) => d.open);
-    all.forEach((d) => (d.open = true));
+    all.forEach((d) => {
+      d.open = true;
+    });
   });
   window.addEventListener("afterprint", () => {
     if (!printSnapshot) return;
-    el.list.querySelectorAll("details").forEach((d, i) => {
-      if (printSnapshot[i] !== undefined) d.open = printSnapshot[i];
+    const snap = printSnapshot;
+    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
+    all.forEach((d, i) => {
+      if (snap[i] !== undefined) d.open = snap[i];
     });
     printSnapshot = null;
   });
@@ -392,21 +403,58 @@ function setUpdated(headerValue) {
   el.updated.hidden = false;
 }
 
+/* User-facing error message for the load step. We split the failure modes
+ * so the judge knows whether the issue is local (offline / cache miss) or
+ * editorial (the deployed JSON is broken) — that changes what they should
+ * try next. Console gets the technical detail; the screen stays readable.
+ * @param {unknown} err
+ * @returns {string}
+ */
+function loadErrorMessage(err) {
+  const e = /** @type {{ name?: string, status?: number }} */ (err || {});
+  if (e.name === "DataValidationError") return "Vademecum in formato non valido.";
+  if (e.name === "SyntaxError") return "Vademecum corrotto: JSON non valido.";
+  if (typeof e.status === "number") {
+    if (e.status === 404) return "Vademecum non trovato (404).";
+    if (e.status >= 500) return `Errore del server (${e.status}).`;
+    return `Errore HTTP ${e.status}.`;
+  }
+  return "Errore di rete: vademecum non raggiungibile.";
+}
+
 async function init() {
   renderFilterChips();
   bindEvents();
   try {
     const resp = await fetch("./data/vademecum.json", { cache: "no-cache" });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    if (!resp.ok) {
+      const e = /** @type {Error & { status: number }} */ (new Error(`HTTP ${resp.status}`));
+      e.status = resp.status;
+      throw e;
+    }
     const lastMod = resp.headers.get("last-modified");
-    const data = await resp.json();
-    state.items = Array.isArray(data) ? data : data.items || [];
+    const data = await resp.json(); // throws SyntaxError on malformed JSON
+    const { entries, issues } = validateData(data);
+    if (issues.length > 0) {
+      // Surface diagnostics for editors without breaking judges' lookups —
+      // valid rows still render. A fully invalid payload (no valid rows)
+      // is treated as a hard error so the loading row says something
+      // useful instead of a silent empty list.
+      console.warn(`vademecum: ${issues.length} invalid entr${issues.length === 1 ? "y" : "ies"} dropped`, issues);
+      if (entries.length === 0) {
+        const e = new Error("no valid entries");
+        e.name = "DataValidationError";
+        throw e;
+      }
+    }
+    state.items = entries;
     el.loading.hidden = true;
     setUpdated(lastMod);
     applyHashState();
   } catch (err) {
     console.error("vademecum load failed:", err);
-    el.loading.textContent = "Errore nel caricamento del vademecum.";
+    el.loading.textContent = loadErrorMessage(err);
+    el.loading.classList.add("is-error");
   }
 }
 

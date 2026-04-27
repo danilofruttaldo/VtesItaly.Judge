@@ -24,5 +24,8 @@ npm run --silent format:check
 echo "pre-commit: eslint"
 npm run --silent lint
 
+echo "pre-commit: typecheck"
+npm run --silent typecheck
+
 echo "pre-commit: tests"
 npm test --silent
