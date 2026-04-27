@@ -76,8 +76,8 @@
     "sanction": "GAME LOSS",
     "description": "Sia la decklist sia il mazzo violano le regole di formato. La sanzione si applica alla discrepanza più grave.",
     "example": "",
-    "philosophy": "",
-    "correzione": "Il giocatore deve rendere legale la decklist e adeguare il mazzo di conseguenza."
+    "philosophy": "Quando l'illegalità coinvolge sia la decklist sia il mazzo fisico, la sanzione sale a Game Loss perché il problema non è più solo formale. Resta valido il principio VEKN di non squalificare per problemi di compilazione: il giudice principale concede al giocatore alcuni minuti (tipicamente cinque) per rendere legale la decklist e adeguare il mazzo, così il giocatore può proseguire il torneo.",
+    "correzione": "Il giudice principale concede circa cinque minuti per rendere legale la decklist e adeguare il mazzo di conseguenza."
   },
   {
     "category": "Deck",
