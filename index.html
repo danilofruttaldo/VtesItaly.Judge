@@ -4,9 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="color-scheme" content="dark light" />
+    <!-- `frame-ancestors`, `sandbox` and `report-uri` are ignored when CSP is
+         delivered via <meta>; they only work as HTTP response headers. We
+         drop frame-ancestors here to silence the browser warning — clickjacking
+         protection has to come from an X-Frame-Options/CSP response header
+         on the host (GitHub Pages doesn't allow customising headers, so this
+         is a known accepted limitation of the static deployment). -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
     />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121214" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f8" />

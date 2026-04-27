@@ -220,12 +220,13 @@ function revealItem(slug) {
   node.open = true;
   // Defer scrolling so the layout settles after open=true. We also move
   // focus to the summary so keyboard users land inside the active card
-  // instead of having to tab through the collapsed list again.
+  // instead of having to tab through the collapsed list again. <summary>
+  // is natively focusable, so no tabindex is needed (and adding one would
+  // pull it out of the tab order).
   requestAnimationFrame(() => {
     node.scrollIntoView({ block: "start", behavior: "smooth" });
     const summary = /** @type {HTMLElement | null} */ (node.querySelector(":scope > .item-summary"));
     if (summary) {
-      if (!summary.hasAttribute("tabindex")) summary.setAttribute("tabindex", "-1");
       try {
         summary.focus({ preventScroll: true });
       } catch {
