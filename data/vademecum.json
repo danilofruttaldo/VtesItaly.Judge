@@ -35,7 +35,7 @@
     "reference": "",
     "sanction": "WARNING",
     "description": "Una carta nel mazzo è diversa da quella indicata in decklist, ma di ruolo equivalente o non strategicamente determinante.",
-    "example": "Al posto di una Radio Free Australia ce n'è un'altra; al posto di Lost in Crowds c'è Into Thin Air.",
+    "example": "Al posto di una Radio ce n'è un'altra; al posto di Lost in Crowds c'è Into Thin Air.",
     "philosophy": "",
     "correzione": "Dato che il mazzo è già stato giocato, si lascia com'è e si corregge la decklist."
   },
