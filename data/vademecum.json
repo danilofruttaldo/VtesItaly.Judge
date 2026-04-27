@@ -56,7 +56,7 @@
     "sanction": "WARNING",
     "description": "La decklist depositata non rispetta le regole di formato (cripta diversa da 12 carte, libreria con meno di 60 o più di 90 carte, totali errati, carte non legali nel formato), ma il mazzo fisicamente presentato è conforme.",
     "example": "",
-    "philosophy": "",
+    "philosophy": "La decklist è il riferimento ultimo del mazzo: se la decklist dichiara un mazzo illegale, il giocatore sta giocando con un mazzo illegale a prescindere da cosa contenga fisicamente. Squalificare per una decklist mal compilata non è però nell'interesse del torneo, quindi la sanzione standard è Warning con correzione della decklist.",
     "correzione": "Il giocatore deve correggere la decklist in modo che sia uguale al mazzo."
   },
   {
