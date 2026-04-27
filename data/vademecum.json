@@ -24,9 +24,9 @@
     "infraction": "Carta molto strategica/situazionale in più o in meno",
     "reference": "102",
     "sanction": "DISQUALIFICATION",
-    "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist.",
+    "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist. La discrepanza è considerata non intenzionale: se il giudice ha evidenza di omissione deliberata, l'infrazione si tratta come 163. Cheating - Fraud (squalifica senza premio).",
     "example": "Una Direct Intervention non dichiarata; una Archon Investigation in più; una Wash o una Sudden Reversal extra.",
-    "philosophy": "Gradiente italiano sulla VEKN 102: una silver bullet o una carta a impatto immediato non dichiarata altera radicalmente le decisioni del tavolo. Anche se non intenzionale, il vantaggio è troppo grande per consentire la prosecuzione. Disqualification.",
+    "philosophy": "Gradiente italiano sulla VEKN 102: una silver bullet o una carta a impatto immediato non dichiarata produce un vantaggio strutturale troppo significativo perché la partita possa proseguire equamente, anche in assenza di intent dimostrato. La community italiana sceglie quindi Disqualification — sanzione superiore alla Game Loss base di 102 ma sempre senza assumere il barare. Se invece l'intent è provato, l'infrazione esce dal 102 ed entra in 163 (DQwoP).",
     "correzione": "Squalifica del giocatore dal torneo. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
   },
   {
