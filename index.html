@@ -3,12 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
     />
-    <meta name="theme-color" content="#121214" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121214" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f8" />
     <meta
       name="description"
       content="Vademecum sanzioni VTES Italia: infrazioni e penalità per arbitri di tornei, consultabili da telefono."
@@ -26,14 +27,16 @@
     <script type="module" src="assets/app.js"></script>
   </head>
   <body>
-    <a href="#list" class="skip">Vai alle sanzioni</a>
+    <a href="#content" class="skip">Vai alle sanzioni</a>
 
     <div class="topbar" id="topbar">
       <header>
         <h1>Vademecum sanzioni</h1>
         <p class="sub">
           Riferimento ufficiale:
-          <a href="https://www.vekn.net/tournament-rules" rel="noopener" target="_blank">VEKN Tournament Rules</a>
+          <a href="https://www.vekn.net/tournament-rules" rel="noopener noreferrer" target="_blank"
+            >VEKN Tournament Rules</a
+          >
         </p>
       </header>
 
@@ -54,12 +57,12 @@
       </div>
     </div>
 
-    <main>
+    <main id="content">
       <noscript>
         <div class="empty">Questa pagina richiede JavaScript per filtrare le sanzioni.</div>
       </noscript>
       <div id="list" class="list"></div>
-      <div class="empty" id="empty" hidden>
+      <div class="empty" id="empty" role="status" aria-live="polite" hidden>
         <div>Nessuna sanzione corrisponde ai filtri.</div>
         <div class="empty-actions">
           <button class="reset-empty" id="empty-reset" type="button">Azzera filtri</button>
@@ -70,6 +73,9 @@
 
     <footer class="app-footer">
       <span class="updated" id="updated" hidden></span>
+      <span class="sw-update" id="sw-update" hidden>
+        <button class="sw-update-btn" id="sw-update-btn" type="button">Aggiornamento disponibile — ricarica</button>
+      </span>
     </footer>
   </body>
 </html>

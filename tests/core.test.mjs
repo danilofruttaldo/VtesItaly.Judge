@@ -208,7 +208,7 @@ test("parseSanction parses multi-sanction with ' - ' separator", () => {
 });
 
 test("parseSanction maps placeholders to localised descriptions", () => {
-  assert.equal(parseSanction("///").description, "Caso particolare — vedi note");
+  assert.equal(parseSanction("///").description, "Caso particolare — vedi descrizione");
   assert.equal(parseSanction("???").description, "Da definire");
   assert.equal(parseSanction("").description, "Da definire");
   for (const v of ["///", "???", ""]) {

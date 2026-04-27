@@ -26,12 +26,24 @@ export const SANCTION_VARS = {
   "DISQUALIFICATION WITHOUT PRIZE": "--s-dqnp",
 };
 
-/* Italian descriptions for entries where the SANZIONE field is empty or a
- * placeholder. The CSV uses "///" for situational/no-formal-sanction cases
- * and "???" for entries the editorial board hasn't decided yet. */
+/* Short, lowercase tokens for each sanction. Used as `data-s1`/`data-s2`
+ * attribute values on cards so the CSS layer can map them to colors via
+ * static attribute selectors — no inline `style=` needed, which keeps the
+ * Content Security Policy strict (no `'unsafe-inline'` style required). */
+export const SANCTION_SLUGS = {
+  CAUTION: "caution",
+  WARNING: "warning",
+  "GAME LOSS": "game-loss",
+  DISQUALIFICATION: "dq",
+  "DISQUALIFICATION WITHOUT PRIZE": "dqnp",
+};
+
+/* Italian descriptions for entries where the sanction field is empty or
+ * a placeholder. The data uses "///" for situational/no-formal-sanction
+ * cases and "???" for entries the editorial board hasn't decided yet. */
 export const SANCTION_FALLBACKS = {
   "": "Da definire",
-  "///": "Caso particolare — vedi note",
+  "///": "Caso particolare — vedi descrizione",
   "???": "Da definire",
 };
 

@@ -196,7 +196,9 @@ a {
 
 /* Filter chips: horizontal scroll on phone (no wrap), wrap on desktop. The
  * scroll is silent (no visible scrollbar) but works by drag/swipe; a fade
- * mask on the right edge hints there's more off-screen. */
+ * mask on the right edge hints there's more off-screen. The mask drops
+ * once the user has scrolled to the end (data-overflow="end") so they
+ * don't see a phantom hint when nothing is hidden. */
 .chip-group {
   display: flex;
   gap: 0.375rem;
@@ -207,9 +209,13 @@ a {
   margin: 0 -1rem;
   padding: 0.125rem 1rem;
   scrollbar-width: none;
-  /* Fade the right edge so users see content extends beyond the viewport. */
   mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+}
+
+.chip-group[data-overflow="end"] {
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 
 .chip-group::-webkit-scrollbar {
@@ -234,6 +240,28 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  --chip-color: var(--muted);
+}
+
+/* Per-sanction chip color comes from a static attribute selector instead
+ * of an inline style — same CSP rationale as the item color bar. */
+.chip[data-sanction="CAUTION"] {
+  --chip-color: var(--s-caution);
+}
+.chip[data-sanction="WARNING"] {
+  --chip-color: var(--s-warning);
+}
+.chip[data-sanction="GAME LOSS"] {
+  --chip-color: var(--s-gameloss);
+}
+.chip[data-sanction="DISQUALIFICATION"] {
+  --chip-color: var(--s-dq);
+}
+.chip[data-sanction="DISQUALIFICATION WITHOUT PRIZE"] {
+  --chip-color: var(--s-dqnp);
+}
+.chip[data-sanction="TBD"] {
+  --chip-color: var(--s-other);
 }
 
 .chip-dot {
@@ -435,12 +463,48 @@ main {
   position: relative;
 }
 
-/* Colored bar that sits flush against the sanction name area. Carries the
- * sanction color (solid for single sanctions) or a gradient between the
- * two endpoints (multi). Inline custom properties on the item drive it:
- *   single      → --edge: <color>
- *   multi       → --edge-from / --edge-to
- *   placeholder → --edge: var(--s-other)
+/* Sanction-to-color mapping driven by data-* attributes on the item card.
+ * Static rules in CSS keep the page CSP-friendly: no inline style attribute
+ * is needed in the HTML. Single-sanction items only set data-s1; multi
+ * items set both data-s1 and data-s2 (the bar shows a gradient between
+ * the two endpoints). */
+.item[data-s1="caution"] {
+  --edge-from: var(--s-caution);
+}
+.item[data-s1="warning"] {
+  --edge-from: var(--s-warning);
+}
+.item[data-s1="game-loss"] {
+  --edge-from: var(--s-gameloss);
+}
+.item[data-s1="dq"] {
+  --edge-from: var(--s-dq);
+}
+.item[data-s1="dqnp"] {
+  --edge-from: var(--s-dqnp);
+}
+.item[data-s1="other"] {
+  --edge-from: var(--s-other);
+}
+.item[data-s2="caution"] {
+  --edge-to: var(--s-caution);
+}
+.item[data-s2="warning"] {
+  --edge-to: var(--s-warning);
+}
+.item[data-s2="game-loss"] {
+  --edge-to: var(--s-gameloss);
+}
+.item[data-s2="dq"] {
+  --edge-to: var(--s-dq);
+}
+.item[data-s2="dqnp"] {
+  --edge-to: var(--s-dqnp);
+}
+
+/* Colored bar that sits flush against the sanction name area. Single
+ * sanctions paint a solid color from --edge-from. Multi cards (those with
+ * data-s2) paint a gradient between --edge-from and --edge-to.
  *
  * On mobile (badges below the title, full width) the bar is a thin
  * horizontal strip across the top so it visually leads into the badges.
@@ -453,10 +517,10 @@ main {
   flex: 0 0 auto;
   width: 100%;
   height: 4px;
-  background: var(--edge, transparent);
+  background: var(--edge-from, transparent);
 }
 
-.item.item-multi .badges-edge {
+.item[data-s2] .badges-edge {
   background: linear-gradient(to right, var(--edge-from, var(--s-other)), var(--edge-to, var(--s-other)));
 }
 
@@ -634,11 +698,11 @@ a.item-ref:focus-visible {
   font-weight: 600;
   color: var(--muted);
   text-decoration: none;
-  padding: 0.35rem 0.55rem;
+  padding: 0.4rem 0.65rem;
   border: 1px solid var(--border);
   border-radius: 0.25rem;
   background: transparent;
-  min-height: 32px;
+  min-height: 36px;
   display: inline-flex;
   align-items: center;
 }
@@ -667,7 +731,7 @@ a.item-ref:focus-visible {
   margin-top: 0.75rem;
 }
 
-.empty .reset-empty {
+.reset-empty {
   font: inherit;
   font-size: 0.85rem;
   background: var(--bg-2);
@@ -686,10 +750,33 @@ a.item-ref:focus-visible {
   text-align: center;
   font-size: 0.72rem;
   color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-.updated[hidden] {
+.updated[hidden],
+.sw-update[hidden] {
   display: none;
+}
+
+.sw-update-btn {
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--s-caution) 14%, var(--bg-2));
+  color: var(--fg);
+  border: 1px solid color-mix(in srgb, var(--s-caution) 50%, var(--border));
+  border-radius: 0.375rem;
+  padding: 0.55rem 0.95rem;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.sw-update-btn:hover,
+.sw-update-btn:focus-visible {
+  background: color-mix(in srgb, var(--s-caution) 24%, var(--bg-2));
 }
 
 /* ---------- Desktop ---------- */

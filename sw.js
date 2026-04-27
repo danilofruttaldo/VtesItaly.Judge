@@ -25,12 +25,16 @@ const SHELL_FILES = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches
-      .open(SHELL_CACHE)
-      .then((c) => c.addAll(SHELL_FILES).catch(() => {}))
-      .then(() => self.skipWaiting()),
-  );
+  // Don't auto-skipWaiting: we want the page to keep running with the
+  // current SW until the user opts in via the "update" toast. The page
+  // posts {type:"SKIP_WAITING"} when the judge accepts.
+  e.waitUntil(caches.open(SHELL_CACHE).then((c) => c.addAll(SHELL_FILES).catch(() => {})));
+});
+
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (e) => {

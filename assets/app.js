@@ -6,7 +6,7 @@
 import {
   SANCTION_ORDER,
   SANCTION_LABELS,
-  SANCTION_VARS,
+  SANCTION_SLUGS,
   escapeHtml,
   highlightHtml,
   itemSlug,
@@ -19,11 +19,6 @@ import {
 const FILTER_LABELS = {
   ...SANCTION_LABELS,
   TBD: "TBD",
-};
-
-const FILTER_VARS = {
-  ...SANCTION_VARS,
-  TBD: "--s-other",
 };
 
 const state = {
@@ -43,6 +38,8 @@ const el = {
   count: document.getElementById("count"),
   reset: document.getElementById("reset"),
   updated: document.getElementById("updated"),
+  swUpdate: document.getElementById("sw-update"),
+  swUpdateBtn: document.getElementById("sw-update-btn"),
 };
 
 function renderReference(ref) {
@@ -73,30 +70,31 @@ function renderSanctionBadge(parsed) {
   return pills.join("");
 }
 
-/* Builds the inline style for an item's sanction color bar. Single sanctions
- * expose a solid `--edge` color; multi-sanction items expose `--edge-from`
- * and `--edge-to` endpoints so the CSS layer chooses the gradient axis
- * (horizontal on mobile, vertical on desktop). Placeholders fall back to
- * the neutral "other" color. */
-function itemEdgeStyle(parsed) {
+/* Builds the data-attribute string for an item's sanction color bar.
+ * Single sanctions expose `data-s1`; multi-sanction items expose both
+ * `data-s1` and `data-s2`; placeholders fall back to `data-s1="other"`.
+ * The CSS layer maps these tokens to color variables via static attribute
+ * selectors so we don't ship inline `style=`, keeping CSP strict. */
+function itemEdgeAttrs(parsed) {
   if (parsed.kind === "single") {
-    return `--edge: var(${SANCTION_VARS[parsed.sanctions[0]]})`;
+    return `data-s1="${escapeHtml(SANCTION_SLUGS[parsed.sanctions[0]])}"`;
   }
   if (parsed.kind === "multi") {
-    const first = SANCTION_VARS[parsed.sanctions[0]];
-    const last = SANCTION_VARS[parsed.sanctions[parsed.sanctions.length - 1]];
-    return `--edge-from: var(${first}); --edge-to: var(${last})`;
+    const first = SANCTION_SLUGS[parsed.sanctions[0]];
+    const last = SANCTION_SLUGS[parsed.sanctions[parsed.sanctions.length - 1]];
+    return `data-s1="${escapeHtml(first)}" data-s2="${escapeHtml(last)}"`;
   }
-  return `--edge: var(--s-other)`;
+  return `data-s1="other"`;
 }
 
 function renderFilterChips() {
   const order = [...SANCTION_ORDER, "TBD"];
+  // The chip color comes from a static CSS rule keyed on data-sanction —
+  // no inline style attribute, so the page works under a strict CSP.
   el.filters.innerHTML = order
     .map((s) => {
       const label = FILTER_LABELS[s];
-      const cssVar = FILTER_VARS[s];
-      return `<button class="chip" type="button" data-sanction="${escapeHtml(s)}" aria-pressed="false" style="--chip-color: var(${cssVar})"><span class="chip-dot" aria-hidden="true"></span>${escapeHtml(label)}</button>`;
+      return `<button class="chip" type="button" data-sanction="${escapeHtml(s)}" aria-pressed="false"><span class="chip-dot" aria-hidden="true"></span>${escapeHtml(label)}</button>`;
     })
     .join("");
 }
@@ -150,7 +148,7 @@ function render() {
       const legacyNotesHtml =
         !it.description && !it.intervention && it.notes ? highlightHtml(it.notes, state.query) : "";
       const hasBody = ref || descHtml || intHtml || legacyNotesHtml;
-      html.push(`<details id="item-${escapeHtml(slug)}" class="${klass}" style="${itemEdgeStyle(parsed)}"${itemOpen}>`);
+      html.push(`<details id="item-${escapeHtml(slug)}" class="${klass}" ${itemEdgeAttrs(parsed)}${itemOpen}>`);
       html.push(`<summary class="item-summary">`);
       html.push(`<span class="item-title">${titleHtml}</span>`);
       // The colored bar with the sanction gradient sits next to the badge
@@ -234,7 +232,7 @@ function readHashState() {
   };
 }
 
-let lastHashWritten = "";
+let lastHashWritten = null; // null = no write yet, force the first one through
 function writeHashState() {
   const params = new URLSearchParams();
   if (state.query) params.set("q", state.query);
@@ -253,9 +251,10 @@ function applyHashState() {
   el.q.value = state.query;
   syncFilterChips();
   state.pendingItemAnchor = h.item || null;
-  // Don't track this read as the "last written" hash — we want the next
-  // user-driven render to push a normalised version to the URL.
-  lastHashWritten = "__init__";
+  // Reset the dedupe sentinel so the next user-driven mutation always
+  // writes a normalised hash, even if the new value coincidentally
+  // matches whatever the URL happened to contain on load.
+  lastHashWritten = null;
   render();
 }
 
@@ -336,6 +335,19 @@ function bindEvents() {
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
+  // Drop the right-edge fade mask once the chip strip has been scrolled to
+  // the very end so users don't see a phantom hint that more content is
+  // off-screen when, in fact, everything is already visible.
+  const onChipScroll = () => {
+    const atEnd = el.filters.scrollLeft + el.filters.clientWidth >= el.filters.scrollWidth - 1;
+    el.filters.dataset.overflow = atEnd ? "end" : "mid";
+  };
+  el.filters.addEventListener("scroll", onChipScroll, { passive: true });
+  // Re-evaluate on resize — narrowing the viewport may make a previously
+  // fully-visible strip overflow again.
+  window.addEventListener("resize", onChipScroll, { passive: true });
+  onChipScroll();
+
   // Force-open every <details> at print time so judges can produce a
   // complete paper copy, then restore the prior state. Cheaper than
   // rendering twice and survives both Ctrl+P and "Save as PDF".
@@ -400,10 +412,51 @@ async function init() {
 
 init();
 
+/* ---------- Service worker update notification ----------
+ * When the deploy stamps a new VERSION, the new SW reaches `installed` and
+ * waits in the `waiting` slot. We surface a non-blocking toast so the judge
+ * can opt into the refresh at a moment that doesn't disrupt a ruling
+ * lookup, instead of forcing skipWaiting() server-side and yanking the page
+ * mid-tap. */
+function showSwUpdate(reg) {
+  if (!el.swUpdate || !el.swUpdateBtn || !reg || !reg.waiting) return;
+  el.swUpdate.hidden = false;
+  el.swUpdateBtn.addEventListener(
+    "click",
+    () => {
+      reg.waiting.postMessage({ type: "SKIP_WAITING" });
+    },
+    { once: true },
+  );
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch((err) => {
-      console.warn("SW registration failed:", err);
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((reg) => {
+        if (reg.waiting) showSwUpdate(reg);
+        reg.addEventListener("updatefound", () => {
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener("statechange", () => {
+            if (sw.state === "installed" && navigator.serviceWorker.controller) {
+              showSwUpdate(reg);
+            }
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn("SW registration failed:", err);
+      });
+
+    // When the new SW takes control after SKIP_WAITING, reload once so the
+    // page is rebuilt with the fresh cache. Guard against reload loops.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
     });
   });
 }
