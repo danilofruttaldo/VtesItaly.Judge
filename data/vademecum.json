@@ -202,12 +202,12 @@
   {
     "category": "Condotta impropria",
     "infraction": "Aiuto esterno",
-    "reference": "",
-    "sanction": "???",
-    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori.",
+    "reference": "152 - 164",
+    "sanction": "WARNING - DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori. La sanzione si applica al giocatore al tavolo solo se ha sollecitato, accettato o usato l'informazione: il caso base è 152. Unsportsmanlike Conduct - Major (Warning, scalabile a Game Loss in base all'impatto). Se è dimostrabile un accordo preventivo con l'esterno per alterare il risultato si applica 164. Cheating - Collusion (squalifica senza premio).",
     "example": "Spettatore che indica una linea di gioco; amico che segnala carte già giocate; giocatore eliminato che resta al tavolo e commenta.",
     "philosophy": "",
-    "correzione": "Allontanare l'esterno dal tavolo. Valutare l'impatto sulla partita: se l'informazione ha già modificato le decisioni, considerare un rollback o, in casi gravi, sanzionare il giocatore complice (warning o superiore)."
+    "correzione": "Allontanare l'esterno dal tavolo. Se il giocatore al tavolo non ha sollecitato né usato l'informazione, nessuna sanzione a suo carico ma valutare un rollback se le decisioni sono già state condizionate. Se il giocatore ha tratto vantaggio dall'aiuto si applica 152 (Warning, fino a Game Loss in base alla gravità). In caso di collusione accertata: 164 — squalifica senza premio, documentazione e segnalazione all'organizzazione."
   },
   {
     "category": "Condotta impropria",
