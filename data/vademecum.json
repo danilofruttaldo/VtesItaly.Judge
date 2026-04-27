@@ -66,8 +66,8 @@
     "sanction": "GAME LOSS",
     "description": "La decklist è formalmente corretta, ma il mazzo che il giocatore sta usando viola le regole di formato.",
     "example": "Cripta con meno di 12 carte; libreria con più di 90 carte; doppione di una carta unica; presenza di carte non legali nel formato.",
-    "philosophy": "",
-    "correzione": "Il giocatore deve adeguare il mazzo alla decklist."
+    "philosophy": "La decklist è il riferimento ultimo del mazzo: se la decklist è legale ma il mazzo fisico non corrisponde, di norma è il mazzo a dover essere riportato a quanto dichiarato. Eccezione: se il giudice può determinare con piena certezza che la discrepanza è dovuta a un errore di trascrizione della decklist (es. mazzo mono-Gangrel con 'Campground Hunting Ground' in lista invece di 'Zoo Hunting Ground'), può correggere la decklist invece del mazzo. In quel caso la sanzione si abbassa a Warning.",
+    "correzione": "Il giocatore deve adeguare il mazzo alla decklist. In casi in cui il giudice abbia piena certezza che la discrepanza sia un errore di trascrizione della decklist, può invece correggere la decklist e abbassare la sanzione a Warning."
   },
   {
     "category": "Deck vs decklist",
