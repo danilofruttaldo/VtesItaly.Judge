@@ -86,7 +86,7 @@
     "sanction": "CAUTION",
     "description": "Una o più buste protettive presentano segni di usura, graffi o macchie distinguibili, ma senza un pattern che permetta di identificare carte specifiche dal retro. La marcatura è considerata accidentale.",
     "example": "Busta piegata in un angolo; graffio isolato sul retro; macchia su una sola sleeve.",
-    "philosophy": "",
+    "philosophy": "Senza uno schema riconoscibile dietro le marcature, la possibilità che il giocatore tragga vantaggio dal retro è bassa. La sanzione è quindi minima (Caution) e l'intervento si limita alla sostituzione delle buste.",
     "correzione": "Il giocatore deve sostituire le buste danneggiate."
   },
   {
@@ -96,7 +96,7 @@
     "sanction": "GAME LOSS - DISQUALIFICATION WITHOUT PRIZE",
     "description": "Le buste mostrano un pattern di marcature che permette di distinguere alcune carte dal retro. Il regolamento assume di base la non intenzionalità: la sanzione standard è Game Loss. Se il giudice ritiene la marcatura intenzionale, l'infrazione si tratta come 163. Cheating - Fraud (squalifica senza premio).",
     "example": "Tutte le master segnate allo stesso modo; libreria distinguibile dalla cripta dal retro; segni ricorrenti su carte chiave.",
-    "philosophy": "",
+    "philosophy": "Quando le marcature seguono uno schema, il vantaggio potenziale per il giocatore è alto e la sanzione deve essere significativa. VEKN 132 assume comunque che le marcature siano accidentali: il caso base è Game Loss. Se il giudice ritiene la marcatura intenzionale si applica 163. Cheating - Fraud — squalifica senza premio.",
     "correzione": "Game Loss e sostituzione delle buste prima del round successivo. In caso di intenzionalità accertata si applica 163. Cheating - Fraud: squalifica senza premio, documentazione dell'episodio e segnalazione all'organizzazione."
   },
   {
