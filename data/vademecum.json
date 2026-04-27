@@ -144,20 +144,20 @@
     "infraction": "Azione non obbligatoria dimenticata senza aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile.",
+    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale di recupero, non un'infrazione.",
     "example": "Dimenticato di prendere il pool di edge ma ho già usato una blood doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
     "philosophy": "",
-    "correzione": "Di base, l'azione dimenticata è persa. Si può concedere di recuperarla solo se tutti i giocatori al tavolo sono d'accordo."
+    "correzione": "Nessuna sanzione. Di base, l'azione dimenticata è persa; può essere recuperata solo se tutti i giocatori al tavolo sono d'accordo."
   },
   {
     "category": "Azioni dimenticate",
     "infraction": "Azione non obbligatoria dimenticata dopo aver visto/rivelato/pescato carte",
     "reference": "///",
     "sanction": "///",
-    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto, rivelato o pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo.",
+    "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto, rivelato o pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale, non un'infrazione.",
     "example": "Dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
     "philosophy": "",
-    "correzione": "L'azione dimenticata è persa."
+    "correzione": "Nessuna sanzione. L'azione dimenticata è persa: lo stato di gioco non è ricostruibile."
   },
   {
     "category": "Azioni dimenticate",
