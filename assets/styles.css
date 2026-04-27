@@ -862,6 +862,11 @@ span.item-ref.item-ref-unknown {
   /* Avoid a runaway content-driven width on browsers that ignore the
    * width above when there's no content (initial paint). */
   min-width: 18rem;
+  /* Native <dialog> defaults to `overflow: auto`, which gave us a second
+   * scrollbar on the dialog itself stacked on top of the body's own
+   * `overflow-y: auto`. Clip the outer container so only the body
+   * scrolls; the rounded corners stay clean too. */
+  overflow: hidden;
 }
 
 .rule-dialog::backdrop {
