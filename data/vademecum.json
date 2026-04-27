@@ -164,7 +164,7 @@
     "infraction": "Azione obbligatoria dimenticata",
     "reference": "114",
     "sanction": "CAUTION",
-    "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta.",
+    "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta. Rientra in 114 come misapplicazione (non intenzionale) di una regola di gioco — VEKN 114 copre sia il giocare male una carta sia il non rispettare una regola.",
     "example": "Costo da pagare nella unlock phase; caccia obbligatoria a inizio turno; scarto forzato da effetto avversario; transfer obbligatorio in influence phase.",
     "philosophy": "",
     "correzione": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback. Se però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
