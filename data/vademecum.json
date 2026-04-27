@@ -194,10 +194,10 @@
     "infraction": "Accordo apparentemente svantaggioso",
     "reference": "///",
     "sanction": "///",
-    "description": "Un giocatore propone o accetta un accordo che, dall'esterno, sembra svantaggioso per la propria posizione di gioco. A meno che non sia manifestamente un tentativo di barare, i giudici non devono entrare nel merito della vantaggiosità di un accordo: fa parte delle abilità di un giocatore capire quando un accordo è vantaggioso o meno.",
+    "description": "Un giocatore propone o accetta un accordo che, dall'esterno, sembra svantaggioso per la propria posizione di gioco. VEKN considera lecito questo tipo di accordo: i giudici non devono entrare nel merito della vantaggiosità di un deal — fa parte delle abilità di un giocatore valutarlo. Il giudice interviene solo se rileva indizi specifici di bribery (161, inducement esterni come denaro/carte) o collusion (164, accordo per predeterminare il risultato).",
     "example": "",
     "philosophy": "",
-    "correzione": ""
+    "correzione": "Nessuna sanzione di base — il deal è valido. Sanzionare solo se emergono inducement esterni alla partita (161. Cheating - Bribery: DQwoP) o un accordo per truccare il risultato (164. Cheating - Collusion: DQwoP)."
   },
   {
     "category": "Condotta impropria",
