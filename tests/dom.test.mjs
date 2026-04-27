@@ -135,9 +135,10 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const cards = list.querySelectorAll("details.item");
   assert.equal(cards.length, FIXTURE.length, "one card per fixture entry");
 
-  // Sanction chips render and are unpressed initially
+  // Sanction chips render and are unpressed initially. There is no TBD chip:
+  // placeholder entries are filtered out when any sanction filter is active.
   const chips = filters.querySelectorAll(".chip");
-  assert.equal(chips.length, 6, "5 sanctions + TBD chip");
+  assert.equal(chips.length, 5, "five canonical sanctions, no TBD chip");
   for (const c of chips) assert.equal(c.getAttribute("aria-pressed"), "false");
 
   // Reference link is wired

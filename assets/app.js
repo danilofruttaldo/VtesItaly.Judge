@@ -6,6 +6,7 @@
 import {
   SANCTION_ORDER,
   SANCTION_LABELS,
+  SANCTION_FILTER_LABELS,
   SANCTION_SLUGS,
   escapeHtml,
   highlightHtml,
@@ -17,10 +18,7 @@ import {
   validateData,
 } from "./core.mjs";
 
-const FILTER_LABELS = {
-  ...SANCTION_LABELS,
-  TBD: "TBD",
-};
+const FILTER_LABELS = { ...SANCTION_FILTER_LABELS };
 
 const state = {
   items: [],
@@ -89,7 +87,11 @@ function itemEdgeAttrs(parsed) {
 }
 
 function renderFilterChips() {
-  const order = [...SANCTION_ORDER, "TBD"];
+  // Only canonical sanctions are filterable. Placeholder entries (???/"//"/
+  // empty) have no chip — they always appear when no filter is active and
+  // are filtered out when any sanction chip is on, which is the intent:
+  // a judge filtering by CAUTION does not want unresolved-TBD entries.
+  const order = SANCTION_ORDER;
   // The chip color comes from a static CSS rule keyed on data-sanction —
   // no inline style attribute, so the page works under a strict CSP.
   el.filters.innerHTML = order
@@ -262,7 +264,7 @@ function writeHashState() {
 function applyHashState() {
   const h = readHashState();
   state.query = h.q;
-  state.enabled = new Set(h.s.filter((x) => x === "TBD" || SANCTION_ORDER.includes(x)));
+  state.enabled = new Set(h.s.filter((x) => SANCTION_ORDER.includes(x)));
   el.q.value = state.query;
   syncFilterChips();
   state.pendingItemAnchor = h.item || null;
@@ -357,19 +359,6 @@ function bindEvents() {
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
-
-  // Drop the right-edge fade mask once the chip strip has been scrolled to
-  // the very end so users don't see a phantom hint that more content is
-  // off-screen when, in fact, everything is already visible.
-  const onChipScroll = () => {
-    const atEnd = el.filters.scrollLeft + el.filters.clientWidth >= el.filters.scrollWidth - 1;
-    el.filters.dataset.overflow = atEnd ? "end" : "mid";
-  };
-  el.filters.addEventListener("scroll", onChipScroll, { passive: true });
-  // Re-evaluate on resize — narrowing the viewport may make a previously
-  // fully-visible strip overflow again.
-  window.addEventListener("resize", onChipScroll, { passive: true });
-  onChipScroll();
 
   // Force-open every <details> at print time so judges can produce a
   // complete paper copy, then restore the prior state. Cheaper than

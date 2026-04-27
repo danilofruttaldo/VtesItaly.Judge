@@ -15,6 +15,18 @@ export const SANCTION_LABELS = {
   "DISQUALIFICATION WITHOUT PRIZE": "DQ senza premio",
 };
 
+/* Filter-chip labels: more compact than the badge labels because they all
+ * share a single horizontal row and the user must be able to see the whole
+ * filter set on a 360px-wide phone without horizontal scrolling. "DQ" is
+ * the standard judge shorthand for Disqualification. */
+export const SANCTION_FILTER_LABELS = {
+  CAUTION: "Caution",
+  WARNING: "Warning",
+  "GAME LOSS": "Game loss",
+  DISQUALIFICATION: "DQ",
+  "DISQUALIFICATION WITHOUT PRIZE": "DQnoP",
+};
+
 /* CSS custom-property names for each canonical sanction. Used to drive the
  * left-edge color (and the gradient when multi). Kept here so the data layer
  * decides which color goes where, not the markup. */
@@ -319,8 +331,9 @@ export function expandSanctionRange(parsed) {
  * (equivalent to all enabled). Multi-sanction items match if ANY level
  * within the range (endpoints AND in-between) is enabled — so filtering
  * by WARNING includes a "CAUTION - GAME LOSS" slow-play entry, because
- * the range covers it. Placeholder items ("???", "///", empty) fall into
- * the "TBD" bucket.
+ * the range covers it. Placeholder items ("???", "///", empty) never match
+ * an active filter: a judge filtering by a specific sanction wants only
+ * resolved entries, not TBD ones.
  * @param {VademecumEntry} item
  * @param {Set<string> | null | undefined} enabled
  * @returns {boolean}
@@ -328,7 +341,7 @@ export function expandSanctionRange(parsed) {
 export function matchSanction(item, enabled) {
   if (!enabled || enabled.size === 0) return true;
   const parsed = parseSanction(item.sanction);
-  if (parsed.kind === "placeholder") return enabled.has("TBD");
+  if (parsed.kind === "placeholder") return false;
   return expandSanctionRange(parsed).some((s) => enabled.has(s));
 }
 

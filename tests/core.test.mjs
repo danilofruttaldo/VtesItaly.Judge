@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 
 import {
   SANCTION_ORDER,
+  SANCTION_LABELS,
+  SANCTION_FILTER_LABELS,
   JUDGES_GUIDE_URL,
   norm,
   escapeHtml,
@@ -111,10 +113,14 @@ test("matchSanction filters by enabled sanctions", () => {
   assert.equal(matchSanction(sample[1], enabled), false);
 });
 
-test("matchSanction routes placeholder sanctions to TBD bucket", () => {
-  const enabled = new Set(["TBD"]);
-  assert.equal(matchSanction(sample[3], enabled), true); // ???
-  assert.equal(matchSanction(sample[0], enabled), false); // CAUTION
+test("matchSanction excludes placeholder entries when any filter is active", () => {
+  // Placeholder entries (???/"//"/empty) have no chip and never match an
+  // active sanction filter — a judge filtering by CAUTION does not want
+  // unresolved TBD entries showing up in the result list.
+  const cautionOnly = new Set(["CAUTION"]);
+  assert.equal(matchSanction(sample[3], cautionOnly), false); // ??? entry
+  // With no filter active, placeholder entries ARE shown.
+  assert.equal(matchSanction(sample[3], new Set()), true);
 });
 
 test("matchSanction with multi-sanction items matches every level in the range", () => {
@@ -137,7 +143,6 @@ test("matchSanction with multi-sanction items matches every level in the range",
   // Out-of-range levels do not match.
   assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION"])), false);
   assert.equal(matchSanction(slowPlay, new Set(["DISQUALIFICATION WITHOUT PRIZE"])), false);
-  assert.equal(matchSanction(slowPlay, new Set(["TBD"])), false); // it IS canonical
 });
 
 test("expandSanctionRange returns inclusive range for multi, identity otherwise", () => {
@@ -173,6 +178,26 @@ test("groupByCategory preserves insertion order and groups items", () => {
   assert.deepEqual(keys, ["DECK", "CONDOTTA IMPROPRIA"]);
   assert.equal(groups.get("DECK").length, 2);
   assert.equal(groups.get("CONDOTTA IMPROPRIA").length, 2);
+});
+
+test("SANCTION_FILTER_LABELS are short enough to fit one row of chips on a phone", () => {
+  // Every canonical sanction has both a badge label (verbose) and a chip
+  // label (compact). The compact label must be at most as long as the
+  // badge label, and every label must be non-empty.
+  for (const k of SANCTION_ORDER) {
+    assert.ok(SANCTION_LABELS[k], `missing badge label for ${k}`);
+    assert.ok(SANCTION_FILTER_LABELS[k], `missing filter label for ${k}`);
+    assert.ok(
+      SANCTION_FILTER_LABELS[k].length <= SANCTION_LABELS[k].length,
+      `filter label "${SANCTION_FILTER_LABELS[k]}" is longer than badge label "${SANCTION_LABELS[k]}" for ${k}`,
+    );
+    // Hard cap at 10 characters keeps the chip set on a single 360px row in
+    // the common case (5 sanctions + TBD ≈ 6 chips).
+    assert.ok(
+      SANCTION_FILTER_LABELS[k].length <= 10,
+      `filter label "${SANCTION_FILTER_LABELS[k]}" exceeds the 10-char chip budget`,
+    );
+  }
 });
 
 test("SANCTION_ORDER has the five canonical sanctions", () => {
