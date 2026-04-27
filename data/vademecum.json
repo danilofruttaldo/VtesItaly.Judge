@@ -146,7 +146,7 @@
     "sanction": "///",
     "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale di recupero, non un'infrazione.",
     "example": "Dimenticato di prendere il pool di edge ma ho già usato una blood doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
-    "philosophy": "",
+    "philosophy": "VEKN non sanziona le azioni opzionali dimenticate perché non sono violazioni del regolamento, sono scelte del giocatore. Se lo stato di gioco è ancora ricostruibile (nessuna carta vista nel frattempo), la community considera accettabile recuperare l'azione purché tutti i giocatori al tavolo siano d'accordo: il consenso unanime serve a impedire che un giocatore tragga vantaggio retroattivo.",
     "correzione": "Nessuna sanzione. Di base, l'azione dimenticata è persa; può essere recuperata solo se tutti i giocatori al tavolo sono d'accordo."
   },
   {
@@ -156,7 +156,7 @@
     "sanction": "///",
     "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto, rivelato o pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale, non un'infrazione.",
     "example": "Dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
-    "philosophy": "",
+    "philosophy": "VEKN non sanziona le azioni opzionali dimenticate. Una volta che il giocatore ha visto, rivelato o pescato altre carte, lo stato di gioco non è più ricostruibile in modo equo: rimettere mano all'azione potrebbe alterare l'informazione che gli avversari hanno utilizzato per decidere. La perdita dell'azione non è una sanzione ma la conseguenza naturale del fatto che il momento giusto è passato.",
     "correzione": "Nessuna sanzione. L'azione dimenticata è persa: lo stato di gioco non è ricostruibile."
   },
   {
@@ -196,7 +196,7 @@
     "sanction": "///",
     "description": "Un giocatore propone o accetta un accordo che, dall'esterno, sembra svantaggioso per la propria posizione di gioco. VEKN considera lecito questo tipo di accordo: i giudici non devono entrare nel merito della vantaggiosità di un deal — fa parte delle abilità di un giocatore valutarlo. Il giudice interviene solo se rileva indizi specifici di bribery (161, inducement esterni come denaro/carte) o collusion (164, accordo per predeterminare il risultato).",
     "example": "",
-    "philosophy": "",
+    "philosophy": "VEKN considera lecita ogni forma di accordo tra giocatori, anche apparentemente svantaggioso, perché valutarne la convenienza è parte delle abilità di gioco. La philosophy di VEKN 161 (Bribery) esplicita che i deal in finale non sono bribery purché non includano incentivi esterni alla partita; lo stesso principio si applica durante il torneo. Il giudice interviene solo se il deal include inducement esterni (161) o se è un accordo per predeterminare il risultato (164).",
     "correzione": "Nessuna sanzione di base — il deal è valido. Sanzionare solo se emergono inducement esterni alla partita (161. Cheating - Bribery: DQwoP) o un accordo per truccare il risultato (164. Cheating - Collusion: DQwoP)."
   },
   {
