@@ -8,3 +8,6 @@ _site/
 node_modules/
 npm-debug.log*
 .eslintcache
+
+# Editorial scratch files (downloaded VEKN page used for content cross-checks)
+vekn-guide.html

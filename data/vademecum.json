@@ -2,7 +2,7 @@
   {
     "category": "Deck vs decklist",
     "infraction": "Carta (trasferibile) in più o in meno",
-    "reference": "",
+    "reference": "102",
     "sanction": "CAUTION",
     "description": "Il numero di copie di una carta poco impattante o sostituibile con altre dello stesso ruolo nel mazzo non corrisponde alla decklist. La differenza non altera in modo significativo la strategia.",
     "example": "Una Fame in più o in meno; una Montreal Convention extra; una vessel di troppo in un mazzo che ne contiene molte.",
@@ -12,7 +12,7 @@
   {
     "category": "Deck vs decklist",
     "infraction": "Carta (non trasferibile, non strategica) in più o in meno",
-    "reference": "",
+    "reference": "102",
     "sanction": "WARNING",
     "description": "Il totale delle carte in mazzo o in cripta non corrisponde alla decklist, ma la discrepanza non offre un vantaggio strategico evidente.",
     "example": "Decklist da 90 carte e mazzo da 89; sono segnati 10 Govern the Unaligned ma nel mazzo ce ne sono 9.",
@@ -22,7 +22,7 @@
   {
     "category": "Deck vs decklist",
     "infraction": "Carta molto strategica/situazionale in più o in meno",
-    "reference": "",
+    "reference": "102",
     "sanction": "DISQUALIFICATION",
     "description": "Una carta che cambia in modo rilevante il piano di gioco — tipicamente un \"silver bullet\" o una carta a impatto immediato — è presente in numero diverso da quanto dichiarato in decklist.",
     "example": "Una Direct Intervention non dichiarata; una Archon Investigation in più; una Wash o una Sudden Reversal extra.",
@@ -32,7 +32,7 @@
   {
     "category": "Deck vs decklist",
     "infraction": "Carta diversa nel mazzo",
-    "reference": "",
+    "reference": "102",
     "sanction": "WARNING",
     "description": "Una carta nel mazzo è diversa da quella indicata in decklist, ma di ruolo equivalente o non strategicamente determinante.",
     "example": "Al posto di una Radio ce n'è un'altra; al posto di Lost in Crowds c'è Into Thin Air.",
@@ -42,7 +42,7 @@
   {
     "category": "Deck vs decklist",
     "infraction": "Differenze più marcate nel mazzo",
-    "reference": "",
+    "reference": "102",
     "sanction": "GAME LOSS",
     "description": "Il mazzo presenta più sostituzioni rispetto alla decklist, oppure una sostituzione che cambia in modo significativo il piano di gioco.",
     "example": "Una bleed modifier sostituita con un bounce; più carte di disciplina diverse rispetto a quelle dichiarate; una linea strategica intera differente.",
