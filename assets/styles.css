@@ -567,6 +567,17 @@ a.item-ref::after {
   font-size: 0.85em;
 }
 
+/* Unknown rule references render as a non-clickable chip in the muted
+ * palette so judges can tell at a glance the link isn't broken — there's
+ * just no canonical Judges' Guide entry for that number. The hover
+ * tooltip carries the full explanation. */
+.item-ref-unknown {
+  color: var(--muted);
+  border-color: var(--border);
+  background: transparent;
+  cursor: help;
+}
+
 a.item-ref:hover,
 a.item-ref:focus-visible {
   background: color-mix(in srgb, var(--s-caution) 18%, transparent);
@@ -686,6 +697,23 @@ a.item-ref:focus-visible {
   padding: 2rem 1rem;
   text-align: center;
   color: var(--muted);
+}
+
+/* Subtle pulsing affordance while data is fetching. Disabled by the
+ * existing prefers-reduced-motion rule (resets all animations to none),
+ * so users sensitive to motion just see static text. */
+.loading:not(.is-error) {
+  animation: loading-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .loading.is-error {

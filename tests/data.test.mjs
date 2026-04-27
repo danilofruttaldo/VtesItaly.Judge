@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { validateData } from "../assets/core.mjs";
+import { itemSlug, validateData } from "../assets/core.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RAW = readFileSync(resolve(ROOT, "data/vademecum.json"), "utf8");
@@ -46,6 +46,29 @@ test("data/vademecum.json has at least one entry per declared category-infractio
     assert.fail(
       `Duplicate (category, infraction) pairs:\n` +
         dups.map((d) => `  rows ${d.first} & ${d.second}: ${JSON.stringify(d.key.split("\n"))}`).join("\n"),
+    );
+  }
+});
+
+test("data/vademecum.json yields unique itemSlug values (deep-link safety)", () => {
+  // Slugs are derived (norm + truncate to 80 chars) and used as DOM ids
+  // for #item=… deep-links. (category, infraction) uniqueness is already
+  // gated above, but the slug derivation can in principle collide on
+  // long category/infraction prefixes after truncation. A judge sharing
+  // a link must always land on the right rule, so we assert no collision
+  // on the actual data.
+  const data = JSON.parse(RAW);
+  const bySlug = new Map();
+  const dups = [];
+  data.forEach((e, i) => {
+    const slug = itemSlug(e);
+    if (bySlug.has(slug)) dups.push({ first: bySlug.get(slug), second: i, slug });
+    else bySlug.set(slug, i);
+  });
+  if (dups.length) {
+    assert.fail(
+      `Duplicate itemSlug values:\n` +
+        dups.map((d) => `  rows ${d.first} & ${d.second}: ${JSON.stringify(d.slug)}`).join("\n"),
     );
   }
 });

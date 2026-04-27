@@ -56,6 +56,40 @@ sw.addEventListener("activate", (e) => {
   );
 });
 
+/* Network-first with a hard 6s deadline. The browser's default fetch
+ * timeout is platform-dependent and can stretch to 30s+ on stalled
+ * connections — long enough that a judge on flaky tournament wifi sees
+ * "loading" forever instead of the cached vademecum. We give the network
+ * 6 seconds, then fall back to the runtime cache. */
+const NETWORK_TIMEOUT_MS = 6000;
+
+function networkFirst(req, isHtml) {
+  const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), NETWORK_TIMEOUT_MS) : null;
+  const opts = ctrl ? { signal: ctrl.signal } : undefined;
+
+  return fetch(req, opts)
+    .then((resp) => {
+      if (timer) clearTimeout(timer);
+      if (resp.ok) {
+        const copy = resp.clone();
+        caches
+          .open(RUNTIME_CACHE)
+          .then((c) => c.put(req, copy))
+          .catch(() => {});
+      }
+      return resp;
+    })
+    .catch(() => {
+      if (timer) clearTimeout(timer);
+      return caches.match(req).then((cached) => {
+        if (cached) return cached;
+        if (isHtml) return caches.match("./index.html");
+        return new Response("", { status: 504, statusText: "Offline" });
+      });
+    });
+}
+
 sw.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
@@ -67,26 +101,7 @@ sw.addEventListener("fetch", (e) => {
   const isData = url.pathname.endsWith("/vademecum.json");
 
   if (isHtml || isCode || isData) {
-    e.respondWith(
-      fetch(req)
-        .then((resp) => {
-          if (resp.ok) {
-            const copy = resp.clone();
-            caches
-              .open(RUNTIME_CACHE)
-              .then((c) => c.put(req, copy))
-              .catch(() => {});
-          }
-          return resp;
-        })
-        .catch(() =>
-          caches.match(req).then((cached) => {
-            if (cached) return cached;
-            if (isHtml) return caches.match("./index.html");
-            return new Response("", { status: 504, statusText: "Offline" });
-          }),
-        ),
-    );
+    e.respondWith(networkFirst(req, isHtml));
     return;
   }
 

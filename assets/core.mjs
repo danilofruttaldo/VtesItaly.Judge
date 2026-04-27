@@ -43,6 +43,7 @@ export const SANCTION_SLUGS = {
  * sanction (legitimate deals, missed optional actions) — those render as
  * a muted "Nessuna" badge. "???" is reserved for entries the editorial
  * board hasn't decided yet. */
+/** @type {Record<string, string>} */
 export const SANCTION_FALLBACKS = {
   "": "Da definire",
   "///": "Nessuna",

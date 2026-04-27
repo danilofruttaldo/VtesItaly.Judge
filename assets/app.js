@@ -41,7 +41,14 @@ function renderReference(ref) {
   if (parsed.length === 0) return "";
   const links = parsed.map((p) => {
     const label = `Rif. ${p.number}`;
-    if (!p.url) return `<span class="item-ref">${escapeHtml(label)}</span>`;
+    // Unknown rule numbers (not in JUDGES_GUIDE_RULES) render as a non-clickable
+    // chip with an explanatory tooltip — without a hint, the judge can't tell
+    // whether the link is broken or the rule is intentionally outside the
+    // Judges' Guide map (e.g. local-only conventions).
+    if (!p.url) {
+      const reason = "Regola non mappata nella VEKN Judges' Guide";
+      return `<span class="item-ref item-ref-unknown" title="${escapeHtml(reason)}" aria-label="${escapeHtml(label)} — ${escapeHtml(reason)}">${escapeHtml(label)}</span>`;
+    }
     return `<a class="item-ref" href="${escapeHtml(p.url)}" rel="noopener noreferrer" target="_blank" title="${escapeHtml(p.title)}" aria-label="${escapeHtml(label)} — apre la VEKN Judges' Guide in una nuova scheda">${escapeHtml(label)}</a>`;
   });
   return links.join("");
