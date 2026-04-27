@@ -42,16 +42,16 @@ direttamente. Lo schema canonico è in [`data/vademecum.schema.json`](data/vadem
 ad ogni `npm test` da [`tests/data.test.mjs`](tests/data.test.mjs) — voci malformate fanno fallire la CI.
 
 Lo schema riflette la struttura della VEKN Judges' Guide (Definition, Example(s),
-Philosophy, Penalty). I campi narrativi rendono nella card nello stesso ordine
-con le label italiane corrispondenti:
+Philosophy, Penalty). Le label di sezione nella card riprendono letteralmente i
+termini VEKN in inglese:
 
-| Campo JSON    | UI label    | VEKN subsection | Note                                                  |
-| ------------- | ----------- | --------------- | ----------------------------------------------------- |
-| `description` | Definizione | Definition      | Quando si verifica la fattispecie                     |
-| `example`     | Esempio     | Example(s)      | Casistiche concrete a tavolino                        |
-| `philosophy`  | Filosofia   | Philosophy      | Razionale della regola                                |
-| `sanction`    | _badge_     | Penalty (level) | Livello canonico, filtrabile                          |
-| `correzione`  | Penalità    | Penalty (prose) | Procedura correttiva contenuta nel subsection Penalty |
+| Campo JSON    | UI label   | VEKN subsection | Note                                                  |
+| ------------- | ---------- | --------------- | ----------------------------------------------------- |
+| `description` | Definition | Definition      | Quando si verifica la fattispecie                     |
+| `example`     | Example    | Example(s)      | Casistiche concrete a tavolino                        |
+| `philosophy`  | Philosophy | Philosophy      | Razionale della regola                                |
+| `sanction`    | _badge_    | Penalty (level) | Livello canonico (Caution / Warning / ...)            |
+| `correzione`  | Penalty    | Penalty (prose) | Procedura correttiva contenuta nel subsection Penalty |
 
 Schema per voce:
 
@@ -76,8 +76,8 @@ Schema per voce:
   Numeri noti vengono linkati alla [VEKN Judges' Guide](https://www.vekn.net/judges-guide)
   via Text Fragment (verificati 22/22 contro la pagina live).
 - `description`, `example`, `philosophy`, `correzione` sono tutti campi obbligatori
-  ma possono essere stringhe vuote. Le sezioni Definizione/Esempio/Filosofia
-  rendono solo se popolate; **Penalità** è sempre rendered — quando `correzione`
+  ma possono essere stringhe vuote. Le sezioni Definition/Example/Philosophy
+  rendono solo se popolate; **Penalty** è sempre rendered — quando `correzione`
   è vuota mostra "Nessuna azione specifica oltre alla sanzione".
 - L'unicità della coppia `(category, infraction)` è gatewata in CI: i duplicati
   fanno fallire la build (slug DOM e deep-link diventerebbero ambigui).

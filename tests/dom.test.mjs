@@ -145,18 +145,18 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   // Example sections render only for entries that have a non-empty example.
   const exampleSections = list.querySelectorAll(".item-section-example");
   assert.equal(exampleSections.length, 2, "two fixture entries have an example, one doesn't");
-  assert.match(exampleSections[0].textContent || "", /Esempio/);
+  assert.match(exampleSections[0].textContent || "", /Example/);
 
-  // Definizione section uses the VEKN-aligned label.
+  // Definition section uses the VEKN literal label.
   const defSections = list.querySelectorAll(".item-section-def");
-  assert.ok(defSections.length >= 1, "at least one Definizione rendered");
-  assert.match(defSections[0].textContent || "", /Definizione/);
+  assert.ok(defSections.length >= 1, "at least one Definition rendered");
+  assert.match(defSections[0].textContent || "", /Definition/);
 
-  // Penalità is always rendered (one per card). The empty-correzione entry
+  // Penalty is always rendered (one per card). The empty-correzione entry
   // shows the "Nessuna azione" fallback and gets the empty modifier class.
   const penaltySections = list.querySelectorAll(".item-section-penalty");
-  assert.equal(penaltySections.length, FIXTURE.length, "Penalità rendered for every card");
-  assert.match(penaltySections[0].textContent || "", /Penalità/);
+  assert.equal(penaltySections.length, FIXTURE.length, "Penalty rendered for every card");
+  assert.match(penaltySections[0].textContent || "", /Penalty/);
   const emptyPenalty = list.querySelectorAll(".item-section-penalty-empty");
   assert.equal(emptyPenalty.length, 1, "one fixture entry has no correzione");
   assert.match(emptyPenalty[0].textContent || "", /Nessuna azione specifica/);

@@ -107,7 +107,7 @@
     "description": "Il giocatore ha in mano meno carte di quante avrebbe dovuto pescare: dimentica di rimpiazzare una carta giocata, salta una pesca obbligatoria, o non ricostituisce la mano alla fine del turno. Generalmente è solo a svantaggio del giocatore. Se invece l'errore offre un vantaggio (es. dimenticarsi di rimpiazzare Magic of the Smith prima di cercare nel mazzo) la sanzione sale a warning.",
     "example": "Mano da 6 a fine turno invece che da 7; cripta lasciata a 3 dopo aver giocato un vampiro.",
     "philosophy": "",
-    "correzione": ""
+    "correzione": "Il giocatore pesca le carte mancanti per riportare la mano (o la cripta) alla dimensione corretta."
   },
   {
     "category": "Carte pescate",

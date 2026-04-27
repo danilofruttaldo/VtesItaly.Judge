@@ -113,12 +113,13 @@ function render() {
       const itemOpen = queryActive ? " open" : "";
       const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
       const titleHtml = highlightHtml(it.infraction, state.query);
-      // Card sections mirror the VEKN Judges' Guide subsections:
-      //   Definition  → Definizione (when the rule applies)
-      //   Example(s)  → Esempio     (concrete table-side cases)
-      //   Philosophy  → Filosofia   (rationale of the rule)
-      //   Penalty     → Penalità    (procedural correction; severity is the badge)
-      // Definizione/Esempio/Filosofia render only if populated. Penalità
+      // Card sections mirror the VEKN Judges' Guide subsections (literal
+      // English labels for full alignment with the regulation):
+      //   Definition  (when the rule applies)
+      //   Example     (concrete table-side cases)
+      //   Philosophy  (rationale of the rule)
+      //   Penalty     (procedural correction; severity is the badge above)
+      // Definition/Example/Philosophy render only if populated. Penalty
       // is always rendered — an empty value reads as "Nessuna azione
       // specifica oltre alla sanzione." so the judge sees explicitly
       // that no extra correction is required beyond the standard penalty.
@@ -141,22 +142,22 @@ function render() {
       html.push(`<div class="item-body">`);
       if (defHtml) {
         html.push(
-          `<section class="item-section item-section-def"><h3 class="item-section-label">Definizione</h3><div class="item-section-body">${defHtml}</div></section>`,
+          `<section class="item-section item-section-def"><h3 class="item-section-label">Definition</h3><div class="item-section-body">${defHtml}</div></section>`,
         );
       }
       if (exHtml) {
         html.push(
-          `<section class="item-section item-section-example"><h3 class="item-section-label">Esempio</h3><div class="item-section-body">${exHtml}</div></section>`,
+          `<section class="item-section item-section-example"><h3 class="item-section-label">Example</h3><div class="item-section-body">${exHtml}</div></section>`,
         );
       }
       if (phHtml) {
         html.push(
-          `<section class="item-section item-section-philosophy"><h3 class="item-section-label">Filosofia</h3><div class="item-section-body">${phHtml}</div></section>`,
+          `<section class="item-section item-section-philosophy"><h3 class="item-section-label">Philosophy</h3><div class="item-section-body">${phHtml}</div></section>`,
         );
       }
       const penModifier = hasPenalty ? "" : " item-section-penalty-empty";
       html.push(
-        `<section class="item-section item-section-penalty${penModifier}"><h3 class="item-section-label">Penalità</h3><div class="item-section-body">${penHtml}</div></section>`,
+        `<section class="item-section item-section-penalty${penModifier}"><h3 class="item-section-label">Penalty</h3><div class="item-section-body">${penHtml}</div></section>`,
       );
       // Reference + share controls live at the bottom of the card so the
       // judge reads description and correzione first, then jumps to the
