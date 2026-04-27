@@ -14,7 +14,7 @@ if (existsSync("CNAME")) cpSync("CNAME", `${SITE}/CNAME`);
 cpSync("assets", `${SITE}/assets`, { recursive: true });
 
 if (!existsSync("data/vademecum.json")) {
-  console.error("stage-site: data/vademecum.json missing — run `npm run build:data` first.");
+  console.error("stage-site: data/vademecum.json missing — this is the canonical source, restore it.");
   process.exit(1);
 }
 cpSync("data/vademecum.json", `${SITE}/data/vademecum.json`);

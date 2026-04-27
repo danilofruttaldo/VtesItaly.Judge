@@ -24,8 +24,5 @@ npm run --silent format:check
 echo "pre-commit: eslint"
 npm run --silent lint
 
-echo "pre-commit: build:data"
-npm run --silent build:data
-
 echo "pre-commit: tests"
 npm test --silent

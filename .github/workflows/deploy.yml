@@ -34,7 +34,6 @@ jobs:
 
       - run: npm run lint
       - run: npm run format:check
-      - run: npm run build:data
       - run: npm test
 
       - name: Bump sw.js VERSION to release timestamp

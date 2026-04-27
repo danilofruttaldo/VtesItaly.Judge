@@ -172,7 +172,7 @@ async function init() {
     const resp = await fetch("./data/vademecum.json", { cache: "no-cache" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    state.items = data.items || [];
+    state.items = Array.isArray(data) ? data : data.items || [];
     el.loading.hidden = true;
     render();
   } catch (err) {

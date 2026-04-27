@@ -1,8 +1,8 @@
 # vtesItaly.Judge
 
-Strumento per arbitri e giudici di tornei VTES Italia. Sito statico (vanilla JS, GitHub Pages).
+Vademecum sanzioni VTES Italia — strumento consultabile da telefono per arbitri e giudici di tornei.
 
-Scaffold iniziale — il dominio applicativo del tool va ancora definito.
+Sito statico (vanilla JS, GitHub Pages, PWA).
 
 ## Sviluppo locale
 
@@ -12,6 +12,28 @@ npm test
 npm run lint
 ./dev.ps1   # serve la directory su http://localhost:8766
 ```
+
+## Sorgente dati
+
+`data/vademecum.json` è la fonte canonica del vademecum (array di voci). Si edita
+direttamente. Schema per voce:
+
+```json
+{
+  "category": "Categoria",
+  "infraction": "Descrizione dell'infrazione",
+  "reference": "131",
+  "sanction": "CAUTION",
+  "notes": "Note e chiarimenti"
+}
+```
+
+- `sanction` può essere singola (`CAUTION`, `WARNING`, `GAME LOSS`, `DISQUALIFICATION`,
+  `DISQUALIFICATION WITHOUT PRIZE`), multipla con separatore (`CAUTION - GAME LOSS`),
+  o placeholder (`???` da definire, `///` caso particolare).
+- `reference` accetta numero singolo (`131`), range (`141 - 162`), o vuoto/`///`.
+  Numeri noti vengono linkati alla [VEKN Judges' Guide](https://www.vekn.net/judges-guide)
+  via Text Fragment.
 
 ## Build & deploy
 
@@ -26,6 +48,7 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 ## Struttura
 
 - `index.html` + `assets/` — sorgenti del sito
+- `data/vademecum.json` — sorgente dati
 - `sw.js` + `manifest.webmanifest` — PWA
 - `scripts/` — staging, stamp-sw, minify, test runner
 - `tests/` — `node --test` su moduli puri in `assets/core.mjs`
