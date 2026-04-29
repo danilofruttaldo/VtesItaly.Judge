@@ -641,19 +641,19 @@ export function validateEntry(entry) {
  * diagnostics. Invalid entries are dropped, not coerced — so the runtime
  * UI shows "less" rather than rendering garbage.
  * @param {unknown} data
- * @returns {{ entries: object[], issues: { index: number, errors: string[] }[] }}
+ * @returns {{ entries: VademecumEntry[], issues: { index: number, errors: string[] }[] }}
  */
 export function validateData(data) {
   if (!Array.isArray(data)) {
     return { entries: [], issues: [{ index: -1, errors: ["payload is not an array"] }] };
   }
-  /** @type {object[]} */
+  /** @type {VademecumEntry[]} */
   const entries = [];
   /** @type {{ index: number, errors: string[] }[]} */
   const issues = [];
   data.forEach((entry, index) => {
     const { ok, errors } = validateEntry(entry);
-    if (ok) entries.push(/** @type {object} */ (entry));
+    if (ok) entries.push(/** @type {VademecumEntry} */ (entry));
     else issues.push({ index, errors });
   });
   return { entries, issues };

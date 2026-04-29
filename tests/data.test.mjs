@@ -35,9 +35,11 @@ test("data/vademecum.json conforms to the entry schema", () => {
 
 test("data/vademecum.json has at least one entry per declared category-infraction pair (no duplicates)", () => {
   const data = JSON.parse(RAW);
+  /** @type {Map<string, number>} */
   const seen = new Map();
+  /** @type {{ first: number | undefined, second: number, key: string }[]} */
   const dups = [];
-  data.forEach((e, i) => {
+  data.forEach((/** @type {{ category: string, infraction: string }} */ e, /** @type {number} */ i) => {
     const key = `${e.category}\n${e.infraction}`;
     if (seen.has(key)) dups.push({ first: seen.get(key), second: i, key });
     else seen.set(key, i);
@@ -58,9 +60,11 @@ test("data/vademecum.json yields unique itemSlug values (deep-link safety)", () 
   // a link must always land on the right rule, so we assert no collision
   // on the actual data.
   const data = JSON.parse(RAW);
+  /** @type {Map<string, number>} */
   const bySlug = new Map();
+  /** @type {{ first: number | undefined, second: number, slug: string }[]} */
   const dups = [];
-  data.forEach((e, i) => {
+  data.forEach((/** @type {import("../assets/core.mjs").VademecumEntry} */ e, /** @type {number} */ i) => {
     const slug = itemSlug(e);
     if (bySlug.has(slug)) dups.push({ first: bySlug.get(slug), second: i, slug });
     else bySlug.set(slug, i);

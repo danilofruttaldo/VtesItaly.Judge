@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const d = new Date();
+/** @param {number} n */
 const pad = (n) => String(n).padStart(2, "0");
 const ts =
   `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +

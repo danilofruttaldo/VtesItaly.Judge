@@ -21,6 +21,9 @@ import {
   validateData,
 } from "./core.mjs";
 
+/** @typedef {import("./core.mjs").VademecumEntry} VademecumEntry */
+
+/** @type {{ items: VademecumEntry[], query: string, pendingItemAnchor: string | null }} */
 const state = {
   items: [],
   query: "",

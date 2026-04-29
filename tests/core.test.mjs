@@ -109,7 +109,7 @@ test("computeFiltered narrows by search query, full set when query empty", () =>
   // Substring narrows the result.
   const out = computeFiltered(sample, "buste");
   assert.equal(out.length, 2);
-  assert.ok(out.every((e) => /buste/i.test(e.infraction)));
+  assert.ok(out.every((e) => /buste/i.test(e.infraction ?? "")));
   // No match returns empty.
   assert.equal(computeFiltered(sample, "nonesistente").length, 0);
 });
@@ -118,8 +118,11 @@ test("groupByCategory preserves insertion order and groups items", () => {
   const groups = groupByCategory(sample);
   const keys = [...groups.keys()];
   assert.deepEqual(keys, ["DECK", "CONDOTTA IMPROPRIA"]);
-  assert.equal(groups.get("DECK").length, 2);
-  assert.equal(groups.get("CONDOTTA IMPROPRIA").length, 2);
+  const deck = groups.get("DECK");
+  const condotta = groups.get("CONDOTTA IMPROPRIA");
+  assert.ok(deck && condotta);
+  assert.equal(deck.length, 2);
+  assert.equal(condotta.length, 2);
 });
 
 test("SANCTION_ORDER has the five canonical sanctions", () => {
@@ -134,6 +137,7 @@ test("SANCTION_ORDER has the five canonical sanctions", () => {
 
 test("judgesGuideUrl builds a Text Fragment URL for known rules", () => {
   const url = judgesGuideUrl(131);
+  assert.ok(url, "expected non-null URL for known rule");
   assert.ok(url.startsWith(JUDGES_GUIDE_URL + "#:~:text="), `unexpected url: ${url}`);
   // The encoded fragment must contain the rule number with its dot separator
   assert.ok(url.includes("131."));
@@ -177,18 +181,22 @@ test("parseReference handles empty / placeholder cells", () => {
 test("parseReference parses a single rule number", () => {
   const out = parseReference("131");
   assert.equal(out.length, 1);
-  assert.equal(out[0].number, 131);
-  assert.ok(out[0].url.includes("131."));
-  assert.ok(out[0].title.startsWith("131."));
+  const r = out[0];
+  assert.ok(r && r.url && r.title);
+  assert.equal(r.number, 131);
+  assert.ok(r.url.includes("131."));
+  assert.ok(r.title.startsWith("131."));
 });
 
 test("parseReference parses a range like '141 - 162' as two anchor numbers", () => {
   const out = parseReference("141 - 162");
   assert.equal(out.length, 2);
-  assert.equal(out[0].number, 141);
-  assert.equal(out[1].number, 162);
-  assert.ok(out[0].url.includes("Slow%20Play"));
-  assert.ok(out[1].url.includes("Stalling"));
+  const [a, b] = out;
+  assert.ok(a && b && a.url && b.url);
+  assert.equal(a.number, 141);
+  assert.equal(b.number, 162);
+  assert.ok(a.url.includes("Slow%20Play"));
+  assert.ok(b.url.includes("Stalling"));
 });
 
 test("parseReference returns null url for unknown numbers", () => {
@@ -287,7 +295,9 @@ test("extractMentionedRules collects in-prose rule numbers, dedup vs reference",
     out.map((r) => r.number),
     [163],
   );
-  assert.ok(out[0].url.includes("163."));
+  const r = out[0];
+  assert.ok(r && r.url);
+  assert.ok(r.url.includes("163."));
 });
 
 test("extractMentionedRules ignores numbers not in the rules map", () => {
@@ -349,10 +359,12 @@ test("JUDGES_GUIDE_RULE_TEXTS covers every rule in JUDGES_GUIDE_RULES", () => {
   // rule; if a rule is in the index map but missing a verbatim text,
   // the chip would render as a dead button. Catch that gap at CI time.
   for (const k of Object.keys(JUDGES_GUIDE_RULES)) {
-    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k], `missing rule text for ${k}`);
-    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].heading.startsWith(`${k}.`), `heading for ${k} must start with "${k}."`);
-    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].intro, `rule ${k} must have an intro`);
-    assert.ok(JUDGES_GUIDE_RULE_TEXTS[k].penalty, `rule ${k} must have a penalty`);
+    const n = Number(k);
+    const rule = JUDGES_GUIDE_RULE_TEXTS[n];
+    assert.ok(rule, `missing rule text for ${k}`);
+    assert.ok(rule.heading.startsWith(`${k}.`), `heading for ${k} must start with "${k}."`);
+    assert.ok(rule.intro, `rule ${k} must have an intro`);
+    assert.ok(rule.penalty, `rule ${k} must have a penalty`);
   }
 });
 
@@ -366,11 +378,13 @@ test("renderRuleHtml emits structured sections for a known rule", () => {
 
 test("renderRuleHtml emits an examples list when provided", () => {
   const out = renderRuleHtml(131);
+  assert.ok(out);
   assert.match(out, /<section class="rule-section rule-section-examples"><h3>Examples<\/h3><ul><li>/);
 });
 
 test("renderRuleHtml renders bullet lines as <ul>", () => {
   const out = renderRuleHtml(101);
+  assert.ok(out);
   assert.match(out, /<ul><li>The decklist contains an illegal number of cards\.<\/li>/);
 });
 
@@ -378,7 +392,7 @@ test("renderRuleHtml escapes HTML in source text", () => {
   // The rule data is plain text but we still defend against future edits
   // that might accidentally include raw HTML (or malicious paste).
   const out = renderRuleHtml(122);
-  assert.ok(!out.includes("<script>"), "must not pass through raw <script>");
+  assert.ok(out && !out.includes("<script>"), "must not pass through raw <script>");
 });
 
 test("renderRuleHtml returns null for an unknown rule number", () => {

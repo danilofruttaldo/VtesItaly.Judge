@@ -63,6 +63,10 @@ sw.addEventListener("activate", (e) => {
  * 6 seconds, then fall back to the runtime cache. */
 const NETWORK_TIMEOUT_MS = 6000;
 
+/**
+ * @param {Request} req
+ * @param {boolean} isHtml
+ */
 function networkFirst(req, isHtml) {
   const ctrl = typeof AbortController === "function" ? new AbortController() : null;
   const timer = ctrl ? setTimeout(() => ctrl.abort(), NETWORK_TIMEOUT_MS) : null;
@@ -84,7 +88,11 @@ function networkFirst(req, isHtml) {
       if (timer) clearTimeout(timer);
       return caches.match(req).then((cached) => {
         if (cached) return cached;
-        if (isHtml) return caches.match("./index.html");
+        if (isHtml) {
+          return caches
+            .match("./index.html")
+            .then((shell) => shell || new Response("", { status: 504, statusText: "Offline" }));
+        }
         return new Response("", { status: 504, statusText: "Offline" });
       });
     });
@@ -119,7 +127,7 @@ sw.addEventListener("fetch", (e) => {
           }
           return resp;
         })
-        .catch(() => cached);
+        .catch(() => new Response("", { status: 504, statusText: "Offline" }));
     }),
   );
 });
