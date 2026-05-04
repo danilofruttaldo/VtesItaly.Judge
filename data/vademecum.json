@@ -100,6 +100,16 @@
     "correzione": "Game Loss e sostituzione delle buste prima del round successivo. In caso di intenzionalità accertata si applica 163. Cheating - Fraud: squalifica senza premio, documentazione dell'episodio e segnalazione all'organizzazione."
   },
   {
+    "category": "Deck",
+    "infraction": "Busta danneggiata o di colore diverso",
+    "reference": "131",
+    "sanction": "CAUTION",
+    "description": "Una busta protettiva si rompe in corso di partita o si scopre essere di colore leggermente diverso dalle altre, rendendo la singola carta riconoscibile dal retro. Non è marcatura intenzionale né accidentale a schema, ma un problema fisico delle buste.",
+    "example": "Busta strappata su un angolo durante il rimescolamento; busta sostitutiva di lotto diverso, leggermente differente nel colore; busta visibilmente più consumata delle altre del mazzo.",
+    "philosophy": "Caso non coperto esplicitamente da VEKN ma assimilabile a 131 (marcatura senza schema): una sola carta è distinguibile dal retro, vantaggio potenziale basso e non intenzionale. I judge italiani, dopo che il caso si è ripetuto in più tornei, hanno condiviso una procedura uniforme: se non è disponibile una busta sostitutiva equivalente, il giocatore prosegue con una carta in meno a sua scelta — così il retro distinguibile non veicola informazione utile.",
+    "correzione": "Se possibile, sostituire la busta con una identica alle altre del mazzo e proseguire. Se non è disponibile una busta equivalente, il giocatore sceglie una carta da rimuovere dal mazzo e prosegue con una carta in meno; la decklist può essere corretta su Archon di conseguenza."
+  },
+  {
     "category": "Carte pescate",
     "infraction": "Carta pescata in meno",
     "reference": "124",
@@ -204,10 +214,10 @@
     "infraction": "Aiuto esterno",
     "reference": "152 - 164",
     "sanction": "WARNING - DISQUALIFICATION WITHOUT PRIZE",
-    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori. VEKN non ha una rule dedicata per questo caso: il vademecum italiano lo colloca in 152. Unsportsmanlike Conduct - Major quando il giocatore al tavolo ha sollecitato o usato l'informazione (Warning, scalabile a Game Loss in base all'impatto sul gioco). Se è dimostrabile un accordo preventivo tra il giocatore e l'esterno per alterare il risultato, l'infrazione esce da 152 ed entra in 164. Cheating - Collusion (squalifica senza premio).",
+    "description": "Una persona esterna alla partita (spettatore, giocatore di un altro tavolo, accompagnatore) interviene sulla partita in corso fornendo suggerimenti strategici o rivelando informazioni sulle carte in mano dei giocatori. VEKN non ha una rule dedicata per questo caso: il vademecum italiano lo colloca in 152. Unsportsmanlike Conduct - Major quando il giocatore al tavolo ha sollecitato o usato l'informazione. VEKN 152 prevede di base Game Loss; per questa fattispecie il vademecum italiano applica un gradiente più fine, partendo da Warning e scalando a Game Loss in base all'impatto sul gioco. Se è dimostrabile un accordo preventivo tra il giocatore e l'esterno per alterare il risultato, l'infrazione esce da 152 ed entra in 164. Cheating - Collusion (squalifica senza premio).",
     "example": "Spettatore che indica una linea di gioco; amico che segnala carte già giocate; giocatore eliminato che resta al tavolo e commenta.",
-    "philosophy": "L'aiuto esterno non è una rule VEKN dedicata, ma ricade nella famiglia 150 (Unsportsmanlike Conduct) o 160 (Cheating) a seconda dell'intento del giocatore al tavolo. Lo spettatore va in ogni caso allontanato; il giocatore al tavolo è sanzionabile solo se ha sollecitato o usato l'informazione (152, fino a Game Loss) o se è dimostrabile un accordo preventivo per truccare il risultato (164, squalifica senza premio). I deal interni al gioco restano leciti — VEKN 161 chiarisce che gli accordi tra giocatori in finale non sono bribery purché non includano incentivi esterni alla partita.",
-    "correzione": "Allontanare l'esterno dal tavolo. Se il giocatore al tavolo non ha sollecitato né usato l'informazione, nessuna sanzione a suo carico ma valutare un rollback se le decisioni sono già state condizionate. Se il giocatore ha tratto vantaggio dall'aiuto si applica 152 (Warning, fino a Game Loss in base alla gravità). In caso di collusione accertata: 164 — squalifica senza premio, documentazione e segnalazione all'organizzazione."
+    "philosophy": "L'aiuto esterno non è una rule VEKN dedicata, ma ricade nella famiglia 150 (Unsportsmanlike Conduct) o 160 (Cheating) a seconda dell'intento del giocatore al tavolo. Lo spettatore va in ogni caso allontanato; il giocatore al tavolo è sanzionabile solo se ha sollecitato o usato l'informazione (152, base VEKN Game Loss; il vademecum italiano abbassa il punto di partenza a Warning per coprire i casi di vantaggio limitato, con escalation a Game Loss in base alla gravità) o se è dimostrabile un accordo preventivo per truccare il risultato (164, squalifica senza premio). I deal interni al gioco restano leciti — VEKN 161 chiarisce che gli accordi tra giocatori in finale non sono bribery purché non includano incentivi esterni alla partita.",
+    "correzione": "Allontanare l'esterno dal tavolo. Se il giocatore al tavolo non ha sollecitato né usato l'informazione, nessuna sanzione a suo carico ma valutare un rollback se le decisioni sono già state condizionate. Se il giocatore ha tratto vantaggio dall'aiuto si applica 152: VEKN prevede Game Loss base, il gradiente italiano per questa fattispecie parte da Warning e sale a Game Loss in base alla gravità. In caso di collusione accertata: 164 — squalifica senza premio, documentazione e segnalazione all'organizzazione."
   },
   {
     "category": "Condotta impropria",
