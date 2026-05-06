@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -15,8 +17,9 @@ permissions:
 concurrency:
   # Newer pushes supersede older in-flight runs. Pages rejects a deploy
   # while another is in progress (HTTP 400), so without this we hit a
-  # 400 every time we push two commits in close succession.
-  group: pages
+  # 400 every time we push two commits in close succession. Scoping by
+  # ref keeps PR runs from cancelling an in-flight main deploy.
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -86,6 +89,7 @@ jobs:
 
   deploy:
     needs: [ci, lighthouse]
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
