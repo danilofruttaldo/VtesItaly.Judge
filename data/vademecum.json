@@ -5,8 +5,8 @@
     "reference": "102",
     "sanction": "CAUTION",
     "description": "Il numero di copie di una carta poco impattante o sostituibile con altre dello stesso ruolo nel mazzo non corrisponde alla decklist. La differenza non altera in modo significativo la strategia.",
-    "example": "Una Fame in più o in meno; una Montreal Convention extra; una vessel di troppo in un mazzo che ne contiene molte.",
-    "philosophy": "VEKN 102 prevede di base Game Loss per ogni mismatch mazzo/decklist; il vademecum italiano applica un gradiente più fine in base all'impatto strategico. Per una carta trasferibile o ridondante (Fame, Montreal Convention, vessel in surplus) il peso è trascurabile: Caution è sufficiente, la decklist va comunque corretta.",
+    "example": "Una Fame in più o in meno; una Powerbase: Montreal extra.",
+    "philosophy": "VEKN 102 prevede di base Game Loss per ogni mismatch mazzo/decklist; il vademecum italiano applica un gradiente più fine in base all'impatto strategico. Per una carta trasferibile o ridondante (Fame, Powerbase: Montreal) il peso è trascurabile: Caution è sufficiente, la decklist va comunque corretta.",
     "correzione": "Si lascia il mazzo com'è (è già stato giocato) e si corregge la decklist al numero di copie effettivo."
   },
   {
@@ -78,6 +78,16 @@
     "example": "",
     "philosophy": "Quando l'illegalità coinvolge sia la decklist sia il mazzo fisico, la sanzione sale a Game Loss perché il problema non è più solo formale. Resta valido il principio VEKN di non squalificare per problemi di compilazione: il giudice principale concede al giocatore alcuni minuti (tipicamente cinque) per rendere legale la decklist e adeguare il mazzo, così il giocatore può proseguire il torneo.",
     "correzione": "Il giudice principale concede circa cinque minuti per rendere legale la decklist e adeguare il mazzo di conseguenza."
+  },
+  {
+    "category": "Deck vs decklist",
+    "infraction": "Mazzo illegale (senza decklist)",
+    "reference": "103",
+    "sanction": "GAME LOSS",
+    "description": "Il torneo non prevede decklist e il mazzo del giocatore viola le regole di formato: numero di carte illegale o presenza di carte non legali nel formato.",
+    "example": "Costruito con 58 carte di libreria invece del minimo di 60; presenza in mazzo di una carta bannata come Madness of the Bard.",
+    "philosophy": "VEKN 103 base Game Loss. In assenza di decklist, il giocatore sta giocando con un mazzo illegale a tutti gli effetti, ma non è interesse del torneo squalificare per problemi di compilazione: il giudice corregge il mazzo e il giocatore prosegue dal round successivo. Giudici e organizzatori sono tenuti a ricordare ai giocatori prima del torneo le conseguenze del giocare con un mazzo illegale.",
+    "correzione": "Rimuovere immediatamente tutte le carte illegali. Se servono carte da aggiungere per raggiungere il minimo di formato, il giudice usa carte semplici e neutre (Master Discipline, Forced Awakening, ecc.), mai counter specifiche. Se servono carte da rimuovere, si tolgono carte casuali fino al raggiungimento della legalità."
   },
   {
     "category": "Deck",
@@ -155,7 +165,7 @@
     "reference": "///",
     "sanction": "///",
     "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma da quando ha mancato l'azione non ha ancora visto, rivelato o pescato carte: lo stato di gioco è ancora ricostruibile. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale di recupero, non un'infrazione.",
-    "example": "Dimenticato di prendere il pool di edge ma ho già usato una blood doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
+    "example": "Dimenticato di prendere il pool di edge ma ho già usato una Blood Doll; dimenticato di pagare il costo extra di un'azione ma sono ancora nello stesso turno.",
     "philosophy": "VEKN non sanziona le azioni opzionali dimenticate perché non sono violazioni del regolamento, sono scelte del giocatore. Se lo stato di gioco è ancora ricostruibile (nessuna carta vista nel frattempo), la community considera accettabile recuperare l'azione purché tutti i giocatori al tavolo siano d'accordo: il consenso unanime serve a impedire che un giocatore tragga vantaggio retroattivo.",
     "correzione": "Nessuna sanzione. Di base, l'azione dimenticata è persa; può essere recuperata solo se tutti i giocatori al tavolo sono d'accordo."
   },
@@ -165,7 +175,7 @@
     "reference": "///",
     "sanction": "///",
     "description": "Il giocatore si accorge di non aver effettuato un'azione facoltativa, ma nel frattempo ha visto, rivelato o pescato altre carte: lo stato di gioco non è più ricostruibile in modo equo. VEKN non prevede una sanzione per le azioni opzionali dimenticate: è una decisione procedurale, non un'infrazione.",
-    "example": "Dimenticato di usare una vessel ma ho già giocato e rimpiazzato una master; dimenticato di influenzare ma ho già scartato e rimpiazzato.",
+    "example": "Dimenticato di influenzare ma ho già scartato e rimpiazzato la mano.",
     "philosophy": "VEKN non sanziona le azioni opzionali dimenticate. Una volta che il giocatore ha visto, rivelato o pescato altre carte, lo stato di gioco non è più ricostruibile in modo equo: rimettere mano all'azione potrebbe alterare l'informazione che gli avversari hanno utilizzato per decidere. La perdita dell'azione non è una sanzione ma la conseguenza naturale del fatto che il momento giusto è passato.",
     "correzione": "Nessuna sanzione. L'azione dimenticata è persa: lo stato di gioco non è ricostruibile."
   },
@@ -175,7 +185,7 @@
     "reference": "114",
     "sanction": "CAUTION",
     "description": "Il giocatore omette un'azione che il regolamento o un effetto in gioco impongono, non lasciando margine di scelta. Rientra in 114 come misapplicazione (non intenzionale) di una regola di gioco — VEKN 114 copre sia il giocare male una carta sia il non rispettare una regola.",
-    "example": "Costo da pagare nella unlock phase; caccia obbligatoria a inizio turno; scarto forzato da effetto avversario; transfer obbligatorio in influence phase.",
+    "example": "Costo da pagare nella unlock phase; caccia obbligatoria a inizio turno; scarto forzato da effetto avversario.",
     "philosophy": "VEKN 114 assume sempre la non intenzionalità: se il giudice ritiene l'omissione deliberata, l'infrazione si tratta come 163. Cheating - Fraud. L'omissione di un'azione obbligatoria rientra in 114 come misplay di una regola di gioco — il giocatore non viola il regolamento per ignoranza ma per disattenzione, da qui la sanzione minima di Caution.",
     "correzione": "L'azione dimenticata deve essere recuperata. Se necessario, si fa rollback. Se però sono passati interi turni o sono state girate troppe carte dall'errore, l'azione non si recupera più."
   },
@@ -185,7 +195,7 @@
     "reference": "114",
     "sanction": "CAUTION",
     "description": "Il giocatore mette in gioco una carta senza che il vampiro acting o le condizioni del tavolo soddisfino i requisiti della carta: clan, gruppo, disciplina, capacità minima, status particolare, sect.",
-    "example": "Azione !potence giocata da un vampiro che non ha la disciplina; master con requisito di clan attivata da un vampiro di clan diverso; evento che richiede prince/justicar non presenti.",
+    "example": "Azione potence giocata da un vampiro che non ha la disciplina; master di clan giocata senza controllare membri ready di quel clan; reaction che richiede titolo che il vampiro non ha.",
     "philosophy": "VEKN 114 assume sempre la non intenzionalità: se il giudice ritiene l'errore deliberato, si applica 163. Cheating - Fraud. Giocare una carta senza i requisiti (clan, disciplina, capacità, sect) è il caso esemplare di 114 — gli esempi VEKN includono Dread Gaze sul proprio referendum o Art Museum senza Toreador in ready.",
     "correzione": "Se non si hanno i requisiti in assoluto (es. nessun vampiro è del clan richiesto o ha la disciplina richiesta), si riprende in mano la carta e si rimescola la carta pescata in più. Se un altro vampiro avrebbe potuto giocarla o lo stesso vampiro avrebbe potuto giocarla inferiore, viene considerata giocata nel modo legittimo."
   },
@@ -200,6 +210,36 @@
     "correzione": "Se l'errore è ancora rimediabile si fa rollback o si applica l'effetto corretto; altrimenti si lascia lo stato e si annota la caution. Se l'errore si ripete, valutare warning."
   },
   {
+    "category": "Errore procedurale",
+    "infraction": "Errore procedurale minore",
+    "reference": "111",
+    "sanction": "CAUTION",
+    "description": "Azione non intenzionale e lievemente disturbante per il torneo: gestione approssimativa del proprio stato di gioco senza compromettere la partita.",
+    "example": "Conteggio del pool senza un metodo affidabile di tracking; mescolare il proprio mazzo dopo che l'avversario lo ha tagliato; tenere ripetutamente la mano sotto il livello del tavolo.",
+    "philosophy": "VEKN 111 base Caution. Gli errori procedurali variano molto in gravità: il giudice modula la sanzione in base al disturbo effettivo. Se l'errore impedisce di proseguire la partita in modo efficace, la sanzione sale automaticamente a Game Loss.",
+    "correzione": "Caution e richiesta di correggere immediatamente il comportamento. Se l'errore impedisce la prosecuzione efficace della partita, escalation a Game Loss."
+  },
+  {
+    "category": "Errore procedurale",
+    "infraction": "Errore procedurale maggiore",
+    "reference": "112",
+    "sanction": "WARNING",
+    "description": "Azione non intenzionale che disturba in modo rilevante il torneo.",
+    "example": "Sostituzione di carte nel mazzo sealed con altre dello stesso titolo senza permesso del giudice; mescolamento insufficiente del mazzo prima di presentarlo all'avversario.",
+    "philosophy": "VEKN 112 base Warning. Stessa logica di 111 (modulazione in base al disturbo) ma su livello superiore. Se l'errore impedisce la prosecuzione efficace della partita, escalation automatica a Game Loss.",
+    "correzione": "Warning e richiesta di correzione del comportamento. Se l'errore impedisce la prosecuzione efficace della partita, escalation a Game Loss."
+  },
+  {
+    "category": "Errore procedurale",
+    "infraction": "Errore procedurale grave",
+    "reference": "113",
+    "sanction": "GAME LOSS",
+    "description": "Azione non intenzionale estremamente disturbante per il torneo, tale da impedire la corretta prosecuzione della partita.",
+    "example": "Bevanda rovesciata sul mazzo che rende impossibile proseguire il gioco.",
+    "philosophy": "VEKN 113 base Game Loss. Sebbene non intenzionale, l'errore ha un impatto tale sul tavolo che la partita non può continuare in modo equo. La modulazione resta in capo al giudice (la stessa philosophy di 111/112).",
+    "correzione": "Game Loss. Il giocatore prosegue il torneo dal round successivo, eventualmente sostituendo i materiali danneggiati."
+  },
+  {
     "category": "Condotta impropria",
     "infraction": "Accordo apparentemente svantaggioso",
     "reference": "///",
@@ -208,6 +248,36 @@
     "example": "",
     "philosophy": "VEKN considera lecita ogni forma di accordo tra giocatori, anche apparentemente svantaggioso, perché valutarne la convenienza è parte delle abilità di gioco. La philosophy di VEKN 161 (Bribery) esplicita che i deal in finale non sono bribery purché non includano incentivi esterni alla partita; lo stesso principio si applica durante il torneo. Il giudice interviene solo se il deal include inducement esterni (161) o se è un accordo per predeterminare il risultato (164).",
     "correzione": "Nessuna sanzione di base — il deal è valido. Sanzionare solo se emergono inducement esterni alla partita (161. Cheating - Bribery: DQwoP) o un accordo per truccare il risultato (164. Cheating - Collusion: DQwoP)."
+  },
+  {
+    "category": "Condotta impropria",
+    "infraction": "Bribery (incentivi esterni)",
+    "reference": "161",
+    "sanction": "DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Un giocatore tenta di corrompere un avversario per alterare il risultato di una partita offrendo inducement esterni alla partita stessa: denaro, carte, premi, oggetti.",
+    "example": "Offrire denaro o carte rare a un avversario perché conceda la partita; \"ti do parte del prize support se concedi\".",
+    "philosophy": "VEKN 161 base DQwoP. La negoziazione interna alla partita resta lecita; ciò che rende il deal bribery è la presenza di incentivi esterni alla partita corrente. La philosophy esplicita VEKN per le finali: i deal in finale non sono bribery purché (1) nessun giocatore introduca incentivi esterni alla partita corrente (denaro, carte, premi — un accordo per spartirsi i premi non è accettabile), (2) tutti i giocatori coinvolti in tutte le partite affette siano d'accordo sull'esito.",
+    "correzione": "Squalifica senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
+  },
+  {
+    "category": "Condotta impropria",
+    "infraction": "Collusion",
+    "reference": "164",
+    "sanction": "DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Più giocatori si accordano per alterare, predeterminare o stabilire illegalmente il risultato di una partita.",
+    "example": "Un giocatore lascia che l'amico lo ousti senza opporre resistenza per migliorare il piazzamento dell'amico nell'evento; rimasti in due, si decide il vincitore con un lancio della moneta.",
+    "philosophy": "VEKN 164 base DQwoP. Table talk e accordi interni alla partita restano leciti purché rispettino TUTTE le condizioni: nessun incentivo esterno (denaro, carte, oggetti); nessuna parte dell'accordo è segreta o avvenuta fuori dalla partita corrente; nessuna scelta del vincitore con metodo casuale (coin flip, dado); l'accordo non viola altrimenti la sezione 5.2 delle V:EKN Tournament Rules. Se anche una sola condizione cade, l'accordo cessa di essere negoziazione lecita ed è collusion.",
+    "correzione": "Squalifica senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
+  },
+  {
+    "category": "Condotta impropria",
+    "infraction": "Condotta scorretta minore",
+    "reference": "151",
+    "sanction": "WARNING",
+    "description": "Comportamento che può disturbare una persona presente al torneo ma senza impatto significativo sull'organizzazione dell'evento.",
+    "example": "Linguaggio inappropriato; pretendere a voce alta che un giudice sanzioni l'avversario.",
+    "philosophy": "VEKN 151 base Warning. La gradazione di Unsportsmanlike Conduct è discrezione dell'head judge, sempre autorità ultima sull'interpretazione del comportamento. La sanzione minima ha valore educativo: il giocatore deve rendersi conto che il comportamento è inaccettabile.",
+    "correzione": "Warning e richiesta di correzione immediata del comportamento."
   },
   {
     "category": "Condotta impropria",
@@ -221,6 +291,16 @@
   },
   {
     "category": "Condotta impropria",
+    "infraction": "Condotta scorretta grave",
+    "reference": "153",
+    "sanction": "DISQUALIFICATION WITHOUT PRIZE",
+    "description": "Comportamento disturbante per uno o più giocatori, che causa ritardi al torneo e può includere contatto fisico o disturbo emotivo significativo.",
+    "example": "Sedia tirata via da sotto un altro giocatore con conseguente caduta; discussione aggressiva e prolungata con un giudice dopo una decisione definitiva.",
+    "philosophy": "VEKN 153 base DQwoP. La presenza di contatto fisico o disturbo emotivo significativo richiede una sanzione drastica. La rimozione del soggetto è necessaria per la sicurezza e l'integrità dell'evento; l'head judge resta autorità ultima sull'interpretazione del comportamento.",
+    "correzione": "Squalifica senza premio. Documentare l'episodio e segnalarlo all'organizzazione del torneo."
+  },
+  {
+    "category": "Condotta impropria",
     "infraction": "Slow play",
     "reference": "141 - 162",
     "sanction": "CAUTION - GAME LOSS",
@@ -228,6 +308,16 @@
     "example": "Ripetuti turni lunghi senza azioni significative; esitazioni prolungate quando il vantaggio sul tempo è già acquisito; conteggi e ricalcoli ridondanti.",
     "philosophy": "VEKN 141 si applica per il ritmo lento a prescindere dall'intenzionalità: nessun giocatore ha il diritto di danneggiare gli avversari con il proprio tempo, e il giudice non deve provare l'intento per assegnare Caution. Il giudice valuta i punteggi del tavolo per decidere se ci sono i presupposti per escalare a 162 (Stalling, Game Loss), che richiede invece evidenza chiara di stallo deliberato — anche senza giocare lento, perdendo tempo con azioni vuote (es. usare Vast Wealth ripetutamente sapendo che non c'è più equipaggiamento da trovare).",
     "correzione": "Il judge può assegnare tempo extra al tavolo per compensare quello perduto e, se il rallentamento prosegue, escalare la sanzione."
+  },
+  {
+    "category": "Condotta impropria",
+    "infraction": "Superamento del tempo di pre-game",
+    "reference": "142",
+    "sanction": "CAUTION",
+    "description": "Il giocatore eccede il tempo limite assegnato per le operazioni pre-partita: mescolamento, presentazione al taglio, set-up.",
+    "example": "Dopo tre minuti dall'inizio del round il giocatore non ha ancora completato il mescolamento.",
+    "philosophy": "VEKN 142 base Caution. Si assume non intenzionalità: se l'head judge ritiene il ritardo deliberato, l'infrazione esce da 142 e rientra in 160 (Cheating). La sanzione include un'estensione di un minuto per consentire al giocatore di completare il setup senza ulteriore svantaggio.",
+    "correzione": "Caution con estensione di un minuto inclusa nella sanzione, così il giocatore può chiudere il setup."
   },
   {
     "category": "Condotta impropria",
