@@ -114,6 +114,10 @@ export const JUDGES_GUIDE_URL = "https://www.vekn.net/judges-guide";
  * enough that the trailing-dot form already disambiguates from in-text
  * mentions. The full title is used here for robust matching and as the link's
  * accessible name. Source verified against the live Judges' Guide HTML.
+ *
+ * Maintenance: VEKN occasionally renumbers/renames sections. Verify against
+ * https://www.vekn.net/judges-guide at least once a year; mismatches here
+ * silently break deep-links without raising any error.
  */
 /** @type {Record<number, string>} */
 export const JUDGES_GUIDE_RULES = {
