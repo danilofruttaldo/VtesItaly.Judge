@@ -72,19 +72,22 @@ async function bootApp(opts = {}) {
     Object.defineProperty(globalThis, k, { value: window[k], configurable: true, writable: true });
   }
   globalThis.requestAnimationFrame = /** @type {typeof requestAnimationFrame} */ (
-    /** @type {unknown} */ ((fn) => setTimeout(fn, 0))
+    /** @type {unknown} */ ((/** @type {FrameRequestCallback} */ fn) => setTimeout(fn, 0))
   );
   // jsdom doesn't implement scrollIntoView — stub it so revealItem() doesn't throw.
   window.HTMLElement.prototype.scrollIntoView = function () {};
 
   // Default fetch returns the fixture; tests can inject other implementations
   // (404, malformed JSON, validation failure) to exercise the error branches.
-  const defaultFetch = async (input) => {
+  const defaultFetch = async (/** @type {unknown} */ input) => {
     if (String(input).includes("vademecum.json")) {
       return {
         ok: true,
         status: 200,
-        headers: { get: (k) => (k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null) },
+        headers: {
+          get: (/** @type {string} */ k) =>
+            k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null,
+        },
         async json() {
           return FIXTURE;
         },
@@ -120,12 +123,12 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const { document } = window;
 
   // ---- Initial render ----
-  const list = document.getElementById("list");
-  const empty = document.getElementById("empty");
-  const count = document.getElementById("count");
-  const loading = document.getElementById("loading");
-  const q = document.getElementById("q");
-  const reset = document.getElementById("reset");
+  const list = /** @type {HTMLElement} */ (document.getElementById("list"));
+  const empty = /** @type {HTMLElement} */ (document.getElementById("empty"));
+  const count = /** @type {HTMLElement} */ (document.getElementById("count"));
+  const loading = /** @type {HTMLElement} */ (document.getElementById("loading"));
+  const q = /** @type {HTMLInputElement} */ (document.getElementById("q"));
+  const reset = /** @type {HTMLButtonElement} */ (document.getElementById("reset"));
 
   assert.equal(loading.hidden, true, "loading row hides after data load");
   assert.equal(empty.hidden, true, "empty state hidden when fixture has rows");
@@ -136,7 +139,7 @@ test("DOM smoke: full user flow on a small fixture", async () => {
 
   // Sanction filter chips were removed; there should be no chip-group element.
   assert.equal(document.getElementById("sanction-filters"), null, "filter chip group is gone");
-  assert.equal(list.parentElement.querySelectorAll(".chip").length, 0, "no chip elements rendered");
+  assert.equal(list.parentElement?.querySelectorAll(".chip").length, 0, "no chip elements rendered");
 
   // Reference link is wired
   const refLinks = list.querySelectorAll(".item-ref");
@@ -163,7 +166,7 @@ test("DOM smoke: full user flow on a small fixture", async () => {
 
   // Multi-sanction badge: range is now expanded to all intermediate steps
   // (CAUTION → WARNING → GAME LOSS = 3 pills + 2 separators).
-  const slowCard = [...cards].find((c) => /slow play/i.test(c.querySelector(".item-title").textContent));
+  const slowCard = [...cards].find((c) => /slow play/i.test(c.querySelector(".item-title")?.textContent || ""));
   assert.ok(slowCard, "slow play card present");
   assert.ok(slowCard.classList.contains("item-multi"), "multi-sanction class on multi entry");
   const slowBadges = slowCard.querySelectorAll(".item-summary .badge:not(.badge-tbd)");
@@ -177,7 +180,7 @@ test("DOM smoke: full user flow on a small fixture", async () => {
 
   const filteredCards = list.querySelectorAll("details.item");
   assert.equal(filteredCards.length, 1);
-  assert.match(filteredCards[0].querySelector(".item-title").textContent || "", /Slow play/i);
+  assert.match(filteredCards[0].querySelector(".item-title")?.textContent || "", /Slow play/i);
   // The matched substring is wrapped in <mark> for highlighting
   assert.ok(filteredCards[0].querySelector("mark"), "query substring is highlighted");
   // Reset becomes available
@@ -196,7 +199,7 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   window.dispatchEvent(new window.Event("hashchange"));
   await tick(40);
 
-  const target = document.getElementById(`item-${targetSlug}`);
+  const target = /** @type {HTMLDetailsElement | null} */ (document.getElementById(`item-${targetSlug}`));
   assert.ok(target, "deep-linked item is rendered");
   assert.equal(target.open, true, "deep-linked item is auto-opened");
 
@@ -208,14 +211,14 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   assert.equal(q.value, "con schema");
   const hashFiltered = list.querySelectorAll("details.item");
   assert.equal(hashFiltered.length, 1);
-  assert.match(hashFiltered[0].querySelector(".item-title").textContent || "", /Buste segnate \(con schema\)/i);
+  assert.match(hashFiltered[0].querySelector(".item-title")?.textContent || "", /Buste segnate \(con schema\)/i);
 });
 
 test("DOM smoke: 404 surfaces a 'not found' message in the loading row", async () => {
   const { window } = await bootApp({
     fetchImpl: async () => ({ ok: false, status: 404, headers: { get: () => null } }),
   });
-  const loading = window.document.getElementById("loading");
+  const loading = /** @type {HTMLElement} */ (window.document.getElementById("loading"));
   assert.equal(loading.hidden, false);
   assert.match(loading.textContent || "", /404/);
   assert.ok(loading.classList.contains("is-error"));
@@ -233,7 +236,7 @@ test("DOM smoke: malformed JSON surfaces a corruption message", async () => {
       },
     }),
   });
-  const loading = window.document.getElementById("loading");
+  const loading = /** @type {HTMLElement} */ (window.document.getElementById("loading"));
   assert.equal(loading.hidden, false);
   assert.match(loading.textContent || "", /JSON non valido/i);
 });
@@ -249,7 +252,7 @@ test("DOM smoke: schema-invalid payload surfaces a format error", async () => {
       },
     }),
   });
-  const loading = window.document.getElementById("loading");
+  const loading = /** @type {HTMLElement} */ (window.document.getElementById("loading"));
   assert.equal(loading.hidden, false);
   assert.match(loading.textContent || "", /formato non valido/i);
 });
@@ -277,8 +280,8 @@ test("DOM smoke: partial validation drops bad rows but keeps the page useful", a
       },
     }),
   });
-  const list = window.document.getElementById("list");
+  const list = /** @type {HTMLElement} */ (window.document.getElementById("list"));
   assert.equal(list.querySelectorAll("details.item").length, FIXTURE.length, "bad row dropped, good rows kept");
-  const loading = window.document.getElementById("loading");
+  const loading = /** @type {HTMLElement} */ (window.document.getElementById("loading"));
   assert.equal(loading.hidden, true, "partial validation does not mask the page");
 });

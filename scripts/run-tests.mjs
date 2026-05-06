@@ -12,7 +12,12 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * @param {string} dir
+ * @returns {string[]}
+ */
 function findJsTests(dir) {
+  /** @type {string[]} */
   const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name);
@@ -25,6 +30,11 @@ function findJsTests(dir) {
   return out;
 }
 
+/**
+ * @param {string} cmd
+ * @param {string[]} args
+ * @param {string} label
+ */
 function run(cmd, args, label) {
   const res = spawnSync(cmd, args, { stdio: "inherit", cwd: ROOT });
   if (res.status !== 0) {

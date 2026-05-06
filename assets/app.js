@@ -49,6 +49,7 @@ const el = {
   ruleDialogSource: /** @type {HTMLAnchorElement | null} */ (document.getElementById("rule-dialog-source")),
 };
 
+/** @param {{ number: number | string, title?: string | null }} p */
 function renderRefChip(p) {
   const label = `Rif. ${p.number}`;
   // Rules without a known canonical entry render as a non-interactive chip
@@ -66,6 +67,7 @@ function renderRefChip(p) {
   return `<button type="button" class="item-ref" data-rule="${p.number}" title="${escapeHtml(titleAttr)}" aria-label="${escapeHtml(label)} — apre l'articolo della VEKN Judges' Guide">${escapeHtml(label)}</button>`;
 }
 
+/** @param {{ reference?: string } & Record<string, unknown>} item */
 function renderReference(item) {
   const primary = parseReference(item.reference);
   const mentioned = extractMentionedRules(item);
@@ -88,12 +90,14 @@ function renderReference(item) {
  * entries enumerate each sanction as a separate pill connected by an arrow
  * so the user reads it as a severity range, not two cumulative penalties.
  * Placeholders render as a neutral pill with the fallback description. */
+/** @param {import('./core.mjs').ParsedSanction} parsed */
 function renderSanctionBadge(parsed) {
   if (parsed.kind === "placeholder") {
     return `<span class="badge badge-tbd">${escapeHtml(parsed.description)}</span>`;
   }
   const pills = parsed.sanctions.map(
-    (s) => `<span class="badge" data-sanction="${escapeHtml(s)}">${escapeHtml(SANCTION_LABELS[s] || s)}</span>`,
+    (/** @type {string} */ s) =>
+      `<span class="badge" data-sanction="${escapeHtml(s)}">${escapeHtml(SANCTION_LABELS[s] || s)}</span>`,
   );
   if (parsed.kind === "multi") {
     return pills.join('<span class="badge-sep" aria-hidden="true">→</span>');
@@ -106,6 +110,7 @@ function renderSanctionBadge(parsed) {
  * `data-s1` and `data-s2`; placeholders fall back to `data-s1="other"`.
  * The CSS layer maps these tokens to color variables via static attribute
  * selectors so we don't ship inline `style=`, keeping CSP strict. */
+/** @param {import('./core.mjs').ParsedSanction} parsed */
 function itemEdgeAttrs(parsed) {
   if (parsed.kind === "single") {
     return `data-s1="${escapeHtml(SANCTION_SLUGS[parsed.sanctions[0]])}"`;
@@ -233,6 +238,11 @@ function renderUnsafe() {
     html.push(`</div>`);
     html.push(`</details>`);
   }
+  // Safe-HTML contract: every interpolation in the `html` array above is
+  // either a static template literal or passes through escapeHtml /
+  // highlightProse / highlightHtml / renderReference, all of which escape
+  // their input. Do NOT push raw user/data strings here — add a new helper
+  // that escapes them and route through that.
   el.list.innerHTML = html.join("");
 
   if (state.pendingItemAnchor) {
@@ -241,6 +251,7 @@ function renderUnsafe() {
   }
 }
 
+/** @param {string} slug */
 function revealItem(slug) {
   const node = /** @type {HTMLDetailsElement | null} */ (document.getElementById(`item-${slug}`));
   if (!node) return;
@@ -288,6 +299,7 @@ function readHashState() {
   };
 }
 
+/** @type {string | null} */
 let lastHashWritten = null; // null = no write yet, force the first one through
 function writeHashState() {
   const params = new URLSearchParams();
@@ -459,12 +471,17 @@ function bindEvents() {
  * failed silently on Firefox and intermittently on Safari/Chrome. The
  * "Apri su VEKN" footer link is preserved as an escape hatch to the live
  * source. */
+/** @param {number} ruleNumber */
 function openRuleDialog(ruleNumber) {
   if (!el.ruleDialog || !el.ruleDialogTitle || !el.ruleDialogBody) return;
   const rule = JUDGES_GUIDE_RULE_TEXTS[ruleNumber];
   const body = renderRuleHtml(ruleNumber);
   if (!rule || !body) return;
   el.ruleDialogTitle.textContent = rule.heading;
+  // Safe-HTML contract: `body` comes from renderRuleHtml() in core.mjs,
+  // which composes its output exclusively via renderRuleBlock / renderRuleLine
+  // — both pass every dynamic line through escapeHtml. No raw rule text
+  // reaches innerHTML unescaped.
   el.ruleDialogBody.innerHTML = body;
   if (el.ruleDialogSource) {
     const url = judgesGuideUrl(ruleNumber) || "https://www.vekn.net/judges-guide";
@@ -491,6 +508,7 @@ function closeRuleDialog() {
   }
 }
 
+/** @param {string | null | undefined} headerValue */
 function setUpdated(headerValue) {
   if (!el.updated) return;
   if (!headerValue) {
@@ -515,7 +533,7 @@ function setUpdated(headerValue) {
   el.updated.hidden = false;
 }
 
-/* User-facing error message for the load step. We split the failure modes
+/** User-facing error message for the load step. We split the failure modes
  * so the judge knows whether the issue is local (offline / cache miss) or
  * editorial (the deployed JSON is broken) — that changes what they should
  * try next. Console gets the technical detail; the screen stays readable.
@@ -581,13 +599,15 @@ init();
  * can opt into the refresh at a moment that doesn't disrupt a ruling
  * lookup, instead of forcing skipWaiting() server-side and yanking the page
  * mid-tap. */
+/** @param {ServiceWorkerRegistration | null | undefined} reg */
 function showSwUpdate(reg) {
   if (!el.swUpdate || !el.swUpdateBtn || !reg || !reg.waiting) return;
   el.swUpdate.hidden = false;
+  const waiting = reg.waiting;
   el.swUpdateBtn.addEventListener(
     "click",
     () => {
-      reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      waiting.postMessage({ type: "SKIP_WAITING" });
     },
     { once: true },
   );

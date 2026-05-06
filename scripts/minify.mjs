@@ -13,6 +13,7 @@ const defaultTargets = ["_site/assets/app.js", "_site/assets/core.mjs", "_site/a
 
 const targets = argv.length > 2 ? argv.slice(2) : defaultTargets;
 
+/** @param {string} path */
 function sizeKb(path) {
   return (statSync(path).size / 1024).toFixed(1);
 }

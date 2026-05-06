@@ -11,6 +11,7 @@ export const SANCTION_ORDER = ["CAUTION", "WARNING", "GAME LOSS", "DISQUALIFICAT
 const SANCTION_SET = new Set(SANCTION_ORDER);
 
 /* Display labels: short, sentence-case, optimized for narrow phone badges. */
+/** @type {Record<string, string>} */
 export const SANCTION_LABELS = {
   CAUTION: "Caution",
   WARNING: "Warning",
@@ -22,6 +23,7 @@ export const SANCTION_LABELS = {
 /* CSS custom-property names for each canonical sanction. Used to drive the
  * left-edge color (and the gradient when multi). Kept here so the data layer
  * decides which color goes where, not the markup. */
+/** @type {Record<string, string>} */
 export const SANCTION_VARS = {
   CAUTION: "--s-caution",
   WARNING: "--s-warning",
@@ -34,6 +36,7 @@ export const SANCTION_VARS = {
  * attribute values on cards so the CSS layer can map them to colors via
  * static attribute selectors — no inline `style=` needed, which keeps the
  * Content Security Policy strict (no `'unsafe-inline'` style required). */
+/** @type {Record<string, string>} */
 export const SANCTION_SLUGS = {
   CAUTION: "caution",
   WARNING: "warning",
@@ -112,6 +115,7 @@ export const JUDGES_GUIDE_URL = "https://www.vekn.net/judges-guide";
  * mentions. The full title is used here for robust matching and as the link's
  * accessible name. Source verified against the live Judges' Guide HTML.
  */
+/** @type {Record<number, string>} */
 export const JUDGES_GUIDE_RULES = {
   101: "101. Deck Problem - Illegal Decklist",
   102: "102. Deck Problem - Illegal Main Deck (Legal Decklist)",

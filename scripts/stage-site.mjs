@@ -37,6 +37,7 @@ if (versionMatch[1] === "v1" && process.env.CI === "true") {
   process.exit(1);
 }
 
+/** @param {string} dir */
 function dirSize(dir) {
   let total = 0;
   for (const name of readdirSync(dir)) {
