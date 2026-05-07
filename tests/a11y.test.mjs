@@ -54,13 +54,14 @@ async function bootApp() {
   globalThis.requestAnimationFrame = (fn) => setTimeout(fn, 0);
   window.HTMLElement.prototype.scrollIntoView = function () {};
 
-  globalThis.fetch = async (input) => {
+  const fetchImpl = async (/** @type {unknown} */ input) => {
     if (String(input).includes("vademecum.json")) {
       return {
         ok: true,
         status: 200,
         headers: {
-          get: (k) => (k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null),
+          get: (/** @type {string} */ k) =>
+            k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null,
         },
         async json() {
           return FIXTURE;
@@ -69,6 +70,7 @@ async function bootApp() {
     }
     return { ok: false, status: 404, headers: { get: () => null } };
   };
+  globalThis.fetch = /** @type {typeof fetch} */ (/** @type {unknown} */ (fetchImpl));
 
   const url = pathToFileURL(resolve(ROOT, "assets/app.js")).href + `?t=${Date.now()}`;
   await import(url);
@@ -96,12 +98,18 @@ test("axe-core: hydrated DOM has no critical or serious WCAG violations", async 
     },
   });
 
-  const blocking = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
+  /** @type {import('axe-core').Result[]} */
+  const blocking = results.violations.filter(
+    (/** @type {import('axe-core').Result} */ v) => v.impact === "critical" || v.impact === "serious",
+  );
 
   if (blocking.length > 0) {
     const summary = blocking
-      .map((v) => `  • [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} node${v.nodes.length === 1 ? "" : "s"})`)
+      .map(
+        (v) =>
+          `  • [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} node${v.nodes.length === 1 ? "" : "s"})\n      see: ${v.helpUrl}`,
+      )
       .join("\n");
-    assert.fail(`axe-core found ${blocking.length} blocking violation(s):\n${summary}\n  See: ${blocking[0].helpUrl}`);
+    assert.fail(`axe-core found ${blocking.length} blocking violation(s):\n${summary}`);
   }
 });
