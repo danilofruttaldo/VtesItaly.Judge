@@ -8,7 +8,7 @@ Sito statico (vanilla JS, GitHub Pages, PWA).
 
 ```bash
 npm install
-npm test            # unit + DOM smoke + schema gate
+npm test            # unit + DOM smoke + schema gate + axe-core a11y
 npm run lint        # eslint --max-warnings=0
 npm run typecheck   # tsc --checkJs su core/app/sw + scripts/tests
 npm run format      # prettier --write .
@@ -88,12 +88,14 @@ errore esplicito al posto del caricamento.
 
 ## Build & deploy
 
-CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main`:
+CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main` (e su PR, eccetto deploy):
 
-1. **ci** — `npm audit`, lint, format check, typecheck, test (unit + DOM + schema),
+1. **ci** — `npm audit`, lint, format check, typecheck, test (unit + DOM + schema + a11y),
    stamp sw, stage in `_site/`, minify, budget 10MB
-2. **lighthouse** — gate accessibilità (≥ 0.9) sull'artefatto `_site`
-3. **deploy** — pubblica `_site/` su GitHub Pages
+2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.8) come warning
+3. **deploy** — pubblica `_site/` su GitHub Pages (solo su push, non su PR)
+
+Concurrency `pages-${{ github.ref }}` è per-ref: una burst di PR Dependabot non si auto-cancella in coda.
 
 Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 
@@ -110,5 +112,10 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
   - `core.test.mjs` — moduli puri in `assets/core.mjs`
   - `data.test.mjs` — gate schema su `data/vademecum.json`
   - `dom.test.mjs` — smoke test end-to-end via jsdom (render, eventi, hash routing, error UX)
+  - `a11y.test.mjs` — axe-core su DOM idratato (gate critical/serious WCAG 2.1 A/AA, escluso color-contrast che jsdom non valuta)
 - `.githooks/pre-commit` — gate locale (vedi sopra)
 - `tsconfig.json` — `checkJs` su tutto il codice JS
+
+## Licenza
+
+[MIT](LICENSE) — © 2026 VTES Italy.

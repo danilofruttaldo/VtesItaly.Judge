@@ -4,6 +4,13 @@
   "private": true,
   "type": "module",
   "description": "VTES Italy judge tool (static site, vanilla JS).",
+  "license": "MIT",
+  "author": "VTES Italy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danilofruttaldo/VtesItaly.Judge.git"
+  },
+  "homepage": "https://judge.vtesitaly.com",
   "scripts": {
     "test": "node scripts/run-tests.mjs",
     "typecheck": "tsc -p tsconfig.json",
