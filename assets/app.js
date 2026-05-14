@@ -177,7 +177,7 @@ function renderUnsafe() {
       const ref = renderReference(it);
       const slug = itemSlug(it);
       const itemOpen = queryActive ? " open" : "";
-      const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}${parsed.kind === "placeholder" ? " item-tbd" : ""}`;
+      const klass = `item${parsed.kind === "multi" ? " item-multi" : ""}`;
       const titleHtml = highlightHtml(it.infraction, state.query);
       // Card sections mirror the VEKN Judges' Guide subsections (literal
       // English labels for full alignment with the regulation):

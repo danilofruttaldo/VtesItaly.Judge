@@ -588,18 +588,6 @@ span.item-ref.item-ref-unknown {
   cursor: help;
 }
 
-.item-notes {
-  font-size: 0.9rem;
-  color: var(--fg);
-  line-height: 1.55;
-  white-space: pre-line;
-}
-
-.item-notes.muted {
-  color: var(--muted);
-  font-style: italic;
-}
-
 /* Labeled sections inside the expanded card. Each section is colour-coded
  * with its own accent so the eye groups text by purpose at a glance:
  * Restraint over rainbow: the sanction badge already carries the only
@@ -655,7 +643,6 @@ span.item-ref.item-ref-unknown {
   white-space: pre-line;
 }
 
-.item-notes mark,
 .item-title mark,
 .item-section-body mark {
   background: var(--mark-bg);
@@ -1084,9 +1071,6 @@ span.item-ref.item-ref-unknown {
     background: #fff !important;
     color: #000 !important;
     border: 1px solid #000 !important;
-  }
-  a.item-ref::after {
-    content: "";
   }
   .app-footer {
     border-top: 1px solid #999;

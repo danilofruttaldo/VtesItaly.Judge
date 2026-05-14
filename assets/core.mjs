@@ -20,18 +20,6 @@ export const SANCTION_LABELS = {
   "DISQUALIFICATION WITHOUT PRIZE": "DQ senza premio",
 };
 
-/* CSS custom-property names for each canonical sanction. Used to drive the
- * left-edge color (and the gradient when multi). Kept here so the data layer
- * decides which color goes where, not the markup. */
-/** @type {Record<string, string>} */
-export const SANCTION_VARS = {
-  CAUTION: "--s-caution",
-  WARNING: "--s-warning",
-  "GAME LOSS": "--s-gameloss",
-  DISQUALIFICATION: "--s-dq",
-  "DISQUALIFICATION WITHOUT PRIZE": "--s-dqnp",
-};
-
 /* Short, lowercase tokens for each sanction. Used as `data-s1`/`data-s2`
  * attribute values on cards so the CSS layer can map them to colors via
  * static attribute selectors — no inline `style=` needed, which keeps the
@@ -355,6 +343,43 @@ export function escapeHtml(s) {
 }
 
 /**
+ * Find non-overlapping matches of `qn` (already normalized via norm()) inside
+ * `src`, returning ranges in the ORIGINAL string. Match is accent- and
+ * case-insensitive: we build a normalized projection of `src` plus a parallel
+ * index map, search in projected space, and translate hits back to source
+ * indices. Returns [] when `qn` is empty or has no hit.
+ * @param {string} src
+ * @param {string} qn
+ * @returns {{ start: number, end: number }[]}
+ */
+function findNormalisedRanges(src, qn) {
+  if (!src || !qn) return [];
+  let projected = "";
+  /** @type {number[]} */
+  const map = [];
+  for (let i = 0; i < src.length; i++) {
+    const piece = src[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    for (const c of piece) {
+      projected += c;
+      map.push(i);
+    }
+  }
+  /** @type {{ start: number, end: number }[]} */
+  const ranges = [];
+  let from = 0;
+  while (from <= projected.length - qn.length) {
+    const idx = projected.indexOf(qn, from);
+    if (idx < 0) break;
+    const start = map[idx];
+    const endProj = idx + qn.length - 1;
+    const end = (map[endProj] ?? src.length - 1) + 1;
+    ranges.push({ start, end });
+    from = endProj + 1;
+  }
+  return ranges;
+}
+
+/**
  * HTML-escapes `text` and wraps query matches in <mark>. The match is
  * accent- and case-insensitive (same equivalence class as norm()), so a
  * search for "perche" highlights "perché" in the source. Matches are
@@ -367,40 +392,16 @@ export function escapeHtml(s) {
 export function highlightHtml(text, query) {
   const src = text === null || text === undefined ? "" : String(text);
   const qn = norm(query);
-  if (!src || !qn) return escapeHtml(src);
-
-  // Build a normalized projection of `src` and a parallel index map so we
-  // can search in the normalized space and emit slices of the original.
-  let projected = "";
-  const map = []; // map[i] = source index that produced projected[i]
-  for (let i = 0; i < src.length; i++) {
-    const piece = src[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-    for (const c of piece) {
-      projected += c;
-      map.push(i);
-    }
-  }
-
-  const ranges = [];
-  let from = 0;
-  while (from <= projected.length - qn.length) {
-    const idx = projected.indexOf(qn, from);
-    if (idx < 0) break;
-    const start = map[idx];
-    const endProjected = idx + qn.length - 1;
-    const endSrc = (map[endProjected] ?? src.length - 1) + 1;
-    ranges.push([start, endSrc]);
-    from = endProjected + 1;
-  }
+  const ranges = findNormalisedRanges(src, qn);
   if (ranges.length === 0) return escapeHtml(src);
 
   let out = "";
   let cursor = 0;
-  for (const [s, e] of ranges) {
-    if (s < cursor) continue;
-    out += escapeHtml(src.slice(cursor, s));
-    out += `<mark>${escapeHtml(src.slice(s, e))}</mark>`;
-    cursor = e;
+  for (const { start, end } of ranges) {
+    if (start < cursor) continue;
+    out += escapeHtml(src.slice(cursor, start));
+    out += `<mark>${escapeHtml(src.slice(start, end))}</mark>`;
+    cursor = end;
   }
   out += escapeHtml(src.slice(cursor));
   return out;
@@ -440,30 +441,7 @@ export function highlightProse(text, query) {
   }
 
   const qn = norm(query);
-  /** @type {{ start: number, end: number }[]} */
-  const markAnns = [];
-  if (qn) {
-    let projected = "";
-    /** @type {number[]} */
-    const map = [];
-    for (let i = 0; i < src.length; i++) {
-      const piece = src[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-      for (const c of piece) {
-        projected += c;
-        map.push(i);
-      }
-    }
-    let from = 0;
-    while (from <= projected.length - qn.length) {
-      const idx = projected.indexOf(qn, from);
-      if (idx < 0) break;
-      const start = map[idx];
-      const endProj = idx + qn.length - 1;
-      const end = (map[endProj] ?? src.length - 1) + 1;
-      markAnns.push({ start, end });
-      from = endProj + 1;
-    }
-  }
+  const markAnns = findNormalisedRanges(src, qn);
 
   if (ruleAnns.length === 0 && markAnns.length === 0) return escapeHtml(src);
 
