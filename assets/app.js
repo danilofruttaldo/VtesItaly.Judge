@@ -395,10 +395,41 @@ function bindEvents() {
 
   // Online/offline indicator. We surface offline as a subtle footer chip so
   // judges know they're consulting cached data — relevant when a torneo's
-  // wifi drops mid-ruling. The cache itself is handled by the SW.
-  const updateOnlineState = () => {
+  // wifi drops mid-ruling. navigator.onLine is unreliable (captive portals,
+  // dead routers, SW serving cache while network is gone all report true),
+  // so we actively probe with a cache-busting URL: the SW's network-first
+  // path falls through to a 504 when the real network is down because the
+  // unique query string never matches a cached entry.
+  const PROBE_TIMEOUT_MS = 4000;
+  let probeSeq = 0;
+  const probeOnline = async () => {
+    if (!navigator.onLine) return false;
+    if (typeof AbortController !== "function") return true;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
+    try {
+      const r = await fetch(`./assets/favicon.ico?_=${Date.now()}`, {
+        method: "GET",
+        cache: "no-store",
+        signal: ctrl.signal,
+      });
+      return r.ok;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  const updateOnlineState = async () => {
     if (!el.offline) return;
-    el.offline.hidden = navigator.onLine;
+    if (!navigator.onLine) {
+      el.offline.hidden = false;
+      return;
+    }
+    const seq = ++probeSeq;
+    const online = await probeOnline();
+    if (seq !== probeSeq) return;
+    el.offline.hidden = online;
   };
   window.addEventListener("online", updateOnlineState);
   window.addEventListener("offline", updateOnlineState);

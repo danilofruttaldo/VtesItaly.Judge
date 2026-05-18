@@ -56,12 +56,13 @@ sw.addEventListener("activate", (e) => {
   );
 });
 
-/* Network-first with a hard 6s deadline. The browser's default fetch
+/* Network-first with a hard 12s deadline. The browser's default fetch
  * timeout is platform-dependent and can stretch to 30s+ on stalled
  * connections — long enough that a judge on flaky tournament wifi sees
- * "loading" forever instead of the cached vademecum. We give the network
- * 6 seconds, then fall back to the runtime cache. */
-const NETWORK_TIMEOUT_MS = 6000;
+ * "loading" forever instead of the cached vademecum. 12s tolerates a few
+ * TCP retransmits on congested tournament wifi without giving up on a
+ * still-pending request that's about to deliver. */
+const NETWORK_TIMEOUT_MS = 12000;
 
 /**
  * @param {Request} req
