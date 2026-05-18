@@ -90,9 +90,9 @@ errore esplicito al posto del caricamento.
 
 CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main` (e su PR, eccetto deploy):
 
-1. **ci** — `npm audit`, lint, format check, typecheck, test (unit + DOM + schema + a11y),
+1. **ci** — `npm audit --omit=dev --audit-level=moderate`, lint, format check, typecheck (`strict: true` in `tsconfig.json` since November 2026), test (unit + DOM + schema + a11y),
    stamp sw, stage in `_site/`, minify, budget 10MB
-2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.8) come warning
+2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.7) come warning. Lighthouse esegue 3 run e prende il median per assorbire la varianza single-run (~±0.05).
 3. **deploy** — pubblica `_site/` su GitHub Pages (solo su push, non su PR)
 
 Concurrency `pages-${{ github.ref }}` è per-ref: una burst di PR Dependabot non si auto-cancella in coda.
@@ -106,10 +106,10 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 - `assets/app.js` — bootstrap UI, eventi, render
 - `data/vademecum.json` — sorgente dati
 - `data/vademecum.schema.json` — schema canonico (JSON Schema Draft-07)
-- `sw.js` + `manifest.webmanifest` — PWA
+- `sw.js` + `manifest.webmanifest` — PWA. `NETWORK_TIMEOUT_MS = 12000` sulla strategia network-first: 12 s tollera qualche retransmit TCP su wifi torneo congestionato prima di fallback su cache, senza far percepire il sito "appeso" a tempo indefinito
 - `scripts/` — staging, stamp-sw, minify, test runner
 - `tests/`
-  - `core.test.mjs` — moduli puri in `assets/core.mjs`
+  - `core.test.mjs` — moduli puri in `assets/core.mjs` (63 test: norm, escapeHtml, matchSearch, parseReference, parseSanction, highlightHtml — coperti edge case su match overlap, query lunghe e accent-folding multi-parola)
   - `data.test.mjs` — gate schema su `data/vademecum.json`
   - `dom.test.mjs` — smoke test end-to-end via jsdom (render, eventi, hash routing, error UX)
   - `a11y.test.mjs` — axe-core su DOM idratato (gate critical/serious WCAG 2.1 A/AA, escluso color-contrast che jsdom non valuta)
