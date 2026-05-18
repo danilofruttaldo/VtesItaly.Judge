@@ -277,6 +277,33 @@ test("highlightHtml returns escaped text when no match", () => {
   assert.equal(highlightHtml("ciao <mondo>", "xyz"), "ciao &lt;mondo&gt;");
 });
 
+test("highlightHtml: long query that is a substring of a longer phrase", () => {
+  // Real-world case: searching "DISQUALIFICATION" against a heading like
+  // "DISQUALIFICATION WITHOUT PRIZE" must mark the full query once, not
+  // overlap or skip the trailing token.
+  assert.equal(
+    highlightHtml("DISQUALIFICATION WITHOUT PRIZE", "DISQUALIFICATION"),
+    "<mark>DISQUALIFICATION</mark> WITHOUT PRIZE",
+  );
+});
+
+test("highlightHtml: overlapping candidate matches collapse to non-overlapping spans", () => {
+  // "aaa" inside "aaaaa" could theoretically produce 3 overlapping hits;
+  // findNormalisedRanges advances past each match so we get 1 non-overlapping
+  // hit covering positions 0-2 and the trailing "aa" stays plain.
+  assert.equal(highlightHtml("aaaaa", "aaa"), "<mark>aaa</mark>aa");
+});
+
+test("highlightHtml: accent-folded long query spanning multiple words", () => {
+  // Diacritic-folded query must match across a phrase boundary without
+  // duplicating <mark> or splitting on the space.
+  assert.equal(highlightHtml("perché ora più tardi", "perche ora piu"), "<mark>perché ora più</mark> tardi");
+});
+
+test("highlightHtml: query longer than source returns escaped source", () => {
+  assert.equal(highlightHtml("brief", "much longer query"), "brief");
+});
+
 test("extractMentionedRules collects in-prose rule numbers, dedup vs reference", () => {
   const item = {
     category: "Deck",
