@@ -988,6 +988,330 @@ span.item-ref.item-ref-unknown {
   }
 }
 
+/* ---------- Site nav (topbar) ----------
+ * Small inline nav inside the topbar header, used by judges.html and
+ * utili.html (and now also by index.html). The vademecum has its own
+ * inline sub line ("Riferimento ufficiale: …") and the nav sits next to
+ * it; on narrow screens both wrap onto separate rows. */
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  font-size: 0.78rem;
+  flex: 0 0 auto;
+}
+
+.page-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  background: var(--bg-2);
+  white-space: nowrap;
+}
+
+.page-nav a:hover,
+.page-nav a:focus-visible {
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
+.page-nav a[aria-current="page"] {
+  color: var(--fg);
+  border-color: color-mix(in srgb, var(--s-caution) 50%, var(--border));
+  background: color-mix(in srgb, var(--s-caution) 10%, var(--bg-2));
+}
+
+/* ---------- Generic page (judges, utili) ----------
+ * Layout primitives for the secondary pages. The main column matches
+ * index.html (60rem cap, gutters), so the visual identity stays
+ * consistent across the three pages. */
+.page-main {
+  padding: 1rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.page-intro {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.page-intro a {
+  color: var(--s-caution);
+}
+
+.page-intro-meta {
+  color: var(--muted);
+}
+
+/* ---------- Judges table ---------- */
+
+.judges-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.judges-table thead th {
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-3);
+  /* The clickable button inside fills the cell; cell padding stays zero
+   * so the entire header area is hit-targetable on mobile, not just the
+   * text. */
+  padding: 0;
+}
+
+.judges-table thead th .sort-btn {
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+}
+
+.judges-table thead th .sort-btn:hover,
+.judges-table thead th .sort-btn:focus-visible {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--s-caution) 8%, transparent);
+}
+
+.judges-table thead th[aria-sort="ascending"] .sort-btn,
+.judges-table thead th[aria-sort="descending"] .sort-btn {
+  color: var(--fg);
+}
+
+/* Sort indicator glyph driven entirely by the cell's aria-sort attribute
+ * — keeps semantics and visuals in lockstep. Inactive columns show a
+ * faint up/down stub so users see the affordance before clicking. */
+.sort-ind {
+  display: inline-block;
+  width: 0.6em;
+  text-align: center;
+  opacity: 0.4;
+  font-size: 0.85em;
+}
+
+.sort-ind::before {
+  content: "⇅";
+}
+
+.judges-table thead th[aria-sort="ascending"] .sort-ind {
+  opacity: 1;
+  color: var(--s-caution);
+}
+
+.judges-table thead th[aria-sort="ascending"] .sort-ind::before {
+  content: "▲";
+}
+
+.judges-table thead th[aria-sort="descending"] .sort-ind {
+  opacity: 1;
+  color: var(--s-caution);
+}
+
+.judges-table thead th[aria-sort="descending"] .sort-ind::before {
+  content: "▼";
+}
+
+.judges-table tbody td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.judges-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.judges-table tbody tr[data-expired="true"] {
+  color: var(--muted);
+}
+
+.j-name {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.j-id {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.j-exp {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.j-exp-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--s-dq);
+  border: 1px solid color-mix(in srgb, var(--s-dq) 40%, transparent);
+  background: color-mix(in srgb, var(--s-dq) 10%, transparent);
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.j-rank-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: light) {
+  .j-rank-badge {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Rank → color: Elder/Ancilla/Neonate map to the existing severity
+ * palette by descending intensity (DQ → game-loss → caution). This
+ * isn't a sanction — re-using the palette just keeps the visual
+ * language consistent across the three pages. */
+.j-rank-badge[data-rank="elder-judge"] {
+  color: var(--s-dq);
+  border-color: color-mix(in srgb, var(--s-dq) 40%, transparent);
+  background: color-mix(in srgb, var(--s-dq) 10%, transparent);
+}
+
+.j-rank-badge[data-rank="ancilla-judge"] {
+  color: var(--s-gameloss);
+  border-color: color-mix(in srgb, var(--s-gameloss) 40%, transparent);
+  background: color-mix(in srgb, var(--s-gameloss) 10%, transparent);
+}
+
+.j-rank-badge[data-rank="neonate-judge"] {
+  color: var(--s-caution);
+  border-color: color-mix(in srgb, var(--s-caution) 40%, transparent);
+  background: color-mix(in srgb, var(--s-caution) 10%, transparent);
+}
+
+/* Stack rows visually on narrow screens — VEKN IDs and dates push the
+ * 4-column layout off the side of a phone otherwise. We keep the
+ * tabular structure for assistive tech (each <td> still labelled) but
+ * present as definition-style blocks. */
+@media (max-width: 559px) {
+  .judges-table thead {
+    /* Hide visually but keep accessible — semantic header order is
+     * preserved for screen readers via the data-label attributes below. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .judges-table,
+  .judges-table tbody,
+  .judges-table tbody tr,
+  .judges-table tbody td {
+    display: block;
+    width: 100%;
+  }
+  .judges-table tbody tr {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .judges-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .judges-table tbody td {
+    padding: 0.2rem 0.5rem;
+    border: none;
+  }
+  .j-name {
+    font-size: 1rem;
+    padding-bottom: 0.35rem !important;
+  }
+  .j-id::before {
+    content: "VEKN ID: ";
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .j-exp::before {
+    content: "Scadenza: ";
+    color: var(--muted);
+    font-weight: 600;
+  }
+}
+
+/* ---------- Useful links list ---------- */
+
+.links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.links-list-anchor {
+  display: block;
+  text-decoration: none;
+  color: var(--fg);
+  padding: 0.85rem 1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.links-list-anchor:hover,
+.links-list-anchor:focus-visible {
+  border-color: color-mix(in srgb, var(--s-caution) 50%, var(--border));
+  background: color-mix(in srgb, var(--s-caution) 6%, var(--bg-2));
+}
+
+.links-list-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--s-caution);
+  margin-bottom: 0.2rem;
+}
+
+.links-list-meta {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 /* ---------- Print ---------- *
  * The vademecum is a real reference document — judges sometimes want a
  * paper copy on the table. Optimize for high-contrast B/W output: light

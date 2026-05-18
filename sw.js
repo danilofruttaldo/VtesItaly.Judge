@@ -23,10 +23,13 @@ const RUNTIME_CACHE = `runtime-${VERSION}`;
 const SHELL_FILES = [
   "./",
   "./index.html",
+  "./judges.html",
+  "./utili.html",
   "./manifest.webmanifest",
   "./assets/styles.css",
   "./assets/app.js",
   "./assets/core.mjs",
+  "./assets/judges.js",
   "./assets/vtes.svg",
   "./assets/favicon.ico",
   "./assets/apple-touch-icon.png",
@@ -107,7 +110,7 @@ sw.addEventListener("fetch", (e) => {
 
   const isHtml = req.mode === "navigate" || req.destination === "document";
   const isCode = req.destination === "script" || req.destination === "style";
-  const isData = url.pathname.endsWith("/vademecum.json");
+  const isData = url.pathname.endsWith("/vademecum.json") || url.pathname.endsWith("/judges.json");
 
   if (isHtml || isCode || isData) {
     e.respondWith(networkFirst(req, isHtml));

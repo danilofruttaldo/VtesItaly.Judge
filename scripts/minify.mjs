@@ -9,7 +9,13 @@ import { build } from "esbuild";
 import { readFileSync, statSync } from "node:fs";
 import { argv } from "node:process";
 
-const defaultTargets = ["_site/assets/app.js", "_site/assets/core.mjs", "_site/assets/styles.css", "_site/sw.js"];
+const defaultTargets = [
+  "_site/assets/app.js",
+  "_site/assets/core.mjs",
+  "_site/assets/judges.js",
+  "_site/assets/styles.css",
+  "_site/sw.js",
+];
 
 const targets = argv.length > 2 ? argv.slice(2) : defaultTargets;
 

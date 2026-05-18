@@ -1,0 +1,76 @@
+name: refresh-judges
+
+# Daily scrape of https://www.vekn.net/vekn-judges → data/judges.json.
+# Commits + pushes only if the parsed list differs from what's checked
+# in. The push triggers the standard CI workflow on `main`, which
+# redeploys judge.vtesitaly.com automatically. If vekn.net is down or
+# changed its markup, scripts/fetch-judges.mjs exits non-zero and the
+# job fails without touching the repo — the previous snapshot keeps
+# serving in production.
+
+on:
+  schedule:
+    # Daily at 06:00 UTC. Italian judges renew on 3-year cycles, so the
+    # list changes a handful of times a year — once a day is plenty,
+    # and 06:00 UTC means a fresh list is online before the EU morning.
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: refresh-judges
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Need a writable token so the bot push back to main triggers
+          # the existing CI workflow. The default GITHUB_TOKEN is fine —
+          # it has contents:write per the permissions block above.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Scrape VEKN judges
+        run: node scripts/fetch-judges.mjs
+
+      - name: Commit and push if changed
+        id: commit
+        run: |
+          if git diff --quiet -- data/judges.json; then
+            echo "No changes to data/judges.json — nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Use the default github-actions[bot] identity. The repo's
+          # local pre-commit hook (.githooks/pre-commit) only runs when
+          # contributors set core.hooksPath locally — not in CI, where
+          # `git commit` ignores it. The full lint/test/typecheck
+          # pipeline still runs on the resulting push via the CI
+          # workflow dispatched below, so quality gates are preserved.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/judges.json
+          git commit -m "chore(judges): refresh Italian judges list from vekn.net"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # Pushes made with the default GITHUB_TOKEN don't fan out to other
+      # workflows (Actions blocks the loop). Trigger CI explicitly so
+      # the just-pushed judges.json reaches production within the same
+      # cron tick — without needing a Personal Access Token secret.
+      - name: Dispatch CI to deploy the refreshed list
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run CI --ref main

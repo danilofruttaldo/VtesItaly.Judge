@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+    />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121214" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f8" />
+    <meta name="description" content="Lista aggiornata dei judge VEKN italiani — VTES Italia." />
+    <link rel="canonical" href="https://judge.vtesitaly.com/judges" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VTES Italy Judge" />
+    <meta property="og:url" content="https://judge.vtesitaly.com/judges" />
+    <meta property="og:title" content="Judge italiani — VTES Italy" />
+    <meta property="og:description" content="Lista aggiornata dei judge VEKN italiani — VTES Italia." />
+    <meta property="og:image" content="https://judge.vtesitaly.com/assets/vtes.svg" />
+    <meta property="og:locale" content="it_IT" />
+    <link rel="icon" type="image/svg+xml" href="assets/vtes.svg" />
+    <link rel="icon" href="assets/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Judge italiani — VTES Italy Judge</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script type="module" src="assets/judges.js"></script>
+  </head>
+  <body>
+    <div class="topbar">
+      <header>
+        <h1>Judge italiani</h1>
+        <nav class="page-nav" aria-label="Sezioni del sito">
+          <a href="./">Vademecum</a>
+          <a href="./judges.html" aria-current="page">Judge IT</a>
+          <a href="./utili.html">Link utili</a>
+        </nav>
+      </header>
+    </div>
+
+    <main class="page-main">
+      <p class="page-intro">
+        Snapshot dei judge VEKN italiani, aggiornato automaticamente da
+        <a href="https://www.vekn.net/vekn-judges" rel="noopener noreferrer" target="_blank">vekn.net/vekn-judges</a>.
+        <span class="page-intro-meta" id="judges-meta"></span>
+      </p>
+
+      <div class="loading" id="judges-loading">Caricamento...</div>
+      <div class="empty" id="judges-empty" hidden>Nessun judge da mostrare.</div>
+
+      <table class="judges-table" id="judges-table" hidden>
+        <thead>
+          <tr>
+            <th scope="col" aria-sort="ascending">
+              <button type="button" class="sort-btn" data-sort="name">
+                Nome<span class="sort-ind" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th scope="col" aria-sort="none">
+              <button type="button" class="sort-btn" data-sort="rank">
+                Rank<span class="sort-ind" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th scope="col" aria-sort="none">
+              <button type="button" class="sort-btn" data-sort="vekn_id">
+                VEKN ID<span class="sort-ind" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th scope="col" aria-sort="none">
+              <button type="button" class="sort-btn" data-sort="valid_to">
+                Scadenza<span class="sort-ind" aria-hidden="true"></span>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="judges-tbody"></tbody>
+      </table>
+    </main>
+
+    <footer class="app-footer">
+      <span class="print-source" aria-hidden="true">judge.vtesitaly.com — Judge italiani</span>
+    </footer>
+  </body>
+</html>

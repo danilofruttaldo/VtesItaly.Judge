@@ -1,0 +1,63 @@
+{
+  "source": "https://www.vekn.net/vekn-judges",
+  "country": "Italy",
+  "generated_at": "2026-05-18T08:21:11Z",
+  "judges": [
+    {
+      "name": "Diego Di Nicolantonio",
+      "vekn_id": "3020124",
+      "rank": "Elder Judge",
+      "valid_from": "2025-06-26",
+      "valid_to": "2028-06-26"
+    },
+    {
+      "name": "Filippo Mengoli",
+      "vekn_id": "3020106",
+      "rank": "Elder Judge",
+      "valid_from": "2025-03-19",
+      "valid_to": "2028-03-19"
+    },
+    {
+      "name": "Alessandro Donati",
+      "vekn_id": "4740000",
+      "rank": "Ancilla Judge",
+      "valid_from": "2025-04-15",
+      "valid_to": "2028-04-15"
+    },
+    {
+      "name": "Leonardo Bensi",
+      "vekn_id": "4740014",
+      "rank": "Ancilla Judge",
+      "valid_from": "2025-09-04",
+      "valid_to": "2028-09-04"
+    },
+    {
+      "name": "Simone Zanni",
+      "vekn_id": "3020044",
+      "rank": "Ancilla Judge",
+      "valid_from": "2025-01-08",
+      "valid_to": "2028-01-08"
+    },
+    {
+      "name": "Andrea Casaccia",
+      "vekn_id": "4740044",
+      "rank": "Neonate Judge",
+      "valid_from": "2026-05-15",
+      "valid_to": "2029-05-15"
+    },
+    {
+      "name": "Danilo Fruttaldo",
+      "vekn_id": "3020062",
+      "rank": "Neonate Judge",
+      "valid_from": "2025-03-19",
+      "valid_to": "2028-03-19"
+    },
+    {
+      "name": "Simone Parmeggiani",
+      "vekn_id": "3020010",
+      "rank": "Neonate Judge",
+      "valid_from": "2025-01-10",
+      "valid_to": "2028-01-10"
+    }
+  ]
+}

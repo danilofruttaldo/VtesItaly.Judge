@@ -6,7 +6,15 @@ const SITE = "_site";
 rmSync(SITE, { recursive: true, force: true });
 mkdirSync(`${SITE}/data`, { recursive: true });
 
-for (const f of ["index.html", "manifest.webmanifest", "sw.js", "robots.txt", ".nojekyll"]) {
+for (const f of [
+  "index.html",
+  "judges.html",
+  "utili.html",
+  "manifest.webmanifest",
+  "sw.js",
+  "robots.txt",
+  ".nojekyll",
+]) {
   cpSync(f, `${SITE}/${f}`);
 }
 if (existsSync("CNAME")) cpSync("CNAME", `${SITE}/CNAME`);
@@ -18,6 +26,12 @@ if (!existsSync("data/vademecum.json")) {
   process.exit(1);
 }
 cpSync("data/vademecum.json", `${SITE}/data/vademecum.json`);
+
+if (!existsSync("data/judges.json")) {
+  console.error("stage-site: data/judges.json missing — run scripts/fetch-judges.mjs first.");
+  process.exit(1);
+}
+cpSync("data/judges.json", `${SITE}/data/judges.json`);
 
 // Sanity-check: by the time stage-site runs in CI, stamp-sw.mjs must have
 // rewritten the placeholder "v1" VERSION to a UTC timestamp. If we ship
