@@ -213,7 +213,7 @@ function ready() {
       if (payload.generated_at) {
         const d = new Date(payload.generated_at);
         if (!Number.isNaN(d.getTime())) {
-          meta.textContent = ` Aggiornato il ${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" })}.`;
+          meta.textContent = ` Lista aggiornata al ${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" })}.`;
         }
       }
     })
