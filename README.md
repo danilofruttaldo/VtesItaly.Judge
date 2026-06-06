@@ -107,7 +107,7 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 - `faq.html` + `assets/faq.js` — pagina FAQ card-centrica: per ogni carta, intestazione (nome) + immagine + testo verbatim + rulings ufficiali, e sotto un accordion di domande/risposte. Stesso shell cercabile (Ctrl+K, deep-link, offline) del vademecum
 - `data/vademecum.json` — sorgente dati vademecum
 - `data/vademecum.schema.json` — schema canonico (JSON Schema Draft-07)
-- `data/faq.json` — sorgente dati FAQ: array di gruppi `{title, faqs[]}` con opzionali `image`, `text`, `url` (vdb.im) e `rulings[]` (`{text, source, url}`)
+- `data/faq.json` — sorgente dati FAQ: array di gruppi `{title, faqs[]}` con opzionali `image`, `text`, `url` (vdb.im), `rulingsUrl` (rulings.krcg.org) e `rulings[]` (`{text, source, url}`)
 - `assets/cards/` — immagini carta servite localmente (CSP `img-src 'self'`, funzionano offline)
 - `data/faq.schema.json` — schema canonico FAQ (JSON Schema Draft-07)
 - `sw.js` + `manifest.webmanifest` — PWA. `NETWORK_TIMEOUT_MS = 12000` sulla strategia network-first: 12 s tollera qualche retransmit TCP su wifi torneo congestionato prima di fallback su cache, senza far percepire il sito "appeso" a tempo indefinito
