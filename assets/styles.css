@@ -1218,14 +1218,13 @@ span.item-ref.item-ref-unknown {
   background: color-mix(in srgb, var(--s-caution) 10%, transparent);
 }
 
-/* Stack rows visually on narrow screens — VEKN IDs and dates push the
- * 4-column layout off the side of a phone otherwise. We keep the
- * tabular structure for assistive tech (each <td> still labelled) but
- * present as definition-style blocks. */
+/* On narrow screens the 4-column table is unreadable (VEKN IDs and dates
+ * push it off the side), so each row becomes a self-contained card: name +
+ * rank on the header line, VEKN ID and expiry on a compact meta line below.
+ * The <thead> is visually hidden but kept for assistive tech, and each <td>
+ * carries its own label via ::before so the data stays self-describing. */
 @media (max-width: 559px) {
   .judges-table thead {
-    /* Hide visually but keep accessible — semantic header order is
-     * preserved for screen readers via the data-label attributes below. */
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1233,35 +1232,60 @@ span.item-ref.item-ref-unknown {
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
+  /* Drop the table's own chrome — each row carries the card chrome now. */
+  .judges-table {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+    font-size: 1rem;
+  }
   .judges-table,
-  .judges-table tbody,
-  .judges-table tbody tr,
-  .judges-table tbody td {
+  .judges-table tbody {
     display: block;
     width: 100%;
   }
   .judges-table tbody tr {
-    padding: 0.5rem 0.25rem;
-    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.6rem;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
   }
   .judges-table tbody tr:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
   }
   .judges-table tbody td {
-    padding: 0.2rem 0.5rem;
+    display: block;
+    padding: 0;
     border: none;
   }
+  /* Header line: name grows to fill, rank badge sits at the right. */
   .j-name {
+    flex: 1 1 60%;
+    min-width: 0;
     font-size: 1rem;
-    padding-bottom: 0.35rem !important;
+  }
+  .j-rank {
+    flex: 0 0 auto;
+  }
+  /* Meta line: ID and expiry wrap below, side by side, muted and labelled. */
+  .j-id,
+  .j-exp {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
   }
   .j-id::before {
-    content: "VEKN ID: ";
+    content: "VEKN ID ";
     color: var(--muted);
     font-weight: 600;
   }
   .j-exp::before {
-    content: "Scadenza: ";
+    content: "Scad. ";
     color: var(--muted);
     font-weight: 600;
   }
