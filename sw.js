@@ -15,21 +15,23 @@ const VERSION = "v1";
 const SHELL_CACHE = `shell-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 
-// `vademecum.json` is intentionally NOT precached: it's editorial data
-// that changes more often than the shell, so locking judges into the
-// install-time copy until the next SW VERSION bump risks rulings on
-// stale rules. The fetch handler below caches it network-first into
-// RUNTIME_CACHE so it's still available offline after the first load.
+// `vademecum.json` and `faq.json` are intentionally NOT precached: they're
+// editorial data that change more often than the shell, so locking judges
+// into the install-time copy until the next SW VERSION bump risks rulings on
+// stale rules. The fetch handler below caches them network-first into
+// RUNTIME_CACHE so they're still available offline after the first load.
 const SHELL_FILES = [
   "./",
   "./index.html",
   "./judges.html",
+  "./faq.html",
   "./utili.html",
   "./manifest.webmanifest",
   "./assets/styles.css",
   "./assets/app.js",
   "./assets/core.mjs",
   "./assets/judges.js",
+  "./assets/faq.js",
   "./assets/vtes.svg",
   "./assets/favicon.ico",
   "./assets/apple-touch-icon.png",
@@ -110,7 +112,10 @@ sw.addEventListener("fetch", (e) => {
 
   const isHtml = req.mode === "navigate" || req.destination === "document";
   const isCode = req.destination === "script" || req.destination === "style";
-  const isData = url.pathname.endsWith("/vademecum.json") || url.pathname.endsWith("/judges.json");
+  const isData =
+    url.pathname.endsWith("/vademecum.json") ||
+    url.pathname.endsWith("/judges.json") ||
+    url.pathname.endsWith("/faq.json");
 
   if (isHtml || isCode || isData) {
     e.respondWith(networkFirst(req, isHtml));

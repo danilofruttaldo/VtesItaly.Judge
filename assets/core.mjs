@@ -644,3 +644,216 @@ export function validateData(data) {
   });
   return { entries, issues };
 }
+
+/* ---------- FAQ ---------- *
+ * The FAQ page is card-centric: the payload is an array of GROUPS, one per
+ * card (or per rules topic). Each group renders as a header (the card name),
+ * optional card image + verbatim card text + official rulings, and below an
+ * accordion of question/answer pairs (`faqs`). The data model has its own
+ * tiny schema + helpers here, mirroring data/faq.schema.json — keep the two
+ * in sync (tests/data.test.mjs gates the real data against this).
+ */
+
+/**
+ * @typedef {{ text: string, source: string, url: string }} FaqRuling
+ * @typedef {{ question: string, answer: string }} FaqQA
+ * @typedef {{ title?: string, image?: string, text?: string, url?: string, rulingsUrl?: string, rulings?: FaqRuling[], faqs?: FaqQA[] }} FaqGroup
+ */
+
+/* A group requires `title` (the card/topic name, shown as the header) and a
+ * non-empty `faqs` array. Card-specific extras are optional:
+ *   image    local path (./assets/cards/...) or https URL of the card art
+ *   text     verbatim card text
+ *   url      link to the card on vdb.im
+ *   rulings  official rulings, each {text, source, url}, so a judge can quote
+ *            the verbatim ruling and link the authoritative source.
+ * Strings, when present, must be non-empty; `url` and every ruling.url must be
+ * https, and `image` must be a relative path or https — they all land in an
+ * href/src, so no javascript:/data: schemes slip through. */
+const FAQ_GROUP_REQUIRED_KEYS = ["title", "faqs"];
+const FAQ_GROUP_OPTIONAL_KEYS = ["image", "text", "url", "rulingsUrl", "rulings"];
+const FAQ_GROUP_KEYS = [...FAQ_GROUP_REQUIRED_KEYS, ...FAQ_GROUP_OPTIONAL_KEYS];
+const FAQ_QA_KEYS = ["question", "answer"];
+const FAQ_RULING_KEYS = ["text", "source", "url"];
+
+/** @param {unknown} v */
+function isHttpsUrl(v) {
+  return typeof v === "string" && /^https:\/\//.test(v);
+}
+
+/** @param {unknown} v */
+function isLocalOrHttps(v) {
+  return typeof v === "string" && /^(\.?\/|https:\/\/)/.test(v);
+}
+
+/**
+ * Validate a single ruling object inside a FAQ group.
+ * @param {unknown} ruling
+ * @param {number} index
+ * @returns {string[]}
+ */
+function validateFaqRuling(ruling, index) {
+  const errors = [];
+  if (ruling === null || typeof ruling !== "object" || Array.isArray(ruling)) {
+    return [`rulings[${index}] is not an object`];
+  }
+  const r = /** @type {Record<string, unknown>} */ (ruling);
+  for (const k of FAQ_RULING_KEYS) {
+    if (!(k in r)) errors.push(`rulings[${index}] missing field: ${k}`);
+    else if (typeof r[k] !== "string") errors.push(`rulings[${index}] field "${k}" is not a string`);
+    else if (r[k].trim() === "") errors.push(`rulings[${index}] field "${k}" is empty`);
+  }
+  if (typeof r.url === "string" && r.url.trim() !== "" && !isHttpsUrl(r.url)) {
+    errors.push(`rulings[${index}] url "${r.url}" is not an https URL`);
+  }
+  for (const k of Object.keys(r)) {
+    if (!FAQ_RULING_KEYS.includes(k)) errors.push(`rulings[${index}] unknown field: ${k}`);
+  }
+  return errors;
+}
+
+/**
+ * Validate a single question/answer object inside a FAQ group.
+ * @param {unknown} qa
+ * @param {number} index
+ * @returns {string[]}
+ */
+function validateFaqQA(qa, index) {
+  const errors = [];
+  if (qa === null || typeof qa !== "object" || Array.isArray(qa)) {
+    return [`faqs[${index}] is not an object`];
+  }
+  const q = /** @type {Record<string, unknown>} */ (qa);
+  for (const k of FAQ_QA_KEYS) {
+    if (!(k in q)) errors.push(`faqs[${index}] missing field: ${k}`);
+    else if (typeof q[k] !== "string") errors.push(`faqs[${index}] field "${k}" is not a string`);
+    else if (q[k].trim() === "") errors.push(`faqs[${index}] field "${k}" is empty`);
+  }
+  for (const k of Object.keys(q)) {
+    if (!FAQ_QA_KEYS.includes(k)) errors.push(`faqs[${index}] unknown field: ${k}`);
+  }
+  return errors;
+}
+
+/**
+ * Validate a single FAQ group (a card or topic with its question list).
+ * @param {unknown} group
+ * @returns {{ ok: boolean, errors: string[] }}
+ */
+export function validateFaqGroup(group) {
+  const errors = [];
+  if (group === null || typeof group !== "object" || Array.isArray(group)) {
+    return { ok: false, errors: ["group is not an object"] };
+  }
+  const g = /** @type {Record<string, unknown>} */ (group);
+
+  if (!("title" in g)) errors.push("missing field: title");
+  else if (typeof g.title !== "string") errors.push(`field "title" is not a string`);
+  else if (g.title.trim() === "") errors.push("title is empty");
+
+  if (!("faqs" in g)) errors.push("missing field: faqs");
+  else if (!Array.isArray(g.faqs)) errors.push(`field "faqs" is not an array`);
+  else if (g.faqs.length === 0) errors.push("faqs is empty");
+  else g.faqs.forEach((qa, i) => errors.push(...validateFaqQA(qa, i)));
+
+  for (const k of ["image", "text"]) {
+    if (!(k in g)) continue;
+    if (typeof g[k] !== "string") errors.push(`field "${k}" is not a string`);
+    else if (g[k].trim() === "") errors.push(`field "${k}" is empty`);
+  }
+  if ("image" in g && typeof g.image === "string" && g.image.trim() !== "" && !isLocalOrHttps(g.image)) {
+    errors.push(`image "${g.image}" must be a relative path or https URL`);
+  }
+  for (const k of ["url", "rulingsUrl"]) {
+    if (!(k in g)) continue;
+    if (typeof g[k] !== "string") errors.push(`field "${k}" is not a string`);
+    else if (g[k].trim() === "") errors.push(`field "${k}" is empty`);
+    else if (!isHttpsUrl(g[k])) errors.push(`${k} "${g[k]}" is not an https URL`);
+  }
+  if ("rulings" in g) {
+    if (!Array.isArray(g.rulings)) errors.push(`field "rulings" is not an array`);
+    else g.rulings.forEach((r, i) => errors.push(...validateFaqRuling(r, i)));
+  }
+  for (const k of Object.keys(g)) {
+    if (!FAQ_GROUP_KEYS.includes(k)) errors.push(`unknown field: ${k}`);
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Validate the whole FAQ payload (must be an array of groups). Same
+ * drop-don't-coerce contract as validateData: invalid groups are reported as
+ * issues and excluded so a single bad group can't blank the page.
+ * @param {unknown} data
+ * @returns {{ groups: FaqGroup[], issues: { index: number, errors: string[] }[] }}
+ */
+export function validateFaqData(data) {
+  if (!Array.isArray(data)) {
+    return { groups: [], issues: [{ index: -1, errors: ["payload is not an array"] }] };
+  }
+  /** @type {FaqGroup[]} */
+  const groups = [];
+  /** @type {{ index: number, errors: string[] }[]} */
+  const issues = [];
+  data.forEach((group, index) => {
+    const { ok, errors } = validateFaqGroup(group);
+    if (ok) groups.push(/** @type {FaqGroup} */ (group));
+    else issues.push({ index, errors });
+  });
+  return { groups, issues };
+}
+
+/**
+ * Stable, URL-safe slug for a single FAQ question within its group, derived
+ * from the group title + the question text. Used as the DOM id of each Q&A
+ * accordion so location.hash can deep-link to a specific question.
+ * (title, question) uniqueness is gated by data.test.mjs.
+ * @param {string | undefined} title
+ * @param {string | undefined} question
+ * @returns {string}
+ */
+export function faqSlug(title, question) {
+  const base = `${title || ""} ${question || ""}`;
+  return (
+    norm(base)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "faq"
+  );
+}
+
+/**
+ * Returns true when the group matches the search query against the card name,
+ * card text, any ruling (text/source) or any of its questions/answers. Empty
+ * query matches everything. A matched group is shown whole (all its faqs).
+ * @param {FaqGroup} group
+ * @param {string | null | undefined} query
+ * @returns {boolean}
+ */
+export function matchFaqGroup(group, query) {
+  const q = norm(query);
+  if (!q) return true;
+  /** @type {string[]} */
+  const parts = [group.title || "", group.text || ""];
+  for (const r of group.rulings || []) parts.push(r.text || "", r.source || "");
+  for (const qa of group.faqs || []) parts.push(qa.question || "", qa.answer || "");
+  return parts.map(norm).join(" \n ").includes(q);
+}
+
+/**
+ * @param {FaqGroup[]} groups
+ * @param {string | null | undefined} query
+ * @returns {FaqGroup[]}
+ */
+export function computeFilteredFaq(groups, query) {
+  return groups.filter((g) => matchFaqGroup(g, query));
+}
+
+/**
+ * Total number of questions across all groups (used for the "N voci" count).
+ * @param {FaqGroup[]} groups
+ * @returns {number}
+ */
+export function countFaqs(groups) {
+  return groups.reduce((n, g) => n + (Array.isArray(g.faqs) ? g.faqs.length : 0), 0);
+}

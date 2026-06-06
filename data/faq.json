@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Magic of the Smith",
+    "image": "./assets/cards/magic-of-the-smith.jpg",
+    "text": "+1 stealth action.\n[tha] Search your library for an equipment card and equip this vampire with it (requirements and cost apply as normal; shuffle afterward).\n[THA] As above, but this is a +3 stealth action.",
+    "url": "https://vdb.im/cards/101143",
+    "rulingsUrl": "https://rulings.krcg.org/index.html?uid=101143",
+    "rulings": [
+      {
+        "text": "L'equipaggiamento non va dichiarato: viene scelto al momento della risoluzione.",
+        "source": "RBK",
+        "url": "https://www.vekn.net/rulebook#search"
+      },
+      {
+        "text": "Può recuperare anche un equipaggiamento che, una volta in gioco, è una location.",
+        "source": "LSJ 1997-10-01",
+        "url": "https://groups.google.com/g/rec.games.trading-cards.jyhad/c/RY_nhdykKP0/m/9boDeD_qAXAJ"
+      },
+      {
+        "text": "Non impedisce al vampiro che agisce di giocare direttamente nello stesso turno l'equipaggiamento/retainer/alleato, se si sblocca (non è la stessa azione).",
+        "source": "ANK 2018-08-17",
+        "url": "https://www.vekn.net/forum/rules-questions/76933-cock-robin-jack-of-both-sides#90064"
+      },
+      {
+        "text": "I requisiti si applicano, ma non contano come requisiti dell'azione (es. non puoi usare CrimethInc. se la carta scelta richiede un Anarch).",
+        "source": "ANK 2018-08-17",
+        "url": "https://www.vekn.net/forum/rules-questions/76933-cock-robin-jack-of-both-sides#90064"
+      },
+      {
+        "text": "Quando si sceglie una carta il cui effetto dipende dal livello di disciplina, il vampiro decide in base alle proprie discipline nel modo consueto.",
+        "source": "LSJ 2008-08-03",
+        "url": "https://groups.google.com/g/rec.games.trading-cards.jyhad/c/VgARso4nY7w/m/cAl0o7WpblAJ"
+      },
+      {
+        "text": "È un'azione del tipo appropriato alla carta scelta (recruit/employ/equip).",
+        "source": "TOM 1996-01-30",
+        "url": "https://groups.google.com/g/rec.games.trading-cards.jyhad/c/wF82VdVPlm0/m/MmFo2E7lrY8J"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Sono obbligato a prendere un equipaggiamento se l'azione va a segno?",
+        "answer": "No. Quando una carta ti fa «cercare» (search) nella libreria puoi sempre scegliere di non trovare nulla, anche se un equipaggiamento valido ci sarebbe. Avendo comunque cercato, mescoli la libreria.\nÈ diverso da Vast Wealth, che invece scorre il mazzo dall'alto e obbliga a equipaggiare la carta trovata."
+      }
+    ]
+  }
+]

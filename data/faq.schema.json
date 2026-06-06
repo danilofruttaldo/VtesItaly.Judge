@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://judge.vtesitaly.com/data/faq.schema.json",
+  "title": "VTES Italy — FAQ regolamento",
+  "description": "Sorgente canonica delle FAQ. Array di GRUPPI, uno per carta (o argomento di regolamento). Ogni gruppo rende un'intestazione (nome della carta), immagine/testo/rulings opzionali e, sotto, un accordion di domande/risposte.",
+  "type": "array",
+  "items": { "$ref": "#/definitions/group" },
+  "definitions": {
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "faqs"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nome della carta (o argomento) su cui gravano le domande. Mostrato come intestazione del gruppo."
+        },
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(\\.?/|https://)",
+          "description": "Opzionale: immagine della carta. Percorso relativo locale (es. './assets/cards/magic-of-the-smith.jpg') o URL https."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opzionale: testo verbatim della carta. Conserva gli a-capo (pre-line)."
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https://",
+          "description": "Opzionale: link alla carta su vdb.im (es. 'https://vdb.im/cards/101143'). URL https. Reso come link 'Apri su VDB'."
+        },
+        "rulingsUrl": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https://",
+          "description": "Opzionale: link alla pagina rulings su KRCG (es. 'https://rulings.krcg.org/index.html?uid=101143'). URL https. Reso come link 'Apri su KRCG'."
+        },
+        "rulings": {
+          "type": "array",
+          "description": "Opzionale: rulings ufficiali verbatim con la fonte autorevole (VEKN forum/ANK/LSJ).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "source", "url"],
+            "properties": {
+              "text": { "type": "string", "minLength": 1, "description": "Testo verbatim del ruling." },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Etichetta breve della fonte (es. 'ANK 2018-08-17', 'VEKN forum')."
+              },
+              "url": { "type": "string", "minLength": 1, "pattern": "^https://", "description": "Link https alla fonte." }
+            }
+          }
+        },
+        "faqs": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Domande/risposte del gruppo. Rese come accordion sotto le info della carta.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question", "answer"],
+            "properties": {
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "description": "La domanda, in forma diretta. Titolo della voce dell'accordion."
+              },
+              "answer": {
+                "type": "string",
+                "minLength": 1,
+                "description": "La risposta. Conserva gli a-capo (pre-line): usa '\\n' per elenchi ('- ') e paragrafi."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

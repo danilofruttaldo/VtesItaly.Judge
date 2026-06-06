@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+    />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121214" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f8" />
+    <meta
+      name="description"
+      content="FAQ regolamento VTES: domande frequenti e interazioni anomale per arbitri e giocatori, consultabili da telefono."
+    />
+    <link rel="canonical" href="https://judge.vtesitaly.com/faq" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VTES Italy Judge" />
+    <meta property="og:url" content="https://judge.vtesitaly.com/faq" />
+    <meta property="og:title" content="FAQ — VTES Italy Judge" />
+    <meta
+      property="og:description"
+      content="FAQ regolamento VTES: domande frequenti e interazioni anomale per arbitri e giocatori, consultabili da telefono."
+    />
+    <meta property="og:image" content="https://judge.vtesitaly.com/assets/vtes.svg" />
+    <meta property="og:locale" content="it_IT" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="FAQ — VTES Italy Judge" />
+    <meta
+      name="twitter:description"
+      content="FAQ regolamento VTES: domande frequenti e interazioni anomale per arbitri e giocatori, consultabili da telefono."
+    />
+    <meta name="twitter:image" content="https://judge.vtesitaly.com/assets/vtes.svg" />
+    <link rel="icon" type="image/svg+xml" href="assets/vtes.svg" />
+    <link rel="icon" href="assets/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>FAQ — VTES Italy Judge</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script type="module" src="assets/faq.js"></script>
+  </head>
+  <body>
+    <a href="#content" class="skip">Vai alle FAQ</a>
+
+    <div class="topbar" id="topbar">
+      <header>
+        <h1>FAQ</h1>
+        <nav class="page-nav" aria-label="Sezioni del sito">
+          <a href="./">Vademecum</a>
+          <a href="./judges.html">Judge IT</a>
+          <a href="./faq.html" aria-current="page">FAQ</a>
+          <a href="./utili.html">Link utili</a>
+        </nav>
+      </header>
+
+      <div class="controls" role="search">
+        <input
+          type="search"
+          id="q"
+          placeholder="Cerca una domanda, una carta, un'interazione... (Ctrl+K)"
+          autocomplete="off"
+          aria-label="Cerca nelle FAQ (scorciatoia: Ctrl+K)"
+          aria-keyshortcuts="Control+K"
+          enterkeyhint="search"
+        />
+        <div class="meta-row">
+          <span class="count" id="count" aria-live="polite"></span>
+          <button class="reset" id="reset" type="button" hidden>Azzera</button>
+        </div>
+      </div>
+    </div>
+
+    <main id="content">
+      <noscript>
+        <div class="empty">Questa pagina richiede JavaScript per filtrare le FAQ.</div>
+      </noscript>
+      <div id="list" class="list"></div>
+      <div class="empty" id="empty" role="status" aria-live="polite" hidden>
+        <div id="empty-msg">Nessuna FAQ corrisponde ai filtri.</div>
+        <div class="empty-actions" id="empty-actions">
+          <button class="reset-empty" id="empty-reset" type="button">Azzera filtri</button>
+        </div>
+      </div>
+      <div class="loading" id="loading">Caricamento...</div>
+    </main>
+
+    <footer class="app-footer">
+      <span class="offline" id="offline" role="status" aria-live="polite" hidden>
+        <span class="offline-dot" aria-hidden="true"></span>
+        Offline — stai consultando i dati salvati localmente
+      </span>
+      <span class="sw-update" id="sw-update" hidden>
+        <button class="sw-update-btn" id="sw-update-btn" type="button">Aggiornamento disponibile — ricarica</button>
+      </span>
+      <span class="print-source" aria-hidden="true">judge.vtesitaly.com — FAQ</span>
+    </footer>
+  </body>
+</html>

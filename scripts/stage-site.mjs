@@ -9,6 +9,7 @@ mkdirSync(`${SITE}/data`, { recursive: true });
 for (const f of [
   "index.html",
   "judges.html",
+  "faq.html",
   "utili.html",
   "manifest.webmanifest",
   "sw.js",
@@ -32,6 +33,12 @@ if (!existsSync("data/judges.json")) {
   process.exit(1);
 }
 cpSync("data/judges.json", `${SITE}/data/judges.json`);
+
+if (!existsSync("data/faq.json")) {
+  console.error("stage-site: data/faq.json missing — this is the canonical source, restore it.");
+  process.exit(1);
+}
+cpSync("data/faq.json", `${SITE}/data/faq.json`);
 
 // Sanity-check: by the time stage-site runs in CI, stamp-sw.mjs must have
 // rewritten the placeholder "v1" VERSION to a UTC timestamp. If we ship

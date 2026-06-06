@@ -9,12 +9,13 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { itemSlug, validateData } from "../assets/core.mjs";
+import { faqSlug, itemSlug, validateData, validateFaqData, countFaqs } from "../assets/core.mjs";
 import { parseJudges } from "../scripts/fetch-judges.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RAW = readFileSync(resolve(ROOT, "data/vademecum.json"), "utf8");
 const RAW_JUDGES = readFileSync(resolve(ROOT, "data/judges.json"), "utf8");
+const RAW_FAQ = readFileSync(resolve(ROOT, "data/faq.json"), "utf8");
 
 test("data/vademecum.json is valid JSON", () => {
   assert.doesNotThrow(() => JSON.parse(RAW));
@@ -51,6 +52,60 @@ test("data/vademecum.json has at least one entry per declared category-infractio
       `Duplicate (category, infraction) pairs:\n` +
         dups.map((d) => `  rows ${d.first} & ${d.second}: ${JSON.stringify(d.key.split("\n"))}`).join("\n"),
     );
+  }
+});
+
+test("data/faq.json is valid JSON", () => {
+  assert.doesNotThrow(() => JSON.parse(RAW_FAQ));
+});
+
+test("data/faq.json conforms to the FAQ group schema", () => {
+  const data = JSON.parse(RAW_FAQ);
+  const { groups, issues } = validateFaqData(data);
+  if (issues.length > 0) {
+    const summary = issues
+      .map((i) => `  [${i.index}] ${i.errors.join("; ")}`)
+      .slice(0, 10)
+      .join("\n");
+    assert.fail(`data/faq.json has ${issues.length} invalid group${issues.length === 1 ? "" : "s"}:\n${summary}`);
+  }
+  assert.equal(groups.length, data.length);
+  assert.ok(countFaqs(groups) > 0, "at least one question across all groups");
+});
+
+test("data/faq.json has no duplicate (title, question) pairs across groups", () => {
+  const data = JSON.parse(RAW_FAQ);
+  /** @type {Map<string, string>} */
+  const seen = new Map();
+  /** @type {string[]} */
+  const dups = [];
+  data.forEach((/** @type {{ title: string, faqs: { question: string }[] }} */ g) => {
+    (g.faqs || []).forEach((qa) => {
+      const key = `${g.title}\n${qa.question}`;
+      if (seen.has(key)) dups.push(JSON.stringify([g.title, qa.question]));
+      else seen.set(key, g.title);
+    });
+  });
+  if (dups.length) {
+    assert.fail(`Duplicate (title, question) pairs:\n  ${dups.join("\n  ")}`);
+  }
+});
+
+test("data/faq.json yields unique faqSlug values across all questions (deep-link safety)", () => {
+  const data = JSON.parse(RAW_FAQ);
+  /** @type {Map<string, string>} */
+  const bySlug = new Map();
+  /** @type {string[]} */
+  const dups = [];
+  data.forEach((/** @type {{ title: string, faqs: { question: string }[] }} */ g) => {
+    (g.faqs || []).forEach((qa) => {
+      const slug = faqSlug(g.title, qa.question);
+      if (bySlug.has(slug)) dups.push(`${slug} (${g.title} / ${qa.question})`);
+      else bySlug.set(slug, g.title);
+    });
+  });
+  if (dups.length) {
+    assert.fail(`Duplicate faqSlug values:\n  ${dups.join("\n  ")}`);
   }
 });
 

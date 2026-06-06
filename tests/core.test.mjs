@@ -21,6 +21,12 @@ import {
   renderRuleHtml,
   validateEntry,
   validateData,
+  validateFaqGroup,
+  validateFaqData,
+  faqSlug,
+  matchFaqGroup,
+  computeFilteredFaq,
+  countFaqs,
 } from "../assets/core.mjs";
 
 test("norm lowercases and strips diacritics", () => {
@@ -593,4 +599,140 @@ test("itemSlug derives a stable url-safe identifier", () => {
   assert.equal(b, "errori-utilizzo-carte-errore-nell-utilizzo-dell-effetto");
   // Empty-ish input falls back to a non-empty slug
   assert.equal(itemSlug({}), "item");
+});
+
+/* ---------- FAQ helpers (card-centric model) ---------- */
+
+const FAQ_GROUP = {
+  title: "Magic of the Smith",
+  faqs: [{ question: "Conta come equip?", answer: "No." }],
+};
+
+test("validateFaqGroup accepts a minimal well-formed group", () => {
+  const r = validateFaqGroup(FAQ_GROUP);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.errors, []);
+});
+
+test("validateFaqGroup requires a non-empty title and at least one faq", () => {
+  assert.equal(validateFaqGroup({ title: "", faqs: [{ question: "Q", answer: "A" }] }).ok, false);
+  assert.equal(validateFaqGroup({ title: "X" }).ok, false, "missing faqs");
+  assert.equal(validateFaqGroup({ title: "X", faqs: [] }).ok, false, "empty faqs");
+  // Each faq needs a non-empty question and answer
+  const badQa = validateFaqGroup({ title: "X", faqs: [{ question: "Q", answer: "" }] });
+  assert.equal(badQa.ok, false);
+  assert.ok(badQa.errors.some((e) => /faqs\[0\] field "answer" is empty/.test(e)));
+  // Unknown faq field flagged
+  const extraQa = validateFaqGroup({ title: "X", faqs: [{ question: "Q", answer: "A", note: "n" }] });
+  assert.ok(extraQa.errors.some((e) => /faqs\[0\] unknown field: note/.test(e)));
+  // Non-object
+  assert.equal(validateFaqGroup("nope").ok, false);
+  assert.equal(validateFaqGroup(null).ok, false);
+  assert.equal(validateFaqGroup(["a"]).ok, false);
+  // Unknown group field flagged
+  assert.ok(validateFaqGroup({ ...FAQ_GROUP, category: "x" }).errors.some((e) => /unknown field: category/.test(e)));
+});
+
+test("validateFaqGroup validates optional image/text/url and the URL schemes", () => {
+  // Local image path + https url + card text all accepted
+  assert.equal(
+    validateFaqGroup({
+      ...FAQ_GROUP,
+      image: "./assets/cards/magic-of-the-smith.jpg",
+      text: "+1 stealth action.",
+      url: "https://vdb.im/cards/101143",
+    }).ok,
+    true,
+  );
+  // https image also accepted
+  assert.equal(validateFaqGroup({ ...FAQ_GROUP, image: "https://static.krcg.org/card/x.jpg" }).ok, true);
+  // image with a foreign scheme rejected (lands in src)
+  const badImg = validateFaqGroup({ ...FAQ_GROUP, image: "javascript:alert(1)" });
+  assert.equal(badImg.ok, false);
+  assert.ok(badImg.errors.some((e) => /image .* must be a relative path or https/.test(e)));
+  // non-https vdb url rejected
+  const badUrl = validateFaqGroup({ ...FAQ_GROUP, url: "http://vdb.im/x" });
+  assert.equal(badUrl.ok, false);
+  assert.ok(badUrl.errors.some((e) => /url .* is not an https URL/.test(e)));
+  // optional rulingsUrl (KRCG) accepted when https, rejected otherwise
+  assert.equal(validateFaqGroup({ ...FAQ_GROUP, rulingsUrl: "https://rulings.krcg.org/index.html?uid=1" }).ok, true);
+  const badRulingsUrl = validateFaqGroup({ ...FAQ_GROUP, rulingsUrl: "http://x" });
+  assert.equal(badRulingsUrl.ok, false);
+  assert.ok(badRulingsUrl.errors.some((e) => /rulingsUrl .* is not an https URL/.test(e)));
+});
+
+test("validateFaqGroup validates the optional rulings array", () => {
+  assert.equal(
+    validateFaqGroup({
+      ...FAQ_GROUP,
+      rulings: [{ text: "Chosen upon resolution.", source: "VEKN forum", url: "https://vekn.net/x" }],
+    }).ok,
+    true,
+  );
+  assert.equal(validateFaqGroup({ ...FAQ_GROUP, rulings: "nope" }).ok, false);
+  const missing = validateFaqGroup({ ...FAQ_GROUP, rulings: [{ text: "t", source: "s" }] });
+  assert.ok(missing.errors.some((e) => /rulings\[0\] missing field: url/.test(e)));
+  const badUrl = validateFaqGroup({ ...FAQ_GROUP, rulings: [{ text: "t", source: "s", url: "http://x" }] });
+  assert.ok(badUrl.errors.some((e) => /rulings\[0\] url .* is not an https URL/.test(e)));
+  const extra = validateFaqGroup({ ...FAQ_GROUP, rulings: [{ text: "t", source: "s", url: "https://x", note: "n" }] });
+  assert.ok(extra.errors.some((e) => /rulings\[0\] unknown field: note/.test(e)));
+});
+
+test("validateFaqData drops invalid groups and reports their indices", () => {
+  const { groups, issues } = validateFaqData([
+    { title: "A", faqs: [{ question: "Q1", answer: "A1" }] },
+    { title: "", faqs: [{ question: "Q2", answer: "A2" }] },
+    "not an object",
+  ]);
+  assert.equal(groups.length, 1);
+  assert.equal(issues.length, 2);
+  assert.deepEqual(
+    issues.map((i) => i.index),
+    [1, 2],
+  );
+});
+
+test("validateFaqData rejects a non-array payload", () => {
+  const r = validateFaqData({ faq: [] });
+  assert.equal(r.groups.length, 0);
+  assert.equal(r.issues.length, 1);
+  assert.equal(r.issues[0].index, -1);
+});
+
+test("faqSlug derives a stable url-safe identifier from title + question", () => {
+  const s = faqSlug("Magic of the Smith", "Conta come una normale azione di equip?");
+  assert.equal(s, "magic-of-the-smith-conta-come-una-normale-azione-di-equip");
+  assert.equal(faqSlug("", ""), "faq");
+});
+
+test("matchFaqGroup matches title, card text, rulings and faqs accent-insensitively", () => {
+  const g = {
+    title: "Magic of the Smith",
+    text: "Search your library for an equipment card.",
+    rulings: [{ text: "Chosen upon resolution.", source: "VEKN forum", url: "https://vekn.net/x" }],
+    faqs: [{ question: "È un equip normale?", answer: "No, è un'azione distinta." }],
+  };
+  assert.equal(matchFaqGroup(g, ""), true, "empty query matches everything");
+  assert.equal(matchFaqGroup(g, "smith"), true, "matches title");
+  assert.equal(matchFaqGroup(g, "equipment"), true, "matches card text");
+  assert.equal(matchFaqGroup(g, "resolution"), true, "matches ruling");
+  assert.equal(matchFaqGroup(g, "distinta"), true, "matches answer");
+  assert.equal(matchFaqGroup(g, "diablerie"), false, "no false positive");
+});
+
+test("computeFilteredFaq filters groups and countFaqs sums questions", () => {
+  const groups = [
+    {
+      title: "Magic of the Smith",
+      faqs: [
+        { question: "q1", answer: "a1" },
+        { question: "q2", answer: "a2" },
+      ],
+    },
+    { title: "Torpor", faqs: [{ question: "Può bloccare?", answer: "No." }] },
+  ];
+  assert.equal(computeFilteredFaq(groups, "").length, 2);
+  assert.equal(computeFilteredFaq(groups, "torpor").length, 1);
+  assert.equal(countFaqs(groups), 3);
+  assert.equal(countFaqs(computeFilteredFaq(groups, "smith")), 2);
 });
