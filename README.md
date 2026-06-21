@@ -14,16 +14,15 @@ npm run typecheck   # tsc --checkJs su core/app/sw + scripts/tests
 npm run format      # prettier --write .
 ```
 
-Per servire localmente, in VS Code premi **F5** ("Sito locale (dev)"): avvia il
-dev server in silenzio (log nella Debug Console, nessun terminale) e apre il
-browser predefinito; salvando un file la pagina si ricarica. Il profilo è in
-`.vscode/launch.json` (locale, git-ignored).
-
-Da terminale:
+Per servire localmente:
 
 ```bash
-npm run dev         # @web/dev-server su http://localhost:8766 (watch + live-reload)
+npm run dev         # @web/dev-server su http://localhost:8766 (watch + live-reload + apre il browser)
 ```
+
+Salvando un file la pagina si ricarica. Nel workspace condiviso
+`vtesItaly.code-workspace` il profilo **Tutti i siti (dev)** (F5) avvia insieme
+Draft + Site + Judge, ognuno nella sua Debug Console.
 
 ### Pre-commit hook
 
