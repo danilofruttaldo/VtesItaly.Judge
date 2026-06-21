@@ -12,6 +12,7 @@
   },
   "homepage": "https://judge.vtesitaly.com",
   "scripts": {
+    "dev": "wds --watch --port 8766",
     "test": "node scripts/run-tests.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint . --max-warnings=0",
@@ -24,6 +25,7 @@
     "@eslint/js": "^10.0.1",
     "@types/jsdom": "^28.0.3",
     "@types/node": "^25.9.1",
+    "@web/dev-server": "^0.4.6",
     "axe-core": "^4.11.4",
     "esbuild": "^0.28.0",
     "eslint": "^10.4.0",

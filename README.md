@@ -14,14 +14,16 @@ npm run typecheck   # tsc --checkJs su core/app/sw + scripts/tests
 npm run format      # prettier --write .
 ```
 
-Per servire localmente:
+Per servire localmente, in VS Code premi **F5** ("Sito locale (dev)"): avvia il
+dev server in silenzio (log nella Debug Console, nessun terminale) e apre il
+browser predefinito; salvando un file la pagina si ricarica. Il profilo è in
+`.vscode/launch.json` (locale, git-ignored).
+
+Da terminale:
 
 ```bash
-./dev.sh            # macOS / Linux / Git Bash — http://localhost:8766
-./dev.ps1           # Windows PowerShell, con menu start/stop/restart
+npm run dev         # @web/dev-server su http://localhost:8766 (watch + live-reload)
 ```
-
-Entrambi servono la cartella corrente con `python3 -m http.server` (richiesto Python 3).
 
 ### Pre-commit hook
 

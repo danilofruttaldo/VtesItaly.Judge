@@ -4,6 +4,9 @@ Thumbs.db
 # Local dev staging
 _site/
 
+# Editor (local F5 dev profile — not shared)
+.vscode/
+
 # Node tooling (lint/format/test only — the site itself has no JS deps)
 node_modules/
 npm-debug.log*
