@@ -20,6 +20,10 @@ Per servire localmente:
 npm run dev         # @web/dev-server su http://localhost:8766 (watch + live-reload + apre il browser)
 ```
 
+⚠️ **`engines` chiede Node >=22, e il vecchio tetto `<24` è caduto.** Il floor sale perché lo pretende `@web/dev-server` 1.0; il tetto lo aveva messo un commit del 2026-05-18 senza spiegare da cosa proteggesse, e il 2026-08-15 i fatti lo smentiscono: su Node 24 passano `typecheck`, `lint`, `format:check` e `npm test`, e il dev server serve le pagine (200 su `index.html` e `judges.html`). ⚠️ Il dev server **non lo copre nessun gate** — non essendo in CI, va provato a mano dopo ogni suo aggiornamento, altrimenti si rompe e ce ne si accorge alla prima sessione di lavoro.
+
+⚠️ Qui `typescript` sta sulla **7.x**, a differenza dei repo Astro (`vtesItaly.Site`, `danilofruttaldo.Site`, `Wow.Manager`) che restano bloccati alla 6: quelli passano da `astro check`, che con il compilatore nativo in Go non parte. Questo chiama `tsc` diretto, quindi il vincolo non lo tocca. Verificato che il typecheck sia vivo e non solo verde, iniettando due errori (`TS2345` su un argomento sbagliato e `TS18047` su un null): li becca entrambi.
+
 Salvando un file la pagina si ricarica. Nel workspace condiviso
 `vtesItaly.code-workspace` il profilo **Tutti i siti (dev)** (F5) avvia insieme
 Draft + Site + Judge, ognuno nella sua Debug Console.
