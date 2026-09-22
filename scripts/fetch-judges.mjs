@@ -2,10 +2,13 @@
  * writes a normalised snapshot to data/judges.json.
  *
  * Designed to be safe to run unattended in CI on a cron:
- *   - Network errors, non-200 responses, or zero parsed Italian rows exit
- *     non-zero WITHOUT touching data/judges.json. The workflow only commits
- *     on a clean diff, so a transient failure leaves the previous snapshot
- *     in place — judges continue to see the last good list.
+ *   - Network errors and 5xx responses are VEKN-side outages: they emit a
+ *     GitHub Actions warning and exit 0 WITHOUT touching data/judges.json,
+ *     so the next cron tick simply retries.
+ *   - 4xx responses or zero parsed Italian rows point at a moved page or
+ *     changed markup: those exit non-zero, again without touching the file.
+ *     Either way the previous snapshot stays in place — judges continue to
+ *     see the last good list.
  *   - Output is sorted deterministically (rank tier → name) so the JSON
  *     diff is meaningful (a real list change), not row reshuffling noise.
  *
@@ -107,13 +110,28 @@ function sortJudges(rows) {
   return [...rows].sort((a, b) => rankTier(a.rank) - rankTier(b.rank) || coll.compare(a.name, b.name));
 }
 
+/** Upstream outage: not actionable on our side, so warn and leave the
+ *  snapshot untouched instead of failing the job.
+ *  @param {string} reason */
+function skipOutage(reason) {
+  console.log(`::warning title=vekn.net unavailable::${reason} — keeping the previous snapshot.`);
+}
+
 async function main() {
-  const res = await fetch(SOURCE_URL, {
-    headers: {
-      "User-Agent": "vtes-italy-judge-refresh/1.0 (+https://judge.vtesitaly.com)",
-      Accept: "text/html",
-    },
-  });
+  let res;
+  try {
+    res = await fetch(SOURCE_URL, {
+      headers: {
+        "User-Agent": "vtes-italy-judge-refresh/1.0 (+https://judge.vtesitaly.com)",
+        Accept: "text/html",
+      },
+    });
+  } catch (err) {
+    return skipOutage(`fetch-judges: ${SOURCE_URL} unreachable (${err instanceof Error ? err.message : err})`);
+  }
+  if (res.status >= 500) {
+    return skipOutage(`fetch-judges: ${SOURCE_URL} returned HTTP ${res.status}`);
+  }
   if (!res.ok) {
     console.error(`fetch-judges: ${SOURCE_URL} returned HTTP ${res.status}`);
     process.exit(1);

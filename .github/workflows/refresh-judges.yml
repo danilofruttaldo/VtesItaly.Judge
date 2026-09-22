@@ -3,10 +3,11 @@ name: refresh-judges
 # Daily scrape of https://www.vekn.net/vekn-judges → data/judges.json.
 # Commits + pushes only if the parsed list differs from what's checked
 # in. The push triggers the standard CI workflow on `main`, which
-# redeploys judge.vtesitaly.com automatically. If vekn.net is down or
-# changed its markup, scripts/fetch-judges.mjs exits non-zero and the
-# job fails without touching the repo — the previous snapshot keeps
-# serving in production.
+# redeploys judge.vtesitaly.com automatically. If vekn.net is down
+# (network error / 5xx) the job passes with a warning annotation; if it
+# changed its markup or moved the page, scripts/fetch-judges.mjs exits
+# non-zero and the job fails. Neither touches the repo — the previous
+# snapshot keeps serving in production.
 
 on:
   schedule:
