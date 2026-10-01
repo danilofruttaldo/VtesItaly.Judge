@@ -12,7 +12,7 @@
          is a known accepted limitation of the static deployment). -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+      content="default-src 'self'; img-src 'self' https://stats.vtesitaly.com; style-src 'self'; script-src 'self' https://stats.vtesitaly.com; connect-src 'self' https://stats.vtesitaly.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
     />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121214" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f8" />
@@ -52,6 +52,7 @@
     <title>VTES Italy Judge — Sanzioni</title>
     <link rel="stylesheet" href="assets/styles.css" />
     <script type="module" src="assets/app.js"></script>
+    <script defer src="assets/stats.js"></script>
   </head>
   <body>
     <a href="#content" class="skip">Vai alle sanzioni</a>
