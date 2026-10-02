@@ -1023,6 +1023,10 @@ span.item-ref.item-ref-unknown {
   display: none;
 }
 
+.privacy-link {
+  color: var(--muted);
+}
+
 .sw-update-btn {
   font: inherit;
   font-size: 0.78rem;
@@ -1624,6 +1628,9 @@ span.item-ref.item-ref-unknown {
   .updated {
     display: inline-block !important;
     font-size: 0.75rem;
+  }
+  .privacy-link {
+    display: none;
   }
   .print-source {
     display: block !important;

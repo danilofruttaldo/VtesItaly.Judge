@@ -10,6 +10,9 @@ if (location.hostname.endsWith("vtesitaly.com")) {
   const w = /** @type {Window & { _paq?: unknown[][] }} */ (window);
   const paq = (w._paq = w._paq || []);
   paq.push(["disableCookies"]);
+  // Only the opt-out cookie (set from vtesitaly.com/privacy) is ever written;
+  // sharing its domain makes the choice apply to all three sites.
+  paq.push(["setCookieDomain", "*.vtesitaly.com"]);
   paq.push(["trackPageView"]);
   paq.push(["enableLinkTracking"]);
   paq.push(["setTrackerUrl", "https://stats.vtesitaly.com/matomo.php"]);
