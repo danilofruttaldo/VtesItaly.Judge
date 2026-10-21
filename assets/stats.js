@@ -13,6 +13,8 @@ if (location.hostname.endsWith("vtesitaly.com")) {
   // Only the opt-out cookie (set from vtesitaly.com/privacy) is ever written;
   // sharing its domain makes the choice apply to all three sites.
   paq.push(["setCookieDomain", "*.vtesitaly.com"]);
+  // The privacy page promises it: a browser sending Do Not Track is not counted.
+  paq.push(["setDoNotTrack", true]);
   paq.push(["trackPageView"]);
   paq.push(["enableLinkTracking"]);
   paq.push(["setTrackerUrl", "https://stats.vtesitaly.com/matomo.php"]);
