@@ -301,8 +301,8 @@ function bindEvents() {
 
   // Online/offline indicator. navigator.onLine is unreliable (captive
   // portals, SW serving cache), so we actively probe with a cache-busting
-  // URL: the SW's network-first path falls through to a 504 when the real
-  // network is down because the unique query string never matches a cache.
+  // HEAD on the tiny robots.txt: the SW only handles GET, so the probe always
+  // hits the real network and never lands in the runtime cache.
   const PROBE_TIMEOUT_MS = 4000;
   let probeSeq = 0;
   const probeOnline = async () => {
@@ -311,8 +311,8 @@ function bindEvents() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
     try {
-      const r = await fetch(`./assets/favicon.ico?_=${Date.now()}`, {
-        method: "GET",
+      const r = await fetch(`./robots.txt?_=${Date.now()}`, {
+        method: "HEAD",
         cache: "no-store",
         signal: ctrl.signal,
       });
