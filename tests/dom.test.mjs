@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { JSDOM } from "jsdom";
+import { stampUpdated } from "../scripts/stamp-updated.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -56,7 +57,8 @@ function tick(ms = 0) {
  */
 async function bootApp(opts = {}) {
   const { fetchImpl } = opts;
-  const html = readFileSync(resolve(ROOT, "index.html"), "utf8")
+  // Stamped like stage-site.mjs does in CI.
+  const html = stampUpdated(readFileSync(resolve(ROOT, "index.html"), "utf8"), "2026-05-06T16:49:22+02:00")
     // Strip the module script tag — JSDOM's module-script support is limited
     // and we want to drive app.js from this process so we can wire mocks.
     .replace(/<script[^>]*src="assets\/app\.js"[^>]*><\/script>/, "");
@@ -84,10 +86,7 @@ async function bootApp(opts = {}) {
       return {
         ok: true,
         status: 200,
-        headers: {
-          get: (/** @type {string} */ k) =>
-            k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null,
-        },
+        headers: { get: () => null },
         async json() {
           return FIXTURE;
         },
@@ -128,6 +127,11 @@ test("DOM smoke: full user flow on a small fixture", async () => {
   const count = /** @type {HTMLElement} */ (document.getElementById("count"));
   const loading = /** @type {HTMLElement} */ (document.getElementById("loading"));
   const q = /** @type {HTMLInputElement} */ (document.getElementById("q"));
+  const updated = /** @type {HTMLElement} */ (document.getElementById("updated"));
+
+  // ---- Editorial date from the stamped datetime, not Last-Modified ----
+  assert.equal(updated.hidden, false);
+  assert.match(updated.textContent || "", /^Aggiornato: 06 mag 2026$/);
   const reset = /** @type {HTMLButtonElement} */ (document.getElementById("reset"));
 
   assert.equal(loading.hidden, true, "loading row hides after data load");

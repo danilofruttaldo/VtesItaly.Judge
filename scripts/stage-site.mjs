@@ -1,5 +1,7 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { stampUpdated } from "./stamp-updated.mjs";
 
 const SITE = "_site";
 
@@ -27,6 +29,21 @@ if (!existsSync("data/vademecum.json")) {
   process.exit(1);
 }
 cpSync("data/vademecum.json", `${SITE}/data/vademecum.json`);
+
+// A shallow clone would date every file to the single fetched commit:
+// CI checks out with fetch-depth: 0 and must not silently lose that.
+const git = (/** @type {string[]} */ ...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
+if (git("rev-parse", "--is-shallow-repository") === "true" && process.env.CI === "true") {
+  console.error("stage-site: shallow clone, the vademecum date would be wrong. Use fetch-depth: 0.");
+  process.exit(1);
+}
+const updated = git("log", "-1", "--format=%cI", "--", "data/vademecum.json");
+if (updated) {
+  const indexPath = `${SITE}/index.html`;
+  writeFileSync(indexPath, stampUpdated(readFileSync(indexPath, "utf8"), updated));
+} else {
+  console.warn("stage-site: no commit for data/vademecum.json, 'Aggiornato' stays hidden.");
+}
 
 if (!existsSync("data/judges.json")) {
   console.error("stage-site: data/judges.json missing — run scripts/fetch-judges.mjs first.");

@@ -59,10 +59,7 @@ async function bootApp() {
       return {
         ok: true,
         status: 200,
-        headers: {
-          get: (/** @type {string} */ k) =>
-            k.toLowerCase() === "last-modified" ? "Mon, 27 Apr 2026 10:00:00 GMT" : null,
-        },
+        headers: { get: () => null },
         async json() {
           return FIXTURE;
         },

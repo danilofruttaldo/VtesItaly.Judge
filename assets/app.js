@@ -539,14 +539,16 @@ function closeRuleDialog() {
   }
 }
 
-/** @param {string | null | undefined} headerValue */
-function setUpdated(headerValue) {
+/* The datetime is stamped into the staged index.html by stage-site.mjs from
+ * the last commit of vademecum.json; unstaged (local dev) it stays hidden. */
+function setUpdated() {
   if (!el.updated) return;
-  if (!headerValue) {
+  const value = el.updated.getAttribute("datetime");
+  if (!value) {
     el.updated.hidden = true;
     return;
   }
-  const d = new Date(headerValue);
+  const d = new Date(value);
   if (Number.isNaN(d.valueOf())) {
     el.updated.hidden = true;
     return;
@@ -560,7 +562,6 @@ function setUpdated(headerValue) {
     formatted = d.toISOString().slice(0, 10);
   }
   el.updated.textContent = `Aggiornato: ${formatted}`;
-  el.updated.setAttribute("datetime", d.toISOString());
   el.updated.hidden = false;
 }
 
@@ -596,7 +597,6 @@ async function init() {
       e.status = resp.status;
       throw e;
     }
-    const lastMod = resp.headers.get("last-modified");
     const data = await resp.json(); // throws SyntaxError on malformed JSON
     const { entries, issues } = validateData(data);
     if (issues.length > 0) {
@@ -613,7 +613,7 @@ async function init() {
     }
     state.items = entries;
     el.loading.hidden = true;
-    setUpdated(lastMod);
+    setUpdated();
     applyHashState();
   } catch (err) {
     console.error("vademecum load failed:", err);
