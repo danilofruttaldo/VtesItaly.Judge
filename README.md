@@ -28,17 +28,11 @@ Salvando un file la pagina si ricarica. Nel workspace condiviso
 `vtesItaly.code-workspace` il profilo **Tutti i siti (dev)** (F5) avvia insieme
 Draft + Site + Judge, ognuno nella sua Debug Console.
 
-### Pre-commit hook
+### Gate locale
 
-Una volta per clone, attiva il gate locale che esegue `format:check`, `lint`,
-`typecheck` e `npm test` prima di ogni commit:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-Il file è in [`.githooks/pre-commit`](.githooks/pre-commit). Bypass con `git commit --no-verify` solo in casi
-eccezionali — la stessa pipeline gira in CI e bloccherà il push.
+`npm run ci:verify` esegue gli stessi gate della CI (`audit`, `lint`,
+`format:check`, `typecheck`, `npm test`). Il pre-push globale lo lancia da solo
+prima di ogni push; bypass con `SKIP_VERIFY=1 git push` solo in casi eccezionali.
 
 ## Sorgente dati
 
@@ -123,7 +117,6 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
   - `dom.test.mjs` — smoke test end-to-end del vademecum via jsdom (render, eventi, hash routing, error UX)
   - `faq-dom.test.mjs` — smoke test end-to-end della pagina FAQ via jsdom (render, raggruppamento, ricerca, deep-link, error UX)
   - `a11y.test.mjs` — axe-core su DOM idratato (gate critical/serious WCAG 2.1 A/AA, escluso color-contrast che jsdom non valuta)
-- `.githooks/pre-commit` — gate locale (vedi sopra)
 - `tsconfig.json` — `checkJs` su tutto il codice JS
 
 ## Licenza
