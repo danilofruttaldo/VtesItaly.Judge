@@ -89,7 +89,7 @@ errore esplicito al posto del caricamento.
 
 CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main` (e su PR, eccetto deploy):
 
-1. **ci** — `npm audit --omit=dev --audit-level=moderate`, lint, format check, typecheck (`strict: true` in `tsconfig.json` since November 2026), test (unit + DOM + schema + a11y),
+1. **ci** — `npm audit --audit-level=high`, lint, format check, typecheck (`strict: true` in `tsconfig.json` since November 2026), test (unit + DOM + schema + a11y),
    stamp sw, stage in `_site/`, minify, budget 10MB
 2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.7) come warning. Lighthouse esegue 3 run e prende il median per assorbire la varianza single-run (~±0.05).
 3. **deploy** — pubblica `_site/` su GitHub Pages (solo su push, non su PR)
