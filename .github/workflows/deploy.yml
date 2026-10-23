@@ -51,7 +51,7 @@ jobs:
       - name: Stage site
         run: node scripts/stage-site.mjs
 
-      - name: Minify app.js / core.mjs / styles.css / sw.js in the staged copy
+      - name: Minify JS, CSS and sw.js in the staged copy
         run: npm run minify
 
       - name: Enforce artifact size budget
