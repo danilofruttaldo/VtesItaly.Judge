@@ -1,0 +1,28 @@
+name: Audit
+
+# Weekly npm audit of the whole dependency tree, in place of Dependabot:
+# updates are done by hand, this only catches a high-severity advisory
+# landing between two pushes (the deploy workflow runs the same audit).
+# A failed run sends GitHub's usual failure e-mail. GitHub disables
+# scheduled workflows after 60 days without commits: re-enable from the
+# Actions tab when its e-mail arrives.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Monday, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      # npm audit reads package-lock.json only: no install needed.
+      - run: npm audit --audit-level=high
