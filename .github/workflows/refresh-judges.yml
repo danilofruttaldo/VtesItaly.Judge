@@ -1,9 +1,9 @@
 name: refresh-judges
 
-# Daily scrape of https://www.vekn.net/vekn-judges → data/judges.json.
+# Daily scrape of the judge directory on https://www.vtesexams.com → data/judges.json.
 # Commits + pushes only if the parsed list differs from what's checked
 # in, then dispatches the CI workflow on `main`, which redeploys
-# judge.vtesitaly.com. If vekn.net is down
+# judge.vtesitaly.com. If vtesexams.com is down
 # (network error / 5xx) the job passes with a warning annotation; if it
 # changed its markup or moved the page, scripts/fetch-judges.mjs exits
 # non-zero and the job fails. Neither touches the repo — the previous
@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Scrape VEKN judges
+      - name: Scrape VEKN judges from vtesexams.com
         run: node scripts/fetch-judges.mjs
 
       - name: Commit and push if changed
@@ -58,7 +58,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/judges.json
-          git commit -m "chore(judges): refresh Italian judges list from vekn.net"
+          git commit -m "chore(judges): refresh Italian judges list from vtesexams.com"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 

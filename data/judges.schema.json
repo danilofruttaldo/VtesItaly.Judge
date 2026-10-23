@@ -10,12 +10,12 @@
     "source": {
       "type": "string",
       "format": "uri",
-      "description": "URL della pagina VEKN da cui è stato estratto lo snapshot."
+      "description": "URL della pagina da cui è stato estratto lo snapshot (directory dei judge su vtesexams.com)."
     },
     "country": {
       "type": "string",
       "minLength": 1,
-      "description": "Country tag VEKN per cui è filtrato lo snapshot."
+      "description": "Paese per cui è filtrato lo snapshot."
     },
     "generated_at": {
       "type": "string",

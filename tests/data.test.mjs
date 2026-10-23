@@ -125,28 +125,37 @@ test("data/judges.json is valid JSON with required envelope and at least one jud
   }
 });
 
-test("parseJudges() extracts rows from a representative VEKN <tr> block", () => {
-  // Synthetic snapshot — exactly the shape VEKN serves (7 <td> per row).
-  // Failing this test signals a parser regression, not a data-source change.
+test("parseJudges() reads the inline guardians array of vtesexams.com", () => {
+  // Synthetic page — the shape vtesexams.com serves: an inline JSON array
+  // feeding the map. Failing this test signals a parser regression, not a
+  // data-source change.
   const fixture = `
-    <table>
-      <tr>
-        <td>1.</td><td>Mario Rossi</td><td>1234567</td><td>Italy</td>
-        <td>Elder Judge</td><td>01/02/2024</td><td>01/02/2027</td>
-      </tr>
-      <tr>
-        <td>2.</td><td>Jean Dupont</td><td>2345678</td><td>France</td>
-        <td>Ancilla Judge</td><td>03/04/2025</td><td>03/04/2028</td>
-      </tr>
-    </table>
+    <script>
+      const toggle = document.querySelector('.menu-toggle');
+      const guardians = [{"veknNumber":"1234567","displayName":"Mario Rossi","countryCode":"IT","countryName":"Italy","cityName":"Bologna","judgeRank":"Elder","accreditedOn":"2024-02-01","validUntil":"2027-02-01","directoryOrder":"1"},{"veknNumber":"2345678","displayName":"Jean Dupont]","countryCode":"FR","countryName":"France","cityName":"París","judgeRank":"Ancilla","accreditedOn":"2025-04-03","validUntil":"2028-04-03","directoryOrder":"2"}];
+      const map = L.map('guardians-map');
+    </script>
   `;
-  const it = parseJudges(fixture, "Italy");
+  const it = parseJudges(fixture, "IT");
+  assert.ok(it, "guardians array found");
   assert.equal(it.length, 1);
-  assert.equal(it[0].name, "Mario Rossi");
-  assert.equal(it[0].vekn_id, "1234567");
-  assert.equal(it[0].rank, "Elder Judge");
-  assert.equal(it[0].valid_from, "2024-02-01");
-  assert.equal(it[0].valid_to, "2027-02-01");
+  assert.deepEqual(it[0], {
+    name: "Mario Rossi",
+    vekn_id: "1234567",
+    rank: "Elder Judge",
+    valid_from: "2024-02-01",
+    valid_to: "2027-02-01",
+  });
+  assert.equal(
+    parseJudges(fixture, "FR")?.[0].name,
+    "Jean Dupont]",
+    "an unbalanced bracket inside a string does not end the array",
+  );
+});
+
+test("parseJudges() returns null when the page has no guardians data", () => {
+  assert.equal(parseJudges("<html><body>Error: 404 Component not found.</body></html>", "IT"), null);
+  assert.equal(parseJudges("<script>const guardians = [{broken</script>", "IT"), null);
 });
 
 test("data/vademecum.json yields unique itemSlug values (deep-link safety)", () => {
