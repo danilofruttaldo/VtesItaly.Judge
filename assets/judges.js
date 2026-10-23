@@ -1,8 +1,10 @@
 /* Bootstraps the /judges page: fetches data/judges.json (network-first via
  * the service worker, falls back to the SW cache when offline) and renders
- * the table. Kept intentionally tiny — no dependency on app.js or core.mjs.
+ * the table. Kept intentionally tiny — no dependency on app.js or core.mjs,
+ * only the shared shell for the SW and its update toast.
  */
 // @ts-check
+import { registerServiceWorker } from "./shell.mjs";
 
 /** @typedef {{ name: string, vekn_id: string, rank: string, valid_from: string, valid_to: string }} Judge */
 /** @typedef {"name" | "rank" | "vekn_id" | "valid_to"} SortKey */
@@ -222,14 +224,10 @@ function ready() {
       loading.classList.add("is-error");
       console.error("judges: load failed", err);
     });
-
-  // Register the SW so /judges works offline once visited online, same
-  // as the vademecum page. Failures are not fatal — the page already
-  // works without a SW, the offline-cache is just a nice-to-have.
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
 }
+
+// Register the SW so /judges works offline once visited online.
+registerServiceWorker();
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", ready, { once: true });

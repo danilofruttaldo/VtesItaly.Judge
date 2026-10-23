@@ -28,6 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <title>Link — VTES Italy Judge</title>
     <link rel="stylesheet" href="assets/styles.css" />
+    <script type="module" src="assets/utili.js"></script>
     <script defer src="assets/stats.js"></script>
   </head>
   <body>
@@ -101,6 +102,9 @@
     </main>
 
     <footer class="app-footer">
+      <span class="sw-update" id="sw-update" hidden>
+        <button class="sw-update-btn" id="sw-update-btn" type="button">Aggiornamento disponibile — ricarica</button>
+      </span>
       <a class="privacy-link" href="https://vtesitaly.com/privacy/">Privacy e statistiche</a>
       <span class="print-source" aria-hidden="true">judge.vtesitaly.com — Link</span>
     </footer>

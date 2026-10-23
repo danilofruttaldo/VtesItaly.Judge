@@ -6,6 +6,14 @@
  * search, hash deep-linking, offline chip and SW-update toast.
  */
 import { escapeHtml, highlightHtml, computeFilteredFaq, countFaqs, faqSlug, validateFaqData } from "./core.mjs";
+import {
+  bindPrintExpand,
+  bindScrollCondense,
+  bindSearchShortcuts,
+  debounce,
+  initOfflineIndicator,
+  registerServiceWorker,
+} from "./shell.mjs";
 
 /** @typedef {import("./core.mjs").FaqGroup} FaqGroup */
 
@@ -26,9 +34,6 @@ const el = {
   loading: /** @type {HTMLElement} */ (document.getElementById("loading")),
   count: /** @type {HTMLElement} */ (document.getElementById("count")),
   reset: /** @type {HTMLButtonElement} */ (document.getElementById("reset")),
-  offline: /** @type {HTMLElement | null} */ (document.getElementById("offline")),
-  swUpdate: /** @type {HTMLElement | null} */ (document.getElementById("sw-update")),
-  swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
 };
 
 function render() {
@@ -236,29 +241,6 @@ function applyHashState() {
 
 /* ---------- Events ---------- */
 
-/**
- * @template {(...args: any[]) => any} F
- * @param {F} fn
- * @param {number} ms
- * @returns {((...args: Parameters<F>) => void) & { cancel: () => void }}
- */
-function debounce(fn, ms) {
-  /** @type {ReturnType<typeof setTimeout> | undefined} */
-  let t;
-  /** @type {((...args: Parameters<F>) => void) & { cancel?: () => void }} */
-  const wrapped = (...args) => {
-    if (t !== undefined) clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-  wrapped.cancel = () => {
-    if (t !== undefined) {
-      clearTimeout(t);
-      t = undefined;
-    }
-  };
-  return /** @type {((...args: Parameters<F>) => void) & { cancel: () => void }} */ (wrapped);
-}
-
 const onQueryInput = debounce((value) => {
   state.query = value;
   writeHashState();
@@ -283,89 +265,12 @@ function bindEvents() {
 
   window.addEventListener("hashchange", () => applyHashState());
 
-  // Ctrl+K (or Cmd+K) focuses search from anywhere; Esc inside the box clears
-  // an active query — same affordance as the vademecum page.
-  window.addEventListener("keydown", (e) => {
-    const ke = /** @type {KeyboardEvent} */ (e);
-    if ((ke.ctrlKey || ke.metaKey) && !ke.shiftKey && !ke.altKey && ke.key.toLowerCase() === "k") {
-      e.preventDefault();
-      el.q.focus();
-      el.q.select();
-      return;
-    }
-    if (ke.key === "Escape" && document.activeElement === el.q && state.query !== "") {
-      e.preventDefault();
-      doReset();
-    }
-  });
+  bindSearchShortcuts(el.q, { hasQuery: () => state.query !== "", reset: doReset });
 
-  // Online/offline indicator. navigator.onLine is unreliable (captive
-  // portals, SW serving cache), so we actively probe with a cache-busting
-  // HEAD on the tiny robots.txt: the SW only handles GET, so the probe always
-  // hits the real network and never lands in the runtime cache.
-  const PROBE_TIMEOUT_MS = 4000;
-  let probeSeq = 0;
-  const probeOnline = async () => {
-    if (!navigator.onLine) return false;
-    if (typeof AbortController !== "function") return true;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
-    try {
-      const r = await fetch(`./robots.txt?_=${Date.now()}`, {
-        method: "HEAD",
-        cache: "no-store",
-        signal: ctrl.signal,
-      });
-      return r.ok;
-    } catch {
-      return false;
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-  const updateOnlineState = async () => {
-    if (!el.offline) return;
-    if (!navigator.onLine) {
-      el.offline.hidden = false;
-      return;
-    }
-    const seq = ++probeSeq;
-    const online = await probeOnline();
-    if (seq !== probeSeq) return;
-    el.offline.hidden = online;
-  };
-  window.addEventListener("online", updateOnlineState);
-  window.addEventListener("offline", updateOnlineState);
-  updateOnlineState();
+  initOfflineIndicator();
 
-  // Sticky topbar condense on scroll — toggle a class on <html> so CSS
-  // decides what to shrink (same hook the vademecum uses).
-  const onScroll = () => {
-    document.documentElement.classList.toggle("is-scrolled", window.scrollY > 32);
-  };
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-
-  // Force-open every <details> at print time so judges can produce a complete
-  // paper copy, then restore the prior state.
-  /** @type {boolean[] | null} */
-  let printSnapshot = null;
-  window.addEventListener("beforeprint", () => {
-    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
-    printSnapshot = [...all].map((d) => d.open);
-    all.forEach((d) => {
-      d.open = true;
-    });
-  });
-  window.addEventListener("afterprint", () => {
-    if (!printSnapshot) return;
-    const snap = printSnapshot;
-    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
-    all.forEach((d, i) => {
-      if (snap[i] !== undefined) d.open = snap[i];
-    });
-    printSnapshot = null;
-  });
+  bindScrollCondense();
+  bindPrintExpand(el.list);
 }
 
 /** User-facing error message for the load step, split by failure mode so the
@@ -419,48 +324,4 @@ async function init() {
 
 init();
 
-/* ---------- Service worker update notification ----------
- * Mirrors app.js: surface a non-blocking toast when a new SW is waiting so
- * the judge can opt into the refresh instead of being yanked mid-lookup. */
-/** @param {ServiceWorkerRegistration | null | undefined} reg */
-function showSwUpdate(reg) {
-  if (!el.swUpdate || !el.swUpdateBtn || !reg || !reg.waiting) return;
-  el.swUpdate.hidden = false;
-  const waiting = reg.waiting;
-  el.swUpdateBtn.addEventListener(
-    "click",
-    () => {
-      waiting.postMessage({ type: "SKIP_WAITING" });
-    },
-    { once: true },
-  );
-}
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then((reg) => {
-        if (reg.waiting) showSwUpdate(reg);
-        reg.addEventListener("updatefound", () => {
-          const sw = reg.installing;
-          if (!sw) return;
-          sw.addEventListener("statechange", () => {
-            if (sw.state === "installed" && navigator.serviceWorker.controller) {
-              showSwUpdate(reg);
-            }
-          });
-        });
-      })
-      .catch((err) => {
-        console.warn("SW registration failed:", err);
-      });
-
-    let reloaded = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloaded) return;
-      reloaded = true;
-      location.reload();
-    });
-  });
-}
+registerServiceWorker();

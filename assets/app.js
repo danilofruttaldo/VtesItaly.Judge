@@ -20,6 +20,14 @@ import {
   renderRuleHtml,
   validateData,
 } from "./core.mjs";
+import {
+  bindPrintExpand,
+  bindScrollCondense,
+  bindSearchShortcuts,
+  debounce,
+  initOfflineIndicator,
+  registerServiceWorker,
+} from "./shell.mjs";
 
 /** @typedef {import("./core.mjs").VademecumEntry} VademecumEntry */
 
@@ -39,9 +47,6 @@ const el = {
   count: /** @type {HTMLElement} */ (document.getElementById("count")),
   reset: /** @type {HTMLButtonElement} */ (document.getElementById("reset")),
   updated: /** @type {HTMLElement | null} */ (document.getElementById("updated")),
-  offline: /** @type {HTMLElement | null} */ (document.getElementById("offline")),
-  swUpdate: /** @type {HTMLElement | null} */ (document.getElementById("sw-update")),
-  swUpdateBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("sw-update-btn")),
   ruleDialog: /** @type {HTMLDialogElement | null} */ (document.getElementById("rule-dialog")),
   ruleDialogTitle: /** @type {HTMLElement | null} */ (document.getElementById("rule-dialog-title")),
   ruleDialogBody: /** @type {HTMLElement | null} */ (document.getElementById("rule-dialog-body")),
@@ -325,29 +330,6 @@ function applyHashState() {
 
 /* ---------- Events ---------- */
 
-/**
- * @template {(...args: any[]) => any} F
- * @param {F} fn
- * @param {number} ms
- * @returns {((...args: Parameters<F>) => void) & { cancel: () => void }}
- */
-function debounce(fn, ms) {
-  /** @type {ReturnType<typeof setTimeout> | undefined} */
-  let t;
-  /** @type {((...args: Parameters<F>) => void) & { cancel?: () => void }} */
-  const wrapped = (...args) => {
-    if (t !== undefined) clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-  wrapped.cancel = () => {
-    if (t !== undefined) {
-      clearTimeout(t);
-      t = undefined;
-    }
-  };
-  return /** @type {((...args: Parameters<F>) => void) & { cancel: () => void }} */ (wrapped);
-}
-
 const onQueryInput = debounce((value) => {
   state.query = value;
   writeHashState();
@@ -375,65 +357,9 @@ function bindEvents() {
   // Listen to hash changes so external links / browser nav update state.
   window.addEventListener("hashchange", () => applyHashState());
 
-  // Global keyboard shortcut: Ctrl+K (or Cmd+K) focuses the search box from
-  // anywhere on the page so judges can jump to it without scrolling. Esc
-  // inside the search box clears any active query — matches the affordance
-  // hinted at in the placeholder.
-  window.addEventListener("keydown", (e) => {
-    const ke = /** @type {KeyboardEvent} */ (e);
-    if ((ke.ctrlKey || ke.metaKey) && !ke.shiftKey && !ke.altKey && ke.key.toLowerCase() === "k") {
-      e.preventDefault();
-      el.q.focus();
-      el.q.select();
-      return;
-    }
-    if (ke.key === "Escape" && document.activeElement === el.q && state.query !== "") {
-      e.preventDefault();
-      doReset();
-    }
-  });
+  bindSearchShortcuts(el.q, { hasQuery: () => state.query !== "", reset: doReset });
 
-  // Online/offline indicator. We surface offline as a subtle footer chip so
-  // judges know they're consulting cached data — relevant when a torneo's
-  // wifi drops mid-ruling. navigator.onLine is unreliable (captive portals,
-  // dead routers, SW serving cache while network is gone all report true),
-  // so we actively probe with a cache-busting HEAD on the tiny robots.txt:
-  // the SW only handles GET, so the probe always hits the real network and
-  // never lands in the runtime cache.
-  const PROBE_TIMEOUT_MS = 4000;
-  let probeSeq = 0;
-  const probeOnline = async () => {
-    if (!navigator.onLine) return false;
-    if (typeof AbortController !== "function") return true;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
-    try {
-      const r = await fetch(`./robots.txt?_=${Date.now()}`, {
-        method: "HEAD",
-        cache: "no-store",
-        signal: ctrl.signal,
-      });
-      return r.ok;
-    } catch {
-      return false;
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-  const updateOnlineState = async () => {
-    if (!el.offline) return;
-    if (!navigator.onLine) {
-      el.offline.hidden = false;
-      return;
-    }
-    const seq = ++probeSeq;
-    const online = await probeOnline();
-    if (seq !== probeSeq) return;
-    el.offline.hidden = online;
-  };
-  window.addEventListener("online", updateOnlineState);
-  window.addEventListener("offline", updateOnlineState);
-  updateOnlineState();
+  initOfflineIndicator();
 
   // Click on any [data-rule] (chip in the bottom row OR inline citation
   // inside prose) opens the local rule modal. Event delegation lets the
@@ -464,36 +390,8 @@ function bindEvents() {
     });
   }
 
-  // Sticky topbar condense on scroll. We toggle a class on <html> instead of
-  // listening per-frame so CSS can decide what to hide/shrink.
-  const onScroll = () => {
-    const scrolled = window.scrollY > 32;
-    document.documentElement.classList.toggle("is-scrolled", scrolled);
-  };
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-
-  // Force-open every <details> at print time so judges can produce a
-  // complete paper copy, then restore the prior state. Cheaper than
-  // rendering twice and survives both Ctrl+P and "Save as PDF".
-  /** @type {boolean[] | null} */
-  let printSnapshot = null;
-  window.addEventListener("beforeprint", () => {
-    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
-    printSnapshot = [...all].map((d) => d.open);
-    all.forEach((d) => {
-      d.open = true;
-    });
-  });
-  window.addEventListener("afterprint", () => {
-    if (!printSnapshot) return;
-    const snap = printSnapshot;
-    const all = /** @type {NodeListOf<HTMLDetailsElement>} */ (el.list.querySelectorAll("details"));
-    all.forEach((d, i) => {
-      if (snap[i] !== undefined) d.open = snap[i];
-    });
-    printSnapshot = null;
-  });
+  bindScrollCondense();
+  bindPrintExpand(el.list);
 }
 
 /* Local rule modal: pulls verbatim regulation text from the bundled
@@ -624,53 +522,4 @@ async function init() {
 
 init();
 
-/* ---------- Service worker update notification ----------
- * When the deploy stamps a new VERSION, the new SW reaches `installed` and
- * waits in the `waiting` slot. We surface a non-blocking toast so the judge
- * can opt into the refresh at a moment that doesn't disrupt a ruling
- * lookup, instead of forcing skipWaiting() server-side and yanking the page
- * mid-tap. */
-/** @param {ServiceWorkerRegistration | null | undefined} reg */
-function showSwUpdate(reg) {
-  if (!el.swUpdate || !el.swUpdateBtn || !reg || !reg.waiting) return;
-  el.swUpdate.hidden = false;
-  const waiting = reg.waiting;
-  el.swUpdateBtn.addEventListener(
-    "click",
-    () => {
-      waiting.postMessage({ type: "SKIP_WAITING" });
-    },
-    { once: true },
-  );
-}
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then((reg) => {
-        if (reg.waiting) showSwUpdate(reg);
-        reg.addEventListener("updatefound", () => {
-          const sw = reg.installing;
-          if (!sw) return;
-          sw.addEventListener("statechange", () => {
-            if (sw.state === "installed" && navigator.serviceWorker.controller) {
-              showSwUpdate(reg);
-            }
-          });
-        });
-      })
-      .catch((err) => {
-        console.warn("SW registration failed:", err);
-      });
-
-    // When the new SW takes control after SKIP_WAITING, reload once so the
-    // page is rebuilt with the fresh cache. Guard against reload loops.
-    let reloaded = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloaded) return;
-      reloaded = true;
-      location.reload();
-    });
-  });
-}
+registerServiceWorker();
