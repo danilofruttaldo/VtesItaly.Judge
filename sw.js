@@ -1,7 +1,9 @@
 /* VTES Italy Judge — service worker
  * Strategy:
  *   - HTML, app.js, styles.css: network-first, fallback to cache
- *     (so code updates reach users without needing a VERSION bump)
+ *     (so code updates reach users without needing a VERSION bump), fetched
+ *     with cache: "no-cache" so the browser HTTP cache (max-age=600 on Pages)
+ *     revalidates and a fresh app.js never runs against a stale core.mjs
  *   - Icons, manifest: cache-first (rarely change)
  *
  * VERSION is rewritten to a UTC timestamp by .github/workflows/deploy.yml on each
@@ -41,7 +43,12 @@ sw.addEventListener("install", (e) => {
   // Don't auto-skipWaiting: we want the page to keep running with the
   // current SW until the user opts in via the "update" toast. The page
   // posts {type:"SKIP_WAITING"} when the judge accepts.
-  e.waitUntil(caches.open(SHELL_CACHE).then((c) => c.addAll(SHELL_FILES).catch(() => {})));
+  // No catch: a failed precache must fail the install, so the browser retries
+  // on the next visit instead of activating a worker without the offline
+  // shell. cache: "reload" skips the HTTP cache for the same reason as no-cache.
+  e.waitUntil(
+    caches.open(SHELL_CACHE).then((c) => c.addAll(SHELL_FILES.map((u) => new Request(u, { cache: "reload" })))),
+  );
 });
 
 sw.addEventListener("message", (e) => {
@@ -76,7 +83,9 @@ const NETWORK_TIMEOUT_MS = 12000;
 function networkFirst(req, isHtml) {
   const ctrl = typeof AbortController === "function" ? new AbortController() : null;
   const timer = ctrl ? setTimeout(() => ctrl.abort(), NETWORK_TIMEOUT_MS) : null;
-  const opts = ctrl ? { signal: ctrl.signal } : undefined;
+  /** @type {RequestInit} */
+  const opts = { cache: "no-cache" };
+  if (ctrl) opts.signal = ctrl.signal;
 
   return fetch(req, opts)
     .then((resp) => {
