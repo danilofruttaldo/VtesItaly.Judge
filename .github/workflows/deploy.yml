@@ -12,21 +12,22 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  # Newer pushes supersede older in-flight runs. Pages rejects a deploy
-  # while another is in progress (HTTP 400), so without this we hit a
-  # 400 every time we push two commits in close succession.
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+# No workflow-level concurrency on purpose: a workflow-level group with
+# cancel-in-progress would also kill a deploy halfway through deploy-pages.
+# Each job declares its own group instead (see below).
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    concurrency:
+      # A newer commit on the same ref supersedes the in-flight check.
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
@@ -59,7 +60,7 @@ jobs:
           fi
 
       - name: Upload _site artifact (shared with lighthouse + deploy)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: _site
           path: _site
@@ -69,17 +70,20 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: lighthouse-${{ github.ref }}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download _site artifact from ci
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: _site
           path: _site
 
       - name: Run Lighthouse
-        uses: treosh/lighthouse-ci-action@v12
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # v12
         with:
           configPath: .lighthouserc.json
           uploadArtifacts: true
@@ -88,6 +92,12 @@ jobs:
     needs: [ci, lighthouse]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    concurrency:
+      # One deploy at a time and never cancelled: Pages rejects a deploy while
+      # another is in progress, and a killed deploy-pages leaves it half done.
+      # A newer run waits for this one to finish.
+      group: pages-deploy
+      cancel-in-progress: false
     permissions:
       contents: read
       pages: write
@@ -97,17 +107,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Download _site artifact from ci
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: _site
           path: _site
 
-      - uses: actions/configure-pages@v6
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

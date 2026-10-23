@@ -94,7 +94,7 @@ CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre 
 2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.7) come warning. Lighthouse esegue 3 run e prende il median per assorbire la varianza single-run (~±0.05).
 3. **deploy** — pubblica `_site/` su GitHub Pages (solo su push, non su PR)
 
-Concurrency `pages-${{ github.ref }}` è per-ref: i push su `main` confluiscono in un solo gruppo.
+Concurrency per job: `ci` e `lighthouse` annullano il run precedente sullo stesso ref, `deploy` (gruppo `pages-deploy`) non viene mai interrotto e quello più nuovo aspetta. Le Actions sono pinnate a SHA con la versione in commento: si aggiornano a mano.
 
 `audit.yml` esegue ogni lunedì `npm audit --audit-level=high` sull'intero albero: niente Dependabot, gli aggiornamenti si fanno a mano.
 
