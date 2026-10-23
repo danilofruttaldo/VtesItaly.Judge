@@ -2,7 +2,12 @@
   "ci": {
     "collect": {
       "staticDistDir": "./_site",
-      "url": ["http://localhost/index.html"],
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/faq.html",
+        "http://localhost/judges.html",
+        "http://localhost/utili.html"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",
