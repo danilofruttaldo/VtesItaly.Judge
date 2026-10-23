@@ -2,8 +2,8 @@ name: refresh-judges
 
 # Daily scrape of https://www.vekn.net/vekn-judges → data/judges.json.
 # Commits + pushes only if the parsed list differs from what's checked
-# in. The push triggers the standard CI workflow on `main`, which
-# redeploys judge.vtesitaly.com automatically. If vekn.net is down
+# in, then dispatches the CI workflow on `main`, which redeploys
+# judge.vtesitaly.com. If vekn.net is down
 # (network error / 5xx) the job passes with a warning annotation; if it
 # changed its markup or moved the page, scripts/fetch-judges.mjs exits
 # non-zero and the job fails. Neither touches the repo — the previous
@@ -32,9 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Need a writable token so the bot push back to main triggers
-          # the existing CI workflow. The default GITHUB_TOKEN is fine —
-          # it has contents:write per the permissions block above.
+          # Writable token for the bot push back to main: the default
+          # GITHUB_TOKEN has contents:write per the permissions block above.
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -53,12 +52,9 @@ jobs:
             exit 0
           fi
 
-          # Use the default github-actions[bot] identity. The repo's
-          # local pre-commit hook (.githooks/pre-commit) only runs when
-          # contributors set core.hooksPath locally — not in CI, where
-          # `git commit` ignores it. The full lint/test/typecheck
-          # pipeline still runs on the resulting push via the CI
-          # workflow dispatched below, so quality gates are preserved.
+          # Default github-actions[bot] identity. No local hooks run here:
+          # the full lint/test/typecheck pipeline runs in the CI workflow
+          # dispatched below, so quality gates are preserved.
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/judges.json
