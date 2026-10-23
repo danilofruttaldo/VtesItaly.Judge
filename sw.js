@@ -104,8 +104,13 @@ function networkFirst(req, isHtml) {
       return caches.match(req).then((cached) => {
         if (cached) return cached;
         if (isHtml) {
+          // An extensionless link (/faq, the old canonical) must land on its
+          // own page offline, not on the vademecum.
+          const path = new URL(req.url).pathname;
+          const page = /\/[^/.]+$/.test(path) ? `.${path}.html` : "./index.html";
           return caches
-            .match("./index.html")
+            .match(page)
+            .then((hit) => hit || caches.match("./index.html"))
             .then((shell) => shell || new Response("", { status: 504, statusText: "Offline" }));
         }
         return new Response("", { status: 504, statusText: "Offline" });
