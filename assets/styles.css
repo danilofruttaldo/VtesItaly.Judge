@@ -1445,21 +1445,23 @@ span.item-ref.item-ref-unknown {
 /* Rank → color: Elder/Ancilla/Neonate map to the existing severity
  * palette by descending intensity (DQ → game-loss → caution). This
  * isn't a sanction — re-using the palette just keeps the visual
- * language consistent across the three pages. */
+ * language consistent across the three pages. The text is pulled 30%
+ * toward --fg: the raw palette on its own 10% tint at 11px missed WCAG AA
+ * (Elder 3.4:1 on dark, Ancilla 4.3:1 on light). */
 .j-rank-badge[data-rank="elder-judge"] {
-  color: var(--s-dq);
+  color: color-mix(in srgb, var(--s-dq) 70%, var(--fg));
   border-color: color-mix(in srgb, var(--s-dq) 40%, transparent);
   background: color-mix(in srgb, var(--s-dq) 10%, transparent);
 }
 
 .j-rank-badge[data-rank="ancilla-judge"] {
-  color: var(--s-gameloss);
+  color: color-mix(in srgb, var(--s-gameloss) 70%, var(--fg));
   border-color: color-mix(in srgb, var(--s-gameloss) 40%, transparent);
   background: color-mix(in srgb, var(--s-gameloss) 10%, transparent);
 }
 
 .j-rank-badge[data-rank="neonate-judge"] {
-  color: var(--s-caution);
+  color: color-mix(in srgb, var(--s-caution) 70%, var(--fg));
   border-color: color-mix(in srgb, var(--s-caution) 40%, transparent);
   background: color-mix(in srgb, var(--s-caution) 10%, transparent);
 }
