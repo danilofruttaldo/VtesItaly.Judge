@@ -18,7 +18,8 @@ permissions:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    # Pinned instead of ubuntu-latest: the -latest label moves to a newer image without notice.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     concurrency:
       # A newer commit on the same ref supersedes the in-flight check.
@@ -72,7 +73,7 @@ jobs:
 
   lighthouse:
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     concurrency:
       group: lighthouse-${{ github.ref }}
@@ -94,7 +95,7 @@ jobs:
 
   deploy:
     needs: [ci, lighthouse]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     concurrency:
       # One deploy at a time and never cancelled: Pages rejects a deploy while
