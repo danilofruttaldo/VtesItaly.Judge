@@ -90,9 +90,9 @@ errore esplicito al posto del caricamento.
 CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job per ogni push su `main` (o avvio manuale); `lighthouse` e `deploy` partono in parallelo dopo `ci`:
 
 1. **ci** — `npm audit --audit-level=high`, lint, format check, typecheck (`strict: true` in `tsconfig.json` dal 2026-05-18), test (unit + DOM + schema + a11y),
-   stamp sw, stage in `_site/`, minify, budget 10MB
+   stamp sw, stage in `_site/`, minify, budget 10MB, upload di `_site/` come artifact di Pages (uno solo, condiviso dai due job seguenti)
 2. **lighthouse** — report, non gate di deploy: accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) fanno fallire il job; performance (≥ 0.7) è un warning. Un solo run per pagina (throttling `provided`, punteggi stabili). Le regressioni a11y le blocca prima axe-core in `ci`; a Lighthouse resta il contrasto colori (jsdom non lo valuta), da correggere con un commit successivo.
-3. **deploy** — dipende solo da `ci`; pubblica `_site/` su GitHub Pages
+3. **deploy** — dipende solo da `ci` e gira solo su `main`; pubblica su GitHub Pages l'artifact caricato da `ci`, senza riscaricarlo
 
 Concurrency per job: `ci` e `lighthouse` annullano il run precedente sullo stesso ref, `deploy` (gruppo `pages-deploy`) non viene mai interrotto e quello più nuovo aspetta. Le Actions sono pinnate a SHA con la versione in commento: si aggiornano a mano.
 
