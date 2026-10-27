@@ -87,12 +87,12 @@ errore esplicito al posto del caricamento.
 
 ## Build & deploy
 
-CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job in sequenza per ogni push su `main` (o avvio manuale):
+CI in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) esegue tre job per ogni push su `main` (o avvio manuale); `lighthouse` e `deploy` partono in parallelo dopo `ci`:
 
 1. **ci** — `npm audit --audit-level=high`, lint, format check, typecheck (`strict: true` in `tsconfig.json` dal 2026-05-18), test (unit + DOM + schema + a11y),
    stamp sw, stage in `_site/`, minify, budget 10MB
-2. **lighthouse** — gate accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) come errori bloccanti; performance (≥ 0.7) come warning. Lighthouse esegue 3 run e prende il median per assorbire la varianza single-run (~±0.05).
-3. **deploy** — pubblica `_site/` su GitHub Pages
+2. **lighthouse** — report, non gate di deploy: accessibilità (≥ 0.9), best-practices (≥ 0.9), SEO (≥ 0.9) fanno fallire il job; performance (≥ 0.7) è un warning. Un solo run per pagina (throttling `provided`, punteggi stabili). Le regressioni a11y le blocca prima axe-core in `ci`; a Lighthouse resta il contrasto colori (jsdom non lo valuta), da correggere con un commit successivo.
+3. **deploy** — dipende solo da `ci`; pubblica `_site/` su GitHub Pages
 
 Concurrency per job: `ci` e `lighthouse` annullano il run precedente sullo stesso ref, `deploy` (gruppo `pages-deploy`) non viene mai interrotto e quello più nuovo aspetta. Le Actions sono pinnate a SHA con la versione in commento: si aggiornano a mano.
 
@@ -118,7 +118,7 @@ Dominio: [judge.vtesitaly.com](https://judge.vtesitaly.com/) (CNAME).
 - `sw.js` + `manifest.webmanifest` — PWA. `NETWORK_TIMEOUT_MS = 12000` sulla strategia network-first: 12 s tollera qualche retransmit TCP su wifi torneo congestionato prima di fallback su cache, senza far percepire il sito "appeso" a tempo indefinito
 - `scripts/` — staging, stamp-sw, minify, test runner, `fetch-judges.mjs` (scraper vtesexams.com)
   - `stamp-updated.mjs` — scrive in `<time id="updated">` la data dell'ultimo commit di `data/vademecum.json` (chiamato da `stage-site.mjs`)
-- `.github/workflows/` — `deploy.yml` (ci → lighthouse → deploy), `refresh-judges.yml` (scrape giornaliero di `data/judges.json`), `audit.yml` (`npm audit` settimanale)
+- `.github/workflows/` — `deploy.yml` (ci, poi lighthouse e deploy in parallelo), `refresh-judges.yml` (scrape giornaliero di `data/judges.json`), `audit.yml` (`npm audit` settimanale)
 - `tests/`
   - `core.test.mjs` — moduli puri in `assets/core.mjs` (norm, escapeHtml, matchSearch, parseReference, parseSanction, highlightHtml — coperti edge case su match overlap, query lunghe e accent-folding multi-parola)
   - `data.test.mjs` — gate schema su `data/vademecum.json`, `data/judges.json` e `data/faq.json` (validità, unicità coppie e slug)
