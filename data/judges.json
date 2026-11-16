@@ -1,7 +1,7 @@
 {
   "source": "https://www.vtesexams.com/",
   "country": "Italy",
-  "generated_at": "2026-05-18T08:21:11Z",
+  "generated_at": "2026-11-16T18:31:15Z",
   "judges": [
     {
       "name": "Diego Di Nicolantonio",
@@ -30,6 +30,13 @@
       "rank": "Ancilla Judge",
       "valid_from": "2025-09-04",
       "valid_to": "2028-09-04"
+    },
+    {
+      "name": "Luca Manfredini",
+      "vekn_id": "8190009",
+      "rank": "Ancilla Judge",
+      "valid_from": "2026-11-16",
+      "valid_to": "2029-11-16"
     },
     {
       "name": "Simone Zanni",
